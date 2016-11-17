@@ -28,7 +28,13 @@ function Iterator(friends, filter) {
         });
     }
 
-    function getLevels(friendsMap) {
+    function getLevels() {
+        var friendsMap = friends.reduce(function (acc, person) {
+            acc[person.name] = person;
+
+            return acc;
+        }, {});
+
         var bestFriends = friends.filter(function (friend) {
             return friend.best;
         });
@@ -52,13 +58,7 @@ function Iterator(friends, filter) {
         });
     }
 
-    var map = friends.reduce(function (acc, person) {
-        acc[person.name] = person;
-
-        return acc;
-    }, {});
-
-    this._levels = getLevels(map);
+    this._levels = getLevels();
     this._currentLevel = 0;
     this._currentFriend = 0;
 
