@@ -37,14 +37,14 @@ function getFriendsWithLevels(friends) {
         currentLevelIndex++;
         currentLevel = getNextLevel(friends, result, nextLevelNames.filter(onlyUnique));
     }
-    result = result.concat(friends.filter(function (friend) {
-        return !isFriendInArrayWithLevels(result, friend);
-    }).map(function (friend) {
-        return {
-            'friend': friend,
-            'level': Infinity
-        };
-    }));
+    // result = result.concat(friends.filter(function (friend) {
+    //     return !isFriendInArrayWithLevels(result, friend);
+    // }).map(function (friend) {
+    //     return {
+    //         'friend': friend,
+    //         'level': Infinity
+    //     };
+    // }));
 
     return result;
 }
@@ -57,15 +57,7 @@ function FriendComparer(friendWithLevel, otherFriendWithLevel) {
         return -1;
     }
 
-    if (friendWithLevel.friend.name > otherFriendWithLevel.friend.name) {
-        return 1;
-    }
-
-    if (friendWithLevel.friend.name < otherFriendWithLevel.friend.name) {
-        return -1;
-    }
-
-    return 0;
+    return friendWithLevel.friend.name > otherFriendWithLevel.friend.name ? 1 : -1;
 }
 
 /**
