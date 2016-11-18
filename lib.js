@@ -54,19 +54,17 @@ function Iterator(friends, filter) {
         });
     }
 
-    this._levels = getLevels();
-    this._currentLevel = 0;
-    this._currentFriend = 0;
+    this._skipEmptyLevels = function () {
+        while (!this.done() && this._levels[this._currentLevel].length === 0) {
+            this._currentLevel++;
+        }
+    };
 
     this.done = function () {
         return this._currentLevel === this._levels.length;
     };
 
     this.next = function () {
-        while (!this.done() && this._levels[this._currentLevel].length === 0) {
-            this._currentLevel++;
-        }
-
         if (!this.done()) {
             var friend = this._levels[this._currentLevel][this._currentFriend];
             var length = this._levels[this._currentLevel].length;
@@ -74,11 +72,19 @@ function Iterator(friends, filter) {
             this._currentLevel += Math.floor(this._currentFriend / length);
             this._currentFriend %= length;
 
+            this._skipEmptyLevels();
+
             return friend;
         }
 
         return null;
     };
+
+    this._levels = getLevels();
+    this._currentLevel = 0;
+    this._currentFriend = 0;
+
+    this._skipEmptyLevels();
 }
 
 /**
