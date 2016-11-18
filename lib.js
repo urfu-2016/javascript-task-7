@@ -20,19 +20,21 @@ function splitToLevels(friends, filter) {
 
             return friend;
         });
+
     var person;
-    var filterFunc = function (friend) {
+    function isAppropriate(friend) {
         return person.friends.indexOf(friend.name) !== -1 && !visited[friend.name];
-    };
-    var loopFunc = function (friend) {
-        visited[friend.name] = true;
-        friend.level = person.level + 1;
-        queue.push(friend);
-    };
+    }
     while (queue.length) {
         person = queue.shift();
 
-        friends.filter(filterFunc).forEach(loopFunc);
+        var personFriends = friends.filter(isAppropriate);
+        for (var i = 0; i < personFriends.length; i++) {
+            var personFriend = personFriends[i];
+            visited[personFriend.name] = true;
+            personFriend.level = person.level + 1;
+            queue.push(personFriend);
+        }
     }
 
     return friends.slice().sort(byLevelThenByName)
@@ -45,7 +47,7 @@ function splitToLevels(friends, filter) {
         .reverse();
 }
 
-function checkFilter(filter) {
+function checkIsFilter(filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('`filter` must be an instance of Filter');
     }
@@ -59,7 +61,7 @@ function checkFilter(filter) {
  */
 function Iterator(friends) {
     var filters = [].slice.call(arguments, 1);
-    filters.forEach(checkFilter);
+    filters.forEach(checkIsFilter);
     this.friends = splitToLevels(friends, new CompositeFilter(filters));
 }
 
