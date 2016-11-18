@@ -20,7 +20,7 @@ function onlyUnique(value, index, self) {
 function getFriendsWithLevels(friends) {
     var result = [];
     var currentLevel = friends.filter(function (friend) {
-        return friend.best;
+        return friend.best || false;
     });
     var currentLevelIndex = 1;
 
