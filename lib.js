@@ -11,14 +11,16 @@ function Iterator(friends, filter) {
         throw new TypeError();
     }
 
-    function getFriends(friendsMap, currentLevelFriends, visited) {
+    var friendsMap = {};
+    var visited = {};
+
+    function getFriends(currentLevelFriends) {
         var nextLevelFriends = [];
         currentLevelFriends.forEach(function (friend) {
             friend.friends.forEach(function (personsFriend) {
-                var friendObject = friendsMap[personsFriend];
                 if (!visited[personsFriend]) {
                     visited[personsFriend] = true;
-                    nextLevelFriends.push(friendObject);
+                    nextLevelFriends.push(friendsMap[personsFriend]);
                 }
             });
         });
@@ -27,12 +29,9 @@ function Iterator(friends, filter) {
     }
 
     function getLevels() {
-        var friendsMap = {};
-        var visited = {};
-
-        friends.forEach(function (person) {
-            friendsMap[person.name] = person;
-            visited[person.name] = person.best;
+        friends.forEach(function (friend) {
+            friendsMap[friend.name] = friend;
+            visited[friend.name] = friend.best;
         });
 
         var bestFriends = friends.filter(function (friend) {
@@ -40,8 +39,7 @@ function Iterator(friends, filter) {
         });
 
         var levels = [];
-        for (var level = bestFriends; level.length !== 0;
-            level = getFriends(friendsMap, level, visited)) {
+        for (var level = bestFriends; level.length !== 0; level = getFriends(level)) {
             levels.push(level);
         }
 
