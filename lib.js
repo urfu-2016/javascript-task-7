@@ -37,14 +37,6 @@ function getFriendsWithLevels(friends) {
         currentLevelIndex++;
         currentLevel = getNextLevel(friends, result, nextLevelNames.filter(onlyUnique));
     }
-    // result = result.concat(friends.filter(function (friend) {
-    //     return !isFriendInArrayWithLevels(result, friend);
-    // }).map(function (friend) {
-    //     return {
-    //         'friend': friend,
-    //         'level': Infinity
-    //     };
-    // }));
 
     return result;
 }
