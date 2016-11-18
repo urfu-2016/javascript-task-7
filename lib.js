@@ -23,9 +23,7 @@ function Iterator(friends, filter) {
             });
         });
 
-        return nextLevelFriends.sort(function (a, b) {
-            return a.name > b.name ? 1 : -1;
-        });
+        return nextLevelFriends;
     }
 
     function getLevels() {
@@ -48,9 +46,13 @@ function Iterator(friends, filter) {
         }
 
         return levels.map(function (lvl) {
-            return lvl.filter(function (person) {
-                return filter.filter(person);
-            });
+            return lvl
+                .filter(function (person) {
+                    return filter.filter(person);
+                })
+                .sort(function (a, b) {
+                    return a.name > b.name ? 1 : -1;
+                });
         });
     }
 
