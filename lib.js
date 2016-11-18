@@ -10,9 +10,11 @@ function getNextLevel(friends, currentResult, names) {
     return friends.filter(function (friend) {
         return names.indexOf(friend.name) !== -1 &&
             !isFriendInArrayWithLevels(currentResult, friend);
-    }).filter(function onlyUnique(friend, index, self) {
-        return self.indexOf(friend) === index;
     });
+}
+
+function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
 }
 
 function getFriendsWithLevels(friends) {
@@ -33,7 +35,7 @@ function getFriendsWithLevels(friends) {
             nextLevelNames = nextLevelNames.concat(currentLevel[i].friends);
         }
         currentLevelIndex++;
-        currentLevel = getNextLevel(friends, result, nextLevelNames);
+        currentLevel = getNextLevel(friends, result, nextLevelNames.filter(onlyUnique));
     }
     result = result.concat(friends.filter(function (friend) {
         return !isFriendInArrayWithLevels(result, friend);
@@ -59,7 +61,11 @@ function FriendComparer(friendWithLevel, otherFriendWithLevel) {
         return 1;
     }
 
-    return -1;
+    if (friendWithLevel.friend.name < otherFriendWithLevel.friend.name) {
+        return -1;
+    }
+
+    return 0;
 }
 
 /**
