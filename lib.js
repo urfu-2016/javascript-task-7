@@ -29,21 +29,17 @@ function Iterator(friends, filter) {
     }
 
     function getLevels() {
-        var friendsMap = friends.reduce(function (acc, person) {
-            acc[person.name] = person;
+        var friendsMap = {};
+        var visited = {};
 
-            return acc;
-        }, {});
+        friends.forEach(function (person) {
+            friendsMap[person.name] = person;
+            visited[person.name] = person.best;
+        });
 
         var bestFriends = friends.filter(function (friend) {
             return friend.best;
         });
-
-        var visited = friends.reduce(function (acc, person) {
-            acc[person.name] = person.best;
-
-            return acc;
-        }, {});
 
         var levels = [];
         for (var level = bestFriends; level.length !== 0;
@@ -51,12 +47,11 @@ function Iterator(friends, filter) {
             levels.push(level);
         }
 
-        return levels
-            .map(function (lvl) {
-                return lvl.filter(function (person) {
-                    return filter.filter(person);
-                });
+        return levels.map(function (lvl) {
+            return lvl.filter(function (person) {
+                return filter.filter(person);
             });
+        });
     }
 
     this._levels = getLevels();
@@ -68,11 +63,7 @@ function Iterator(friends, filter) {
     };
 
     this.next = function () {
-        if (this.done()) {
-            return null;
-        }
-
-        if (this._levels[this._currentLevel].length === 0) {
+        while (!this.done() && this._levels[this._currentLevel].length === 0) {
             this._currentLevel++;
         }
 
