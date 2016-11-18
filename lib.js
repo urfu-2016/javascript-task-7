@@ -15,35 +15,34 @@ function getFriendsIterable(friends) {
     var friendsWithLevel = friends.map(function (friend) {
         return {
             friend: friend,
-            level: 0
+            level: friend.best ? 1 : 0
         };
     });
     var currentCollection = friendsWithLevel.filter(function (friendWithLevel) {
-        return friendWithLevel.friend.best;
+        return friendWithLevel.friend.best || false;
     });
-    var names = friends.map(function (friend) {
-        return friend.name;
-    });
+    var nameToFriend = {};
+    for (var i = 0; i < friends.length; i++) {
+        nameToFriend[friends[i].name] = friendsWithLevel[i];
+    }
     var result = [];
-    var currentLevel = 1;
 
     while (currentCollection.length > 0) {
-        for (var i = 0; i < currentCollection.length; i++) {
-            result.push(currentCollection[i]);
-            currentCollection[i].level = currentLevel;
-        }
+        result = result.concat(currentCollection);
 
         currentCollection = currentCollection.reduce(function (nextLevelFriends, friendWithLevel) {
+            var nextLevel = friendWithLevel.level + 1;
             friendWithLevel.friend.friends.forEach(function (friendName) {
-                var friendsFriend = friendsWithLevel[names.indexOf(friendName)];
+                var friendsFriend = nameToFriend[friendName];
+
                 if (!friendsFriend.level) {
+                    friendsFriend.level = nextLevel;
                     nextLevelFriends.push(friendsFriend);
                 }
             });
 
             return nextLevelFriends;
         }, []);
-        currentLevel++;
     }
 
     return result;
