@@ -10,7 +10,7 @@ function getNextLevel(friends, currentResult, names) {
     return friends.filter(function (friend) {
         return names.indexOf(friend.name) !== -1 &&
             !isFriendInArrayWithLevels(currentResult, friend);
-    }).filter(function onlyUnique(friend, index, self) { 
+    }).filter(function onlyUnique(friend, index, self) {
         return self.indexOf(friend) === index;
     });
 }
