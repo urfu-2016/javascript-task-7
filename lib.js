@@ -20,7 +20,7 @@ function onlyUnique(value, index, self) {
 function getFriendsWithLevels(friends) {
     var result = [];
     var currentLevel = friends.filter(function (friend) {
-        return friend.best || false;
+        return friend.best;
     });
     var currentLevelIndex = 1;
 
@@ -75,7 +75,7 @@ function FriendComparer(friendWithLevel, otherFriendWithLevel) {
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    if (!Filter.prototype.isPrototypeOf(filter)) {
+    if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
     this.friendsWithLevels = getFriendsWithLevels(friends).filter(function (friendWithLevel) {
@@ -86,7 +86,7 @@ function Iterator(friends, filter) {
 }
 
 Iterator.prototype.next = function () {
-    if (this.currentIndex === this.friendsWithLevels.length) {
+    if (this.done()) {
         return null;
     }
 
