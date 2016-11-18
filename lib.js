@@ -56,6 +56,9 @@ function Iterator(friends, filter) {
                 return lvl.filter(function (person) {
                     return filter.filter(person);
                 });
+            })
+            .filter(function (lvl) {
+                return lvl.length !== 0;
             });
     }
 
@@ -68,14 +71,6 @@ function Iterator(friends, filter) {
     };
 
     this.next = function () {
-        if (this.done()) {
-            return null;
-        }
-
-        if (this._levels[this._currentLevel].length === 0) {
-            this._currentLevel++;
-        }
-
         if (!this.done()) {
             var friend = this._levels[this._currentLevel][this._currentFriend];
             var length = this._levels[this._currentLevel].length;
