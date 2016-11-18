@@ -32,21 +32,27 @@ function splitToLevels(friends, filter) {
     while (queue.length) {
         person = queue.shift();
 
-        friends
-            .filter(filterFunc)
-            .forEach(loopFunc);
+        friends.filter(filterFunc).forEach(loopFunc);
     }
 
     return friends.slice().sort(byLevelThenByName)
-        .filter(function (friend) {
-            return filter.apply(friend);
-        })
+        .filter(filter)
         .map(function (friend) {
             delete friend.level;
 
             return friend;
         })
         .reverse();
+}
+
+function checkFilter(filter) {
+    return filter instanceof Filter;
+}
+
+function checkFilters(filters) {
+    if (!filters.every(checkFilter)) {
+        throw new TypeError('Each `filter` must be an instance of Filter');
+    }
 }
 
 /**
@@ -57,11 +63,7 @@ function splitToLevels(friends, filter) {
  */
 function Iterator(friends) {
     var filters = [].slice.call(arguments, 1);
-    if (!filters.every(function (filter) {
-        return filter instanceof Filter;
-    })) {
-        throw new TypeError('Each `filter` must be an instance of Filter');
-    }
+    checkFilters(filters);
     this.friends = splitToLevels(friends, new CompositeFilter(filters));
 }
 
@@ -93,25 +95,38 @@ LimitedIterator.prototype.constructor = LimitedIterator;
  * @constructor
  */
 function Filter() {
-    this.apply = function () {
+    function apply() {
         return true;
-    };
+    }
+    Object.setPrototypeOf(apply, Filter.prototype);
+
+    return apply;
 }
+
+Filter.prototype = Object.create(Function.prototype);
+Filter.prototype.constructor = Filter;
 
 function CompositeFilter(filters) {
-    this.filters = filters;
+    function apply(person) {
+        return filters.every(function (filter) {
+            return filter(person);
+        });
+    }
+    Object.setPrototypeOf(apply, CompositeFilter.prototype);
+
+    return apply;
 }
 
-CompositeFilter.prototype.apply = function (person) {
-    return this.filters.every(function (filter) {
-        return filter.apply(person);
-    });
-};
+CompositeFilter.prototype = Object.create(Filter.prototype);
+CompositeFilter.prototype.constructor = CompositeFilter;
 
 function LevelFilter(maxLevel) {
-    this.apply = function (person) {
+    function apply(person) {
         return person.level < maxLevel;
-    };
+    }
+    Object.setPrototypeOf(apply, LevelFilter.prototype);
+
+    return apply;
 }
 
 LevelFilter.prototype = Object.create(Filter.prototype);
@@ -123,9 +138,12 @@ LevelFilter.prototype.constructor = LevelFilter;
  * @constructor
  */
 function MaleFilter() {
-    this.apply = function (person) {
+    function apply(person) {
         return person.gender === 'male';
-    };
+    }
+    Object.setPrototypeOf(apply, MaleFilter.prototype);
+
+    return apply;
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
@@ -137,9 +155,12 @@ MaleFilter.prototype.constructor = MaleFilter;
  * @constructor
  */
 function FemaleFilter() {
-    this.apply = function (person) {
+    function apply(person) {
         return person.gender === 'female';
-    };
+    }
+    Object.setPrototypeOf(apply, FemaleFilter.prototype);
+
+    return apply;
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
