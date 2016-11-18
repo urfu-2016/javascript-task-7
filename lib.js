@@ -51,11 +51,12 @@ function Iterator(friends, filter) {
             levels.push(level);
         }
 
-        return levels.map(function (lvl) {
-            return lvl.filter(function (person) {
-                return filter.filter(person);
+        return levels
+            .map(function (lvl) {
+                return lvl.filter(function (person) {
+                    return filter.filter(person);
+                });
             });
-        });
     }
 
     this._levels = getLevels();
@@ -67,6 +68,14 @@ function Iterator(friends, filter) {
     };
 
     this.next = function () {
+        if (this.done()) {
+            return null;
+        }
+
+        if (this._levels[this._currentLevel].length === 0) {
+            this._currentLevel++;
+        }
+
         if (!this.done()) {
             var friend = this._levels[this._currentLevel][this._currentFriend];
             var length = this._levels[this._currentLevel].length;
