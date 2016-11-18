@@ -11,6 +11,23 @@ function compareFriends(one, another) {
     return one.friend.name > another.friend.name ? 1 : -1;
 }
 
+function getNextLevelFriends(friendsWithLevel, nameToFriend) {
+    return friendsWithLevel.reduce(function (nextLevelFriends, friendWithLevel) {
+        var nextLevel = friendWithLevel.level + 1;
+
+        friendWithLevel.friend.friends.forEach(function (friendName) {
+            var friendsFriend = nameToFriend[friendName];
+
+            if (!friendsFriend.level) {
+                friendsFriend.level = nextLevel;
+                nextLevelFriends.push(friendsFriend);
+            }
+        });
+
+        return nextLevelFriends;
+    }, []);
+}
+
 function getFriendsIterable(friends) {
     var friendsWithLevel = friends.map(function (friend) {
         return {
@@ -21,28 +38,16 @@ function getFriendsIterable(friends) {
     var currentCollection = friendsWithLevel.filter(function (friendWithLevel) {
         return friendWithLevel.friend.best || false;
     });
-    var nameToFriend = {};
-    for (var i = 0; i < friends.length; i++) {
-        nameToFriend[friends[i].name] = friendsWithLevel[i];
-    }
+    var nameToFriend = friendsWithLevel.reduce(function (result, friendWithLevel) {
+        result[friendWithLevel.friend.name] = friendWithLevel;
+
+        return result;
+    }, {});
     var result = [];
 
     while (currentCollection.length > 0) {
         result = result.concat(currentCollection);
-
-        currentCollection = currentCollection.reduce(function (nextLevelFriends, friendWithLevel) {
-            var nextLevel = friendWithLevel.level + 1;
-            friendWithLevel.friend.friends.forEach(function (friendName) {
-                var friendsFriend = nameToFriend[friendName];
-
-                if (!friendsFriend.level) {
-                    friendsFriend.level = nextLevel;
-                    nextLevelFriends.push(friendsFriend);
-                }
-            });
-
-            return nextLevelFriends;
-        }, []);
+        currentCollection = getNextLevelFriends(currentCollection, nameToFriend);
     }
 
     return result;
