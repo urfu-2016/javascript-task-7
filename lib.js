@@ -4,6 +4,11 @@ function byLevelThenByName(a, b) {
     return (a.level - b.level) * 10 + (a.name < b.name ? -1 : Number(a.name > b.name));
 }
 
+function changePrototype(clazz, proto) {
+    clazz.prototype = Object.create(proto);
+    clazz.prototype.constructor = clazz;
+}
+
 function getAppropriateFriends(friends, filter) {
     var visited = {};
     var queue = friends
@@ -17,14 +22,14 @@ function getAppropriateFriends(friends, filter) {
             return friend;
         });
 
-    var person;
     function isAppropriate(friend) {
-        return person.friends.indexOf(friend.name) !== -1 && !visited[friend.name];
+        return this.friends.indexOf(friend.name) !== -1 && // eslint-disable-line no-invalid-this
+            !visited[friend.name];
     }
     while (queue.length) {
-        person = queue.shift();
+        var person = queue.shift();
 
-        var personFriends = friends.filter(isAppropriate);
+        var personFriends = friends.filter(isAppropriate, person);
         for (var i = 0; i < personFriends.length; i++) {
             var personFriend = personFriends[i];
             visited[personFriend.name] = true;
@@ -38,7 +43,7 @@ function getAppropriateFriends(friends, filter) {
             return friend.hasOwnProperty('level');
         })
         .sort(byLevelThenByName)
-        .filter(filter.apply.bind(filter))
+        .filter(filter.apply, filter)
         .map(function (friend) {
             delete friend.level;
 
@@ -85,8 +90,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter, new LevelFilter(maxLevel));
 }
 
-LimitedIterator.prototype = Object.create(Iterator.prototype);
-LimitedIterator.prototype.constructor = LimitedIterator;
+changePrototype(LimitedIterator, Iterator.prototype);
 
 /**
  * Фильтр друзей
@@ -114,8 +118,7 @@ function LevelFilter(maxLevel) {
     };
 }
 
-LevelFilter.prototype = Object.create(Filter.prototype);
-LevelFilter.prototype.constructor = LevelFilter;
+changePrototype(LevelFilter, Filter.prototype);
 
 /**
  * Фильтр друзей
@@ -128,8 +131,7 @@ function MaleFilter() {
     };
 }
 
-MaleFilter.prototype = Object.create(Filter.prototype);
-MaleFilter.prototype.constructor = MaleFilter;
+changePrototype(MaleFilter, Filter.prototype);
 
 /**
  * Фильтр друзей-девушек
@@ -142,8 +144,7 @@ function FemaleFilter() {
     };
 }
 
-FemaleFilter.prototype = Object.create(Filter.prototype);
-FemaleFilter.prototype.constructor = FemaleFilter;
+changePrototype(FemaleFilter, Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
