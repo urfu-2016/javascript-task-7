@@ -29,7 +29,7 @@ function Iterator(friends, filter) {
     }
 
     this._getLevels = function (limitLevels, maxLevel) {
-        maxLevel = maxLevel > 0  ? maxLevel : 0;
+        maxLevel = maxLevel > 0 ? maxLevel : 0;
 
         friends.forEach(function (friend) {
             friendsMap[friend.name] = friend;
