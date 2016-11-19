@@ -61,7 +61,7 @@ function Iterator(friends, filter) {
     };
 
     this.done = function () {
-        return this._currentLevel === this._levels.length;
+        return this._currentLevel >= this._levels.length;
     };
 
     this.next = function () {
