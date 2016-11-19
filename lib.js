@@ -9,26 +9,25 @@ function changePrototype(clazz, proto) {
     clazz.prototype.constructor = clazz;
 }
 
-function getAppropriateFriends(friends, filter) {
-    var visited = {};
-    var queue = friends
-        .filter(function (friend) {
-            return friend.best;
-        })
-        .map(function (friend) {
-            friend.level = 0;
-            visited[friend.name] = true;
+function defineProperty(object, propertyName, value) {
+    object[propertyName] = value;
 
-            return friend;
-        });
+    return object;
+}
+
+function getAppropriateFriends(friends, filter) {
+    var visited = friends.reduce(function (result, friend) {
+        return defineProperty(result, friend.name, friend.best);
+    }, {});
+    var queue = friends.filter(function (friend) {
+        return friend.best && defineProperty(friend, 'level', 0);
+    });
 
     function isAppropriate(friend) {
         return this.friends.indexOf(friend.name) !== -1 && // eslint-disable-line no-invalid-this
             !visited[friend.name];
     }
-    while (queue.length) {
-        var person = queue.shift();
-
+    for (var person = queue.shift(); person; person = queue.shift()) {
         var personFriends = friends.filter(isAppropriate, person);
         for (var i = 0; i < personFriends.length; i++) {
             var personFriend = personFriends[i];
