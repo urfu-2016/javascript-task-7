@@ -43,7 +43,7 @@ function Iterator(friends, filter) {
             levels.push(level);
         }
 
-        if (maxLevel !== undefined && levels.length > maxLevel) {
+        if (maxLevel >= 0 && levels.length > maxLevel) {
             levels.length = maxLevel;
         }
 
