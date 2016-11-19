@@ -38,8 +38,11 @@ function getAppropriateFriends(friends, filter) {
     }
 
     return friends
-        .filter(filter.apply, filter)
+        .filter(function (friend) {
+            return friend.hasOwnProperty('level');
+        })
         .sort(byLevelThenByNameDescending)
+        .filter(filter.apply, filter)
         .map(function (friend) {
             return delete friend.level && friend;
         });
