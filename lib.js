@@ -38,9 +38,7 @@ function getAppropriateFriends(friends, filter) {
     }
 
     return friends
-        .filter(function (friend) {
-            return friend.hasOwnProperty('level') && filter.apply(friend);
-        })
+        .filter(filter.apply, filter)
         .sort(byLevelThenByNameDescending)
         .map(function (friend) {
             return delete friend.level && friend;
@@ -62,6 +60,7 @@ function checkIsFilter(filter) {
 function Iterator(friends) {
     var filters = [].slice.call(arguments, 1);
     filters.forEach(checkIsFilter);
+    filters.push(new LevelFilter(Infinity));
     this.friends = getAppropriateFriends(friends, new CompositeFilter(filters));
 }
 
