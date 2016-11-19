@@ -1,7 +1,7 @@
 'use strict';
 
-function byLevelThenByName(a, b) {
-    return (a.level - b.level) * 10 + (a.name < b.name ? -1 : Number(a.name > b.name));
+function byLevelThenByNameDescending(a, b) {
+    return (b.level - a.level) * 10 + (b.name < a.name ? -1 : Number(b.name > a.name));
 }
 
 function changePrototype(clazz, proto) {
@@ -42,14 +42,13 @@ function getAppropriateFriends(friends, filter) {
         .filter(function (friend) {
             return friend.hasOwnProperty('level');
         })
-        .sort(byLevelThenByName)
+        .sort(byLevelThenByNameDescending)
         .filter(filter.apply, filter)
         .map(function (friend) {
             delete friend.level;
 
             return friend;
-        })
-        .reverse();
+        });
 }
 
 function checkIsFilter(filter) {
