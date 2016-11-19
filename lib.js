@@ -1,14 +1,10 @@
 'use strict';
 
-function alphabetically(a, b) {
-    return a.name < b.name ? -1 : Number(a.name > b.name);
-}
-
 function byLevelThenByName(a, b) {
-    return (a.level - b.level) * 10 + alphabetically(a, b);
+    return (a.level - b.level) * 10 + (a.name < b.name ? -1 : Number(a.name > b.name));
 }
 
-function splitToLevels(friends, filter) {
+function getAppropriateFriends(friends, filter) {
     var visited = {};
     var queue = friends
         .filter(function (friend) {
@@ -37,7 +33,11 @@ function splitToLevels(friends, filter) {
         }
     }
 
-    return friends.slice().sort(byLevelThenByName)
+    return friends
+        .filter(function (friend) {
+            return friend.hasOwnProperty('level');
+        })
+        .sort(byLevelThenByName)
         .filter(filter.apply.bind(filter))
         .map(function (friend) {
             delete friend.level;
@@ -62,7 +62,7 @@ function checkIsFilter(filter) {
 function Iterator(friends) {
     var filters = [].slice.call(arguments, 1);
     filters.forEach(checkIsFilter);
-    this.friends = splitToLevels(friends, new CompositeFilter(filters));
+    this.friends = getAppropriateFriends(friends, new CompositeFilter(filters));
 }
 
 Iterator.prototype.next = function () {
