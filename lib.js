@@ -39,10 +39,9 @@ function getAppropriateFriends(friends, filter) {
 
     return friends
         .filter(function (friend) {
-            return friend.hasOwnProperty('level');
+            return friend.hasOwnProperty('level') && filter.apply(friend);
         })
         .sort(byLevelThenByNameDescending)
-        .filter(filter.apply, filter)
         .map(function (friend) {
             return delete friend.level && friend;
         });
@@ -58,7 +57,7 @@ function checkIsFilter(filter) {
  * Итератор по друзьям
  * @constructor
  * @param {Object[]} friends
- * @param {Filter} filter
+ * @param {...Filter} filters
  */
 function Iterator(friends) {
     var filters = [].slice.call(arguments, 1);
