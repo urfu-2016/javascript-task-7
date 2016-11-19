@@ -38,10 +38,10 @@ function getAppropriateFriends(friends, filter) {
     }
 
     return friends
-        .sort(byLevelThenByNameDescending)
         .filter(filter.apply, filter)
+        .sort(byLevelThenByNameDescending)
         .map(function (friend) {
-            return 'level' in friend && delete friend.level && friend;
+            return delete friend.level && friend;
         });
 }
 
@@ -106,7 +106,7 @@ CompositeFilter.prototype.apply = function (person) {
 
 function LevelFilter(maxLevel) {
     this.apply = function (person) {
-        return person.level < maxLevel;
+        return person.hasOwnProperty('level') && person.level < maxLevel;
     };
 }
 changePrototype(LevelFilter, Filter.prototype);
