@@ -9,42 +9,46 @@ function compareFriends(one, another) {
 }
 
 function getFriendsWithLevels(friends) {
-    var friendsWithLevel = friends.map(function (friend) {
-        return {
+    var friendsWithLevel = [];
+    var currentLevelFriends = [];
+    var nameToFriend = {};
+    var nextLevelFriends = [];
+    var currentLevel = 2;
+
+    friends.forEach(function (friend) {
+        var friendWithLevel = {
             friend: friend,
             level: friend.best ? 1 : 0
         };
+
+        if (friend.best) {
+            currentLevelFriends.push(friendWithLevel);
+        }
+        friendsWithLevel.push(friendWithLevel);
+        nameToFriend[friend.name] = friendWithLevel;
     });
-    var currentLevelFriends = friendsWithLevel.filter(function (friendWithLevel) {
-        return friendWithLevel.friend.best || false;
-    });
-    var nameToFriend = friendsWithLevel.reduce(function (result, friendWithLevel) {
-        result[friendWithLevel.friend.name] = friendWithLevel;
 
-        return result;
-    }, {});
+    var addNextLevelFriend = function (friendName) {
+        var friendsFriend = nameToFriend[friendName];
 
-    while (currentLevelFriends.length > 0) {
-        currentLevelFriends = currentLevelFriends.reduce(
-            function (nextLevelFriends, friendWithLevel) {
-                var nextLevel = friendWithLevel.level + 1;
+        if (!friendsFriend.level) {
+            friendsFriend.level = currentLevel;
+            nextLevelFriends.push(friendsFriend);
+        }
+    };
 
-                friendWithLevel.friend.friends.forEach(function (friendName) {
-                    var friendsFriend = nameToFriend[friendName];
+    while (currentLevelFriends.length > 0 || nextLevelFriends.length > 0) {
+        var friendWithLevel = currentLevelFriends.pop();
 
-                    if (!friendsFriend.level) {
-                        friendsFriend.level = nextLevel;
-                        nextLevelFriends.push(friendsFriend);
-                    }
-                });
-
-                return nextLevelFriends;
-            }, []);
+        friendWithLevel.friend.friends.forEach(addNextLevelFriend);
+        if (currentLevelFriends.length === 0) {
+            currentLevel++;
+            currentLevelFriends = nextLevelFriends;
+            nextLevelFriends = [];
+        }
     }
 
-    return friendsWithLevel.filter(function (friendWithLevel) {
-        return friendWithLevel.level > 0;
-    });
+    return friendsWithLevel;
 }
 
 /**
@@ -55,12 +59,12 @@ function getFriendsWithLevels(friends) {
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('filter должен быть экземпляром Filter');
     }
 
     this._friendsWithLevel = getFriendsWithLevels(friends)
         .filter(function (friendWithLevel) {
-            return filter.apply(friendWithLevel.friend);
+            return friendWithLevel.level > 0 && filter.apply(friendWithLevel.friend);
         })
         .sort(compareFriends);
     this._currentIndex = 0;
@@ -95,22 +99,21 @@ function LimitedIterator(friends, filter, maxLevel) {
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
-LimitedIterator.prototype.constructor = LimitedIterator;
+
+function getTrue() {
+    return true;
+}
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    this._filters = [];
+    this._filterFunction = getTrue;
 }
 
 Filter.prototype.apply = function () {
-    var args = arguments;
-
-    return this._filters.every(function (filter) {
-        return filter.apply(null, args);
-    });
+    return this._filterFunction.apply(null, arguments);
 };
 
 function isMale(friend) {
@@ -123,13 +126,10 @@ function isMale(friend) {
  * @constructor
  */
 function MaleFilter() {
-    Filter.call(this);
-
-    this._filters.push(isMale);
+    this._filterFunction = isMale;
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
-MaleFilter.prototype.constructor = MaleFilter;
 
 function isFemale(friend) {
     return friend.gender === 'female';
@@ -141,13 +141,10 @@ function isFemale(friend) {
  * @constructor
  */
 function FemaleFilter() {
-    Filter.call(this);
-
-    this._filters.push(isFemale);
+    this._filterFunction = isFemale;
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
-FemaleFilter.prototype.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
