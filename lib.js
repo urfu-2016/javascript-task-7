@@ -28,7 +28,9 @@ function Iterator(friends, filter) {
         return nextLevelFriends;
     }
 
-    this._getLevels = function (maxLevel) {
+    this._getLevels = function (limitLevels, maxLevel) {
+        maxLevel = maxLevel > 0  ? maxLevel : 0;
+
         friends.forEach(function (friend) {
             friendsMap[friend.name] = friend;
             visited[friend.name] = friend.best;
@@ -43,7 +45,7 @@ function Iterator(friends, filter) {
             levels.push(level);
         }
 
-        if (maxLevel >= 0 && levels.length > maxLevel) {
+        if (limitLevels && levels.length > maxLevel) {
             levels.length = maxLevel;
         }
 
@@ -85,7 +87,7 @@ function Iterator(friends, filter) {
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
 
-    this._friends = this._getLevels(maxLevel);
+    this._friends = this._getLevels(true, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
