@@ -38,15 +38,10 @@ function getAppropriateFriends(friends, filter) {
     }
 
     return friends
-        .filter(function (friend) {
-            return friend.hasOwnProperty('level');
-        })
         .sort(byLevelThenByNameDescending)
         .filter(filter.apply, filter)
         .map(function (friend) {
-            delete friend.level;
-
-            return friend;
+            return 'level' in friend && delete friend.level && friend;
         });
 }
 
@@ -87,7 +82,6 @@ Iterator.prototype.done = function () {
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter, new LevelFilter(maxLevel));
 }
-
 changePrototype(LimitedIterator, Iterator.prototype);
 
 /**
@@ -115,7 +109,6 @@ function LevelFilter(maxLevel) {
         return person.level < maxLevel;
     };
 }
-
 changePrototype(LevelFilter, Filter.prototype);
 
 /**
@@ -128,7 +121,6 @@ function MaleFilter() {
         return person.gender === 'male';
     };
 }
-
 changePrototype(MaleFilter, Filter.prototype);
 
 /**
@@ -141,7 +133,6 @@ function FemaleFilter() {
         return person.gender === 'female';
     };
 }
-
 changePrototype(FemaleFilter, Filter.prototype);
 
 exports.Iterator = Iterator;
