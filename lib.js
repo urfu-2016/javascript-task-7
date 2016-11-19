@@ -1,41 +1,21 @@
 'use strict';
 
 function compareFriends(one, another) {
-    if (one.level > another.level) {
-        return 1;
-    }
-    if (one.level < another.level) {
-        return -1;
+    if (one.level !== another.level) {
+        return one.level > another.level ? 1 : -1;
     }
 
     return one.friend.name > another.friend.name ? 1 : -1;
 }
 
-function getNextLevelFriends(friendsWithLevel, nameToFriend) {
-    return friendsWithLevel.reduce(function (nextLevelFriends, friendWithLevel) {
-        var nextLevel = friendWithLevel.level + 1;
-
-        friendWithLevel.friend.friends.forEach(function (friendName) {
-            var friendsFriend = nameToFriend[friendName];
-
-            if (!friendsFriend.level) {
-                friendsFriend.level = nextLevel;
-                nextLevelFriends.push(friendsFriend);
-            }
-        });
-
-        return nextLevelFriends;
-    }, []);
-}
-
-function getFriendsIterable(friends) {
+function getFriendsWithLevels(friends) {
     var friendsWithLevel = friends.map(function (friend) {
         return {
             friend: friend,
             level: friend.best ? 1 : 0
         };
     });
-    var currentCollection = friendsWithLevel.filter(function (friendWithLevel) {
+    var currentLevelFriends = friendsWithLevel.filter(function (friendWithLevel) {
         return friendWithLevel.friend.best || false;
     });
     var nameToFriend = friendsWithLevel.reduce(function (result, friendWithLevel) {
@@ -43,14 +23,28 @@ function getFriendsIterable(friends) {
 
         return result;
     }, {});
-    var result = [];
 
-    while (currentCollection.length > 0) {
-        result = result.concat(currentCollection);
-        currentCollection = getNextLevelFriends(currentCollection, nameToFriend);
+    while (currentLevelFriends.length > 0) {
+        currentLevelFriends = currentLevelFriends.reduce(
+            function (nextLevelFriends, friendWithLevel) {
+                var nextLevel = friendWithLevel.level + 1;
+
+                friendWithLevel.friend.friends.forEach(function (friendName) {
+                    var friendsFriend = nameToFriend[friendName];
+
+                    if (!friendsFriend.level) {
+                        friendsFriend.level = nextLevel;
+                        nextLevelFriends.push(friendsFriend);
+                    }
+                });
+
+                return nextLevelFriends;
+            }, []);
     }
 
-    return result;
+    return friendsWithLevel.filter(function (friendWithLevel) {
+        return friendWithLevel.level > 0;
+    });
 }
 
 /**
@@ -64,16 +58,16 @@ function Iterator(friends, filter) {
         throw new TypeError();
     }
 
-    this.friendsWithLevel = getFriendsIterable(friends)
+    this._friendsWithLevel = getFriendsWithLevels(friends)
         .filter(function (friendWithLevel) {
-            return filter.check(friendWithLevel.friend);
+            return filter.apply(friendWithLevel.friend);
         })
         .sort(compareFriends);
-    this.currentIndex = 0;
+    this._currentIndex = 0;
 }
 
 Iterator.prototype.done = function () {
-    return this.currentIndex === this.friendsWithLevel.length;
+    return this._currentIndex === this._friendsWithLevel.length;
 };
 
 Iterator.prototype.next = function () {
@@ -81,7 +75,7 @@ Iterator.prototype.next = function () {
         return null;
     }
 
-    return this.friendsWithLevel[this.currentIndex++].friend;
+    return this._friendsWithLevel[this._currentIndex++].friend;
 };
 
 /**
@@ -95,7 +89,7 @@ Iterator.prototype.next = function () {
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
 
-    this.friendsWithLevel = this.friendsWithLevel.filter(function (friendWithLevel) {
+    this._friendsWithLevel = this._friendsWithLevel.filter(function (friendWithLevel) {
         return friendWithLevel.level <= maxLevel;
     });
 }
@@ -108,13 +102,13 @@ LimitedIterator.prototype.constructor = LimitedIterator;
  * @constructor
  */
 function Filter() {
-    this.filters = [];
+    this._filters = [];
 }
 
-Filter.prototype.check = function () {
+Filter.prototype.apply = function () {
     var args = arguments;
 
-    return this.filters.every(function (filter) {
+    return this._filters.every(function (filter) {
         return filter.apply(null, args);
     });
 };
@@ -131,7 +125,7 @@ function isMale(friend) {
 function MaleFilter() {
     Filter.call(this);
 
-    this.filters.push(isMale);
+    this._filters.push(isMale);
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
@@ -149,7 +143,7 @@ function isFemale(friend) {
 function FemaleFilter() {
     Filter.call(this);
 
-    this.filters.push(isFemale);
+    this._filters.push(isFemale);
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
