@@ -14,7 +14,7 @@ function Iterator(friends, filter) {
     var friendsMap = {};
     var visited = {};
 
-    function getFriends(currentLevelFriends) {
+    function getFriendsFor(currentLevelFriends) {
         var nextLevelFriends = [];
         currentLevelFriends.forEach(function (friend) {
             friend.friends.forEach(function (personsFriend) {
@@ -28,7 +28,7 @@ function Iterator(friends, filter) {
         return nextLevelFriends;
     }
 
-    function getLevels() {
+    this._getLevels = function (maxLevel) {
         friends.forEach(function (friend) {
             friendsMap[friend.name] = friend;
             visited[friend.name] = friend.best;
@@ -39,52 +39,39 @@ function Iterator(friends, filter) {
         });
 
         var levels = [];
-        for (var level = bestFriends; level.length !== 0; level = getFriends(level)) {
+        for (var level = bestFriends; level.length !== 0; level = getFriendsFor(level)) {
             levels.push(level);
         }
 
-        return levels.map(function (lvl) {
-            return lvl
-                .filter(function (person) {
-                    return filter.filter(person);
-                })
-                .sort(function (a, b) {
-                    return a.name > b.name ? 1 : -1;
-                });
-        });
-    }
-
-    this._skipEmptyLevels = function () {
-        while (!this.done() && this._levels[this._currentLevel].length === 0) {
-            this._currentLevel++;
+        if (maxLevel && levels.length > maxLevel) {
+            levels.length = maxLevel;
         }
+
+        return levels
+            .map(function (lvl) {
+                return lvl
+                    .filter(function (person) {
+                        return filter.filter(person);
+                    })
+                    .sort(function (a, b) {
+                        return a.name > b.name ? 1 : -1;
+                    });
+            })
+            .reduce(function (acc, lvl) {
+                return acc.concat(lvl);
+            }, []);
     };
 
     this.done = function () {
-        return this._currentLevel >= this._levels.length;
+        return this._currentFriend === this._friends.length;
     };
 
     this.next = function () {
-        if (!this.done()) {
-            var friend = this._levels[this._currentLevel][this._currentFriend];
-            var length = this._levels[this._currentLevel].length;
-            this._currentFriend++;
-            this._currentLevel += Math.floor(this._currentFriend / length);
-            this._currentFriend %= length;
-
-            this._skipEmptyLevels();
-
-            return friend;
-        }
-
-        return null;
+        return this.done() ? null : this._friends[this._currentFriend++];
     };
 
-    this._levels = getLevels();
-    this._currentLevel = 0;
+    this._friends = this._getLevels();
     this._currentFriend = 0;
-
-    this._skipEmptyLevels();
 }
 
 /**
@@ -98,7 +85,7 @@ function Iterator(friends, filter) {
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
 
-    this._levels.length = maxLevel;
+    this._friends = this._getLevels(maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
