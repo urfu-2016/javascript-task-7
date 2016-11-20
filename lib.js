@@ -1,8 +1,9 @@
 'use strict';
 
 function friendsABCComparator(f1, f2) {
+
     return f1.name.localeCompare(f2.name);
-}   
+}
 
 function findFriend(friends, name) {
     for (var index = 0; index < friends.length; index++) {
