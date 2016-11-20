@@ -1,8 +1,8 @@
 'use strict';
 
 function friendsABCComparator(f1, f2) {
-    return f1.name.toLowerCase() < f2.name.toLowerCase() ? -1 : 1;
-}
+    return f1.name.localeCompare(f2.name);
+}   
 
 function findFriend(friends, name) {
     for (var index = 0; index < friends.length; index++) {
@@ -142,9 +142,10 @@ Iterator.prototype.next = function () {
         this._current = 0;
     }
 
-    return this.done() ? undefined : this._invitedFriends[this._current++];
+    return this.done() ? null : this._invitedFriends[this._current++];
 };
 LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = LimitedIterator;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
