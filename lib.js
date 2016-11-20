@@ -1,36 +1,43 @@
 'use strict';
 
-function friendsLevel(friends) {
-    var friendsWithLevel = [];
+function getFriendByName(friends, name) {
+    return friends.filter(function (friend) {
+        return friend.name === name;
+    })[0];
+}
 
-    friends.forEach(function (friend) {
-        if (friend.hasOwnProperty('best')) {
+function friendsLevel(friends) {
+
+    var bestFriends = friends.filter(function (friend) {
+        return friend.hasOwnProperty('best');
+    });
+
+    var namesOfFriends = [];
+    var friendsWithLevel = [];
+    bestFriends.forEach(function (friend) {
+        namesOfFriends.push(friend.name);
+        friendsWithLevel.push(
+            {
+                friend: friend,
+                level: 1
+            }
+        );
+    });
+
+    for (var i = 0; i < friendsWithLevel.length; i++) {
+        var newLevelFriends = friendsWithLevel[i].friend.friends.filter(function (friendName) {
+            return namesOfFriends.indexOf(friendName) === -1;
+        });
+        for (var j = 0; j < newLevelFriends.length; j++) {
             friendsWithLevel.push(
                 {
-                    friend: friend,
-                    level: 1
+                    friend: getFriendByName(friends, newLevelFriends[j]),
+                    level: friendsWithLevel[i].level + 1
                 }
             );
-        } else {
-            var minLevel = Infinity;
-            friend.friends.forEach(function (connectedFriend) {
-                var friendsName = friendsWithLevel.filter(function (friendWithLevel) {
-                    return friendWithLevel.friend.name === connectedFriend;
-                });
-                if (friendsName.length > 0 && minLevel > friendsName[0].level) {
-                    minLevel = friendsName[0].level + 1;
-                }
-            });
-            if (minLevel !== Infinity) {
-                friendsWithLevel.push(
-                    {
-                        friend: friend,
-                        level: minLevel
-                    }
-                );
-            }
+            namesOfFriends.push(newLevelFriends[j]);
         }
-    });
+    }
 
     friendsWithLevel.sort(function (friendOne, friendTwo) {
         if (friendOne.level > friendTwo.level) {
