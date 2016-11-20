@@ -22,7 +22,10 @@ function getFriendsCircle(currCircle, friends) {
 
     friendNames.forEach(function (nameArray) {
         nameArray.forEach(function (name) {
-            friendsCircle.push(findFriend(friends, name));
+            var friend = findFriend(friends, name);
+            if (friendsCircle.indexOf(friend) === -1) {
+                friendsCircle.push(findFriend(friends, name));
+            }
         });
     });
 
