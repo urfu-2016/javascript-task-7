@@ -57,9 +57,7 @@ function getFriendsUpToCircle(friends, filter, limitCircle) {
         currCircle = currFriendsCircle.filter(notInList).sort(friendsABCComparator);
     }
 
-    return invitedFriends.filter(function (friend) {
-        return filter.isApropToQuery(friend);
-    });
+    return invitedFriends.filter(filter.query);
 }
 
 /**
@@ -96,7 +94,7 @@ function LimitedIterator(friends, filter, maxLevel) {
  * @constructor
  */
 function Filter() {
-    this._query = function () {
+    this.query = function () {
 
         return true;
     };
@@ -108,7 +106,7 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this._query = function (friend) {
+    this.query = function (friend) {
 
         return friend.gender === 'male';
     };
@@ -120,20 +118,15 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    this._query = function (friend) {
+    this.query = function (friend) {
 
         return friend.gender === 'female';
     };
 }
 
-Filter.prototype.isApropToQuery = function (obj) {
-    return this._query(obj);
-};
 
 MaleFilter.prototype = Object.create(Filter.prototype);
-MaleFilter.prototype.constructor = MaleFilter;
 FemaleFilter.prototype = Object.create(Filter.prototype);
-FemaleFilter.prototype.constructor = FemaleFilter;
 Iterator.prototype.done = function () {
 
     return this._current === this._invitedFriends.length;
@@ -146,7 +139,6 @@ Iterator.prototype.next = function () {
     return this.done() ? null : this._invitedFriends[this._current++];
 };
 LimitedIterator.prototype = Object.create(Iterator.prototype);
-LimitedIterator.prototype.constructor = LimitedIterator;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
