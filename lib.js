@@ -57,7 +57,9 @@ function getFriendsUpToCircle(friends, filter, limitCircle) {
         currCircle = currFriendsCircle.filter(notInList).sort(friendsABCComparator);
     }
 
-    return invitedFriends.filter(filter.query);
+    return invitedFriends.filter(function (friend) {
+        return filter.isApropToQuery(friend);
+    });
 }
 
 /**
@@ -70,6 +72,7 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
+    this._current = 0;
     this._invitedFriends = getFriendsUpToCircle(friends, filter);
 }
 
@@ -86,6 +89,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
+    this._current = 0;
     this._invitedFriends = getFriendsUpToCircle(friends, filter, maxLevel);
 }
 
@@ -94,7 +98,7 @@ function LimitedIterator(friends, filter, maxLevel) {
  * @constructor
  */
 function Filter() {
-    this.query = function () {
+    this._query = function () {
 
         return true;
     };
@@ -106,7 +110,7 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.query = function (friend) {
+    this._query = function (friend) {
 
         return friend.gender === 'male';
     };
@@ -118,27 +122,30 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    this.query = function (friend) {
+    this._query = function (friend) {
 
         return friend.gender === 'female';
     };
 }
 
+Filter.prototype.isApropToQuery = function (obj) {
+    return this._query(obj);
+};
 
 MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
 FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = FemaleFilter;
 Iterator.prototype.done = function () {
 
     return this._current === this._invitedFriends.length;
 };
 Iterator.prototype.next = function () {
-    if (this._current === undefined) {
-        this._current = 0;
-    }
 
     return this.done() ? null : this._invitedFriends[this._current++];
 };
 LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = LimitedIterator;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
