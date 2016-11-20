@@ -5,7 +5,7 @@
  * если нашли то возвращаем его
  * @param {Object[]} friends
  * @param {String} name
- * @returns {Object}
+ * @returns {Object|undefined}
  */
 function getObjectFriend(friends, name) {
     for (var index = 0; index < friends.length; index++) {
@@ -50,29 +50,29 @@ function compareFriends(friend1, friend2) {
 
 /**
  * Составляем весь список друзей
- * по правилам задачи
  * @param {Object[]} friends
  * @param {Filter} filter
  * @param {Number} maxLevel
  * @returns {Object[]}
  */
 function getInvitedFriends(friends, filter, maxLevel) {
+    var currentLevel = maxLevel;
     if (maxLevel === undefined) {
-        maxLevel = Infinity;
+        currentLevel = Infinity;
     }
     var invitedFriends = [];
-    var currentLevel = friends.filter(isBestFriend).sort(compareFriends);
+    var currentFriends = friends.filter(isBestFriend).sort(compareFriends);
     var isUsed = function (friend) {
         return invitedFriends.indexOf(friend) === -1;
     };
 
-    while (currentLevel.length !== 0 && maxLevel > 0) {
-        maxLevel--;
-        invitedFriends = invitedFriends.concat(currentLevel);
-        var newLevel = getLevel(currentLevel).map(function (name) {
+    while (currentFriends.length && currentLevel > 0) {
+        currentLevel--;
+        invitedFriends = invitedFriends.concat(currentFriends);
+        var newLevel = getLevel(currentFriends).map(function (name) {
             return getObjectFriend(friends, name);
         });
-        currentLevel = newLevel.filter(isUsed).sort(compareFriends);
+        currentFriends = newLevel.filter(isUsed).sort(compareFriends);
     }
 
     return invitedFriends.filter(filter.isChoose);
@@ -87,7 +87,7 @@ function getInvitedFriends(friends, filter, maxLevel) {
 function Iterator(friends, filter) {
     console.info(friends, filter);
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('Объект не принадлежит классу Filter');
     }
     this.invitedFriends = getInvitedFriends(friends, filter);
     this.pointer = 0;
@@ -98,7 +98,6 @@ Iterator.prototype.done = function () {
 };
 
 Iterator.prototype.next = function () {
-
     return this.done() ? null : this.invitedFriends[this.pointer++];
 };
 
@@ -113,7 +112,7 @@ Iterator.prototype.next = function () {
 function LimitedIterator(friends, filter, maxLevel) {
     console.info(friends, filter, maxLevel);
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('Объект не принадлежит классу Filter');
     }
 
     this.invitedFriends = getInvitedFriends(friends, filter, maxLevel);
