@@ -46,7 +46,7 @@ function getFriendsUpToCircle(friends, filter, limitCircle) {
 
     }
     while (currCircle.length !== 0) {
-        if (!limitCircle && limitCircle !== undefined) {
+        if (limitCircle !== undefined && limitCircle <= 0) {
             break;
         }
         if (limitCircle) {
