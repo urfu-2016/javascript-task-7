@@ -100,25 +100,31 @@ function LimitedIterator(friends, filter, maxLevel) {
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
-function getTrue() {
-    return true;
-}
+var filters = {
+    default: function () {
+        return true;
+    },
+
+    isMale: function (friend) {
+        return friend.gender === 'male';
+    },
+
+    isFemale: function (friend) {
+        return friend.gender === 'female';
+    }
+};
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    this._filterFunction = getTrue;
+    this._filterFunction = filters.default;
 }
 
 Filter.prototype.apply = function () {
     return this._filterFunction.apply(null, arguments);
 };
-
-function isMale(friend) {
-    return friend.gender === 'male';
-}
 
 /**
  * Фильтр друзей
@@ -126,14 +132,10 @@ function isMale(friend) {
  * @constructor
  */
 function MaleFilter() {
-    this._filterFunction = isMale;
+    this._filterFunction = filters.isMale;
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
-
-function isFemale(friend) {
-    return friend.gender === 'female';
-}
 
 /**
  * Фильтр друзей-девушек
@@ -141,7 +143,7 @@ function isFemale(friend) {
  * @constructor
  */
 function FemaleFilter() {
-    this._filterFunction = isFemale;
+    this._filterFunction = filters.isFemale;
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
