@@ -113,7 +113,9 @@ function Filter() {
 }
 
 Filter.prototype.customFilter = function () {
-    return true;
+    return function () {
+        return true;
+    };
 };
 
 /**
@@ -124,9 +126,8 @@ Filter.prototype.customFilter = function () {
 function GenderFilter(gender) {
     console.info('GenderFilter');
     this.gender = gender;
+    var this_ = this;
     this.customFilter = function () {
-        var this_ = this;
-
         return function (person) {
             return person.gender === this_.gender;
         };
