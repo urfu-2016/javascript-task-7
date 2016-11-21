@@ -14,10 +14,6 @@ function Iterator(friends, filter) {
     this.collection = [];
     this.curIndex = 0;
 
-    if (!friends) {
-        return;
-    }
-
     this.buildCollection(friends, filter, Infinity);
 }
 
@@ -37,7 +33,6 @@ Iterator.prototype.buildCollection = function (friends, filter, maxLevel) {
 
     for (var level = 2; level <= maxLevel; level++) {
         lastLevel = this.getNextLevel(lastLevel, friends, visited);
-        visited = visited.concat(lastLevel);
         if (lastLevel.length === 0) {
             break;
         }
@@ -56,9 +51,10 @@ Iterator.prototype.getNextLevel = function (lastLevel, friends, visited) {
 
             if (visited.indexOf(curFriend) === -1) {
                 curLevel.push(curFriend);
+                visited.push(curFriend);
             }
-        }, this);
-    }, this);
+        });
+    });
 
     return curLevel.sort(compareByName);
 };
@@ -86,10 +82,6 @@ function LimitedIterator(friends, filter, maxLevel) {
 
     this.collection = [];
     this.curIndex = 0;
-
-    if (!friends || !maxLevel || maxLevel < 1) {
-        return;
-    }
 
     this.buildCollection(friends, filter, maxLevel);
 }
