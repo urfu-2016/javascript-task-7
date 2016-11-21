@@ -14,7 +14,7 @@ function findNote(friends, name) {
 function makeIterationArray(friendsCircles, filter, maxLevel) {
     var iterationArray = [];
 
-    friendsCircles.slice(0, maxLevel).forEach(function (circle) {
+    friendsCircles.slice(0, Math.max(maxLevel, 0)).forEach(function (circle) {
         circle.forEach(function (friend) {
             if (filter.choose(friend)) {
                 iterationArray.push(friend);
