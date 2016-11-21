@@ -31,13 +31,13 @@ function Iterator(friends, filter) {
     this._getLevels = function (limitLevels, maxLevel) {
         maxLevel = maxLevel > 0 ? maxLevel : 0;
 
+        var bestFriends = [];
         friends.forEach(function (friend) {
             friendsMap[friend.name] = friend;
             visited[friend.name] = friend.best;
-        });
-
-        var bestFriends = friends.filter(function (friend) {
-            return friend.best;
+            if (friend.best) {
+                bestFriends.push(friend);
+            }
         });
 
         var levels = [];
@@ -52,9 +52,7 @@ function Iterator(friends, filter) {
         return levels
             .map(function (lvl) {
                 return lvl
-                    .filter(function (person) {
-                        return filter.filter(person);
-                    })
+                    .filter(filter.isSuitable)
                     .sort(function (a, b) {
                         return a.name > b.name ? 1 : -1;
                     });
@@ -98,7 +96,7 @@ LimitedIterator.prototype.constructor = LimitedIterator;
  * @constructor
  */
 function Filter() {
-    this.filter = function () {
+    this.isSuitable = function () {
         return true;
     };
 }
@@ -109,7 +107,7 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.filter = function (person) {
+    this.isSuitable = function (person) {
         return person.gender === 'male';
     };
 }
@@ -123,7 +121,7 @@ MaleFilter.prototype.constructor = MaleFilter;
  * @constructor
  */
 function FemaleFilter() {
-    this.filter = function (person) {
+    this.isSuitable = function (person) {
         return person.gender === 'female';
     };
 }
