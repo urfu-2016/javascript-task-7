@@ -12,10 +12,13 @@ function Iterator(friends, filter) {
     }
     this.allFriends = friends;
     this.filterObject = filter;
-    this.visited = [];
     this.sortedCircleOfFriends = friends.filter(function (person) {
         return person.best;
     }).sort(this.compareFriends);
+    this.visited = this.sortedCircleOfFriends.map(function (person) {
+        return person.name;
+    });
+    this.hasRound = this.sortedCircleOfFriends.length > 0;
     this.createFilteredFriends();
 }
 
@@ -42,6 +45,7 @@ Iterator.prototype.createNextFriendsRound = function () {
             if (nextFriends.indexOf(friendName) === -1 &&
                 thisIterator.visited.indexOf(friendName) === -1) {
                 nextFriends.push(friendName);
+                thisIterator.visited.push(friendName);
             }
         });
 
@@ -49,28 +53,24 @@ Iterator.prototype.createNextFriendsRound = function () {
     }, []);
     this.sortedCircleOfFriends = this.fromNameToFriendObj(nextFriendsNames)
                                      .sort(this.compareFriends);
+    this.hasRound = this.sortedCircleOfFriends.length > 0;
     this.createFilteredFriends();
-
-    return this.last === 0;
 };
 
 Iterator.prototype.done = function () {
-    if (this.last === 0) {
+    if (!this.hasRound) {
         return true;
     }
-    if (this.current >= this.last) {
-        return this.createNextFriendsRound();
+    while (this.current >= this.last && this.hasRound) {
+        this.createNextFriendsRound();
     }
 
-    return false;
+    return !this.hasRound;
 };
 
 Iterator.prototype.next = function () {
     var nextFriend = this.done() ? null : this.filteredFriends[this.current];
     this.current++;
-    if (nextFriend) {
-        this.visited.push(nextFriend.name);
-    }
 
     return nextFriend;
 };
@@ -92,16 +92,15 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = LimitedIterator;
 
 LimitedIterator.prototype.done = function () {
-    if (this.currentLevel === this.maxLevel) {
+    if (!this.hasRound || this.currentLevel >= this.maxLevel) {
         return true;
     }
-    var isDoneRound = this.current >= this.last;
-    var isNotHaveNext = Iterator.prototype.done.call(this);
-    if (!isNotHaveNext && isDoneRound) {
+    while (this.currentLevel < this.maxLevel && this.current >= this.last && this.hasRound) {
+        this.createNextFriendsRound();
         this.currentLevel++;
     }
 
-    return isNotHaveNext || this.currentLevel === this.maxLevel;
+    return !(this.hasRound && this.currentLevel < this.maxLevel);
 };
 
 /**
@@ -126,15 +125,16 @@ Filter.prototype.customFilter = function () {
 function GenderFilter(gender) {
     console.info('GenderFilter');
     this.gender = gender;
-    var this_ = this;
-    this.customFilter = function () {
-        return function (person) {
-            return person.gender === this_.gender;
-        };
-    };
 }
 GenderFilter.prototype = Object.create(Filter.prototype);
 GenderFilter.prototype.constructor = GenderFilter;
+GenderFilter.prototype.customFilter = function () {
+    var this_ = this;
+
+    return function (person) {
+        return person.gender === this_.gender;
+    };
+};
 
 /**
  * Фильтр друзей
