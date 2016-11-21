@@ -14,6 +14,10 @@ function Iterator(friends, filter) {
     this.collection = [];
     this.curIndex = 0;
 
+    if (!friends) {
+        return;
+    }
+
     this.buildCollection(friends, filter, Infinity);
 }
 
