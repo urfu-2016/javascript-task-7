@@ -7,32 +7,45 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    if (!Filter.prototype.isPrototypeOf(filter)) {
-        throw new TypeError('filter must be instace of Filter');
+    if (!filter || !Filter.prototype.isPrototypeOf(filter)) {
+        throw new TypeError('filter must be instance of Filter');
     }
 
     this.collection = [];
+    this.curIndex = 0;
 
-    var lastLevel = friends.filter(isBestFriend).sort(compareByName);
-
-    while (lastLevel.filter(filter.apply).length !== 0) {
-        this.collection = this.collection.concat(lastLevel.filter(filter.apply));
-
-        lastLevel = this.getNextLevel(lastLevel, friends);
+    if (!friends) {
+        return;
     }
 
-    this.p = 0; // p for pointer :)
+    this.buildCollection(friends, filter, Infinity);
 }
 
 Iterator.prototype.done = function () {
-    return this.p === this.collection.length;
+    return this.curIndex === this.collection.length;
 };
 
 Iterator.prototype.next = function () {
-    return this.p === this.collection.length ? null : this.collection[this.p++];
+    return this.curIndex === this.collection.length ? null : this.collection[this.curIndex++];
 };
 
-Iterator.prototype.getNextLevel = function (lastLevel, friends) {
+Iterator.prototype.buildCollection = function (friends, filter, maxLevel) {
+    var lastLevel = friends.filter(isBestFriend).sort(compareByName);
+    this.collection = lastLevel.filter(filter.apply);
+
+    var visited = lastLevel;
+
+    for (var level = 2; level <= maxLevel; level++) {
+        lastLevel = this.getNextLevel(lastLevel, friends, visited);
+        visited = visited.concat(lastLevel);
+        if (lastLevel.length === 0) {
+            break;
+        }
+        this.collection = this.collection.concat(lastLevel.filter(filter.apply));
+    }
+};
+
+Iterator.prototype.getNextLevel = function (lastLevel, friends, visited) {
     var curLevel = [];
 
     lastLevel.forEach(function (lastLevelFriend) {
@@ -41,7 +54,7 @@ Iterator.prototype.getNextLevel = function (lastLevel, friends) {
                 return friend.name === friendName;
             });
 
-            if (curLevel.indexOf(curFriend) === -1 && this.collection.indexOf(curFriend) === -1) {
+            if (visited.indexOf(curFriend) === -1) {
                 curLevel.push(curFriend);
             }
         }, this);
@@ -67,23 +80,18 @@ function compareByName(a, b) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    if (!Filter.prototype.isPrototypeOf(filter)) {
-        throw new TypeError('filter must be instace of Filter');
+    if (!filter || !Filter.prototype.isPrototypeOf(filter)) {
+        throw new TypeError('filter must be instance of Filter');
     }
 
     this.collection = [];
+    this.curIndex = 0;
 
-    var lastLevel = friends.filter(isBestFriend).sort(compareByName);
-
-    for (var level = 2; level <= maxLevel; level++) {
-        this.collection = this.collection.concat(lastLevel.filter(filter.apply));
-
-        lastLevel = this.getNextLevel(lastLevel, friends);
+    if (!friends || !maxLevel || maxLevel < 1) {
+        return;
     }
 
-    this.collection = this.collection.concat(lastLevel.filter(filter.apply));
-
-    this.p = 0;
+    this.buildCollection(friends, filter, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
