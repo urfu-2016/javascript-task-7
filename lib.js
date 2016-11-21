@@ -80,19 +80,20 @@ function Iterator(friends, filter) {
     this.maxLevel = this.friendsCircles.length;
     this.iterationArray = makeIterationArray(this.friendsCircles, filter, this.maxLevel);
     this.numberOfCalls = 0;
-    
-    this.done = function() {
+
+    this.done = function () {
         return this.numberOfCalls === this.iterationArray.length;
-    }
-    
-    this.next = function() {
+    };
+
+    this.next = function () {
         if (this.done()) {
             return null;
         }
 
         this.numberOfCalls++;
+
         return this.iterationArray[this.numberOfCalls - 1];
-    }
+    };
 }
 
 /**
@@ -108,7 +109,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     this.iterationArray = makeIterationArray(this.friendsCircles, filter, maxLevel);
 }
 
-LimitedIterator.prototype = Object.create(Iterator.prototype)
+LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = LimitedIterator;
 
 /**
@@ -118,7 +119,7 @@ LimitedIterator.prototype.constructor = LimitedIterator;
 function Filter() {
     this.choose = function () {
         return true;
-    }
+    };
 }
 
 /**
@@ -129,7 +130,7 @@ function Filter() {
 function MaleFilter() {
     this.choose = function (friend) {
         return friend.gender === 'male';
-    }
+    };
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
@@ -143,7 +144,7 @@ MaleFilter.prototype.constructor = MaleFilter;
 function FemaleFilter() {
     this.choose = function (friend) {
         return friend.gender === 'female';
-    }
+    };
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
