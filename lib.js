@@ -83,6 +83,10 @@ function LimitedIterator(friends, filter, maxLevel) {
     this.collection = [];
     this.curIndex = 0;
 
+    if (!friends || !maxLevel || maxLevel < 1) {
+        return;
+    }
+
     this.buildCollection(friends, filter, maxLevel);
 }
 
