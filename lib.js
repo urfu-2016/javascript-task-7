@@ -1,62 +1,29 @@
 'use strict';
 
 /**
- * Клонировать коллекцию объектов
- * @param {Array<Object>} collection - исходная коллекция
- * @returns {Array} - клон коллекции
- */
-function cloneObjectCollection(collection) {
-    return collection.map(function (element) {
-        return Object.assign({}, element);
-    });
-}
-
-/**
- * Почти граф, который позволяет делать
- * обход в ширину, по кругам друзей
+ * Возвращает круги друзей Билли
  * @param {Array} friends - все друзья
- * @constructor
+ * @returns {Array} - круги друзей
  */
-function FriendsGraph(friends) {
-    this.waveNumber = 0;
-    this.friendsDict = cloneObjectCollection(friends)
-        .reduce(function (dict, friend) {
-            dict[friend.name] = friend;
+function getWaves(friends) {
+    var waves = [];
+    var friendsDict = {};
+    var currentWave = [];
 
-            return dict;
-        }, Object.create(null));
+    friends.forEach(function (friend) {
+        if (friend.best) {
+            currentWave.push(friend);
+        } else {
+            friendsDict[friend.name] = friend;
+        }
+    });
 
-    /**
-     * Возвращает всех лучших друзей
-     * @returns {Array.<*>}
-     */
-    this.getBesties = function () {
-        var besties = Object.keys(this.friendsDict)
-            .filter(function (friendName) {
-                return this.friendsDict[friendName].best;
-            }, this)
-            .map(function (friendName) {
-                return this.friendsDict[friendName];
-            }, this);
-        besties.forEach(function (bestFriend) {
-            delete this.friendsDict[bestFriend.name];
-        }, this);
-
-        return besties;
-    };
-
-    /**
-     * Считаем следующую волну
-     * @returns {Array} - следующая волна
-     */
-    this.getNextWave = function () {
-        var dict = this.friendsDict;
-
-        return this.currentWave.reduce(function (wave, friend) {
+    var getNextWave = function () {
+        return currentWave.reduce(function (wave, friend) {
             friend.friends.forEach(function (friendOfFriend) {
-                if (friendOfFriend in dict) {
-                    wave.push(dict[friendOfFriend]);
-                    delete dict[friendOfFriend];
+                if (friendOfFriend in friendsDict) {
+                    wave.push(friendsDict[friendOfFriend]);
+                    delete friendsDict[friendOfFriend];
                 }
             });
 
@@ -64,91 +31,78 @@ function FriendsGraph(friends) {
         }, []);
     };
 
-    this.currentWave = null;
-    this.nextWave = this.getBesties();
-
-    this.done = function () {
-        return this.nextWave.length === 0;
-    };
-
-    this.next = function () {
-        if (this.done()) {
-            return null;
-        }
-        this.currentWave = this.nextWave.sort(function (a, b) {
+    while (currentWave.length !== 0) {
+        waves.push(currentWave.sort(function (a, b) {
             return a.name > b.name ? 1 : -1;
-        });
-        this.nextWave = this.getNextWave();
-        this.waveNumber++;
+        }));
+        currentWave = getNextWave();
+    }
 
-        return this.currentWave;
-    };
+    return waves;
 }
 
 /**
- * Ленивый итератор по друзьям
- * Итерируется без учета порядка
+ * Итератор по друзьям
  * @constructor
  * @param {Object[]} friends - массив друзей
  * @param {Filter} filter - фильтр друзей
  */
 function FilteredIterator(friends, filter) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError();
-    }
     this.stack = friends.reverse();
     this.filter = filter;
+    this.next = function () {
+        var friend = this.stack.pop();
+        while (friend !== undefined && !this.filter.test(friend)) {
+            friend = this.stack.pop();
+        }
+
+        return friend ? friend : null;
+    };
+    this.done = function () {
+        var friend = this.next();
+        if (friend) {
+            this.stack.push(friend);
+        }
+
+        return friend === null;
+    };
 }
 
-FilteredIterator.prototype.next = function () {
-    var friend = this.stack.pop();
-    while (friend !== undefined && !this.filter.test(friend)) {
-        friend = this.stack.pop();
-    }
-
-    return friend ? friend : null;
-};
-
-FilteredIterator.prototype.done = function () {
-    var friend = this.next();
-    if (friend) {
-        this.stack.push(friend);
-    }
-
-    return friend === null;
-};
-
 /**
- * Ленивый итератор по друзьям
+ * Итератор по друзьям
  * с хорошим порядком обхода (Как хочет Билли)
+ * (На самом деле цепь из FilteredIterator'ов)
  * @constructor
  * @param {Object[]} friends - массив друзей
  * @param {Filter} filter - фильтр друзей
  */
 function Iterator(friends, filter) {
     this.filter = filter;
-    this.graph = new FriendsGraph(friends);
+    this.waves = getWaves(friends);
+    this.waveIndex = 0;
+    var firstWave = this.waves.length ? this.waves[this.waveIndex++] : [];
     this.currentWaveIterator = new FilteredIterator(
-        this.graph.next(), filter
+        firstWave, filter
     );
+    this.done = function () {
+        var isWaveDone = this.currentWaveIterator.done();
+        var isLastWave = this.waveIndex === this.waves.length;
+
+        return isWaveDone && isLastWave;
+    };
+    this.next = function () {
+        if (this.done()) {
+            return null;
+        }
+        if (this.currentWaveIterator.done()) {
+            this.currentWaveIterator = new FilteredIterator(
+                this.waves[this.waveIndex++], this.filter
+            );
+        }
+
+        return this.currentWaveIterator.next();
+    };
 }
-
-Iterator.prototype.done = function () {
-    return this.currentWaveIterator.done() && this.graph.done();
-};
-
-Iterator.prototype.next = function () {
-    if (this.currentWaveIterator.done()) {
-        this.currentWaveIterator = new FilteredIterator(
-            this.graph.next(), this.filter
-        );
-    }
-    if (this.done()) {
-        return null;
-    }
-
-    return this.currentWaveIterator.next();
-};
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
@@ -161,53 +115,31 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter);
-
-    this.done = function () {
-        return this.graph.waveNumber > maxLevel ||
-            (this.graph.waveNumber + 1 > maxLevel && this.currentWaveIterator.done()) ||
-            Iterator.prototype.done.call(this);
-    };
-
-    this.next = function () {
-        if (this.done()) {
-            return null;
-        }
-
-        return Iterator.prototype.next.call(this);
-    };
+    Iterator.call(this, maxLevel ? friends : [], filter);
+    this.waves = this.waves.slice(0, maxLevel);
 }
 
 /**
  * Фильтр друзей
  * @constructor
- * @param {Function} filterFunction - фильтрующая функция
  */
-function Filter(filterFunction) {
-    this.testFunction = filterFunction;
-    if (!filterFunction) {
-        this.testFunction = function () {
-            return true;
-        };
-    }
+function Filter() {
+    this.test = function () {
+        return true;
+    };
 }
-
-Filter.prototype.test = function (friend) {
-    return this.testFunction(friend);
-};
 
 MaleFilter.prototype = Object.create(Filter.prototype);
 
 /**
- * Фильтр друзей
+ * Фильтр друзей-парней
  * @extends Filter
  * @constructor
  */
 function MaleFilter() {
-    var filterFunction = function (element) {
+    this.test = function (element) {
         return element.gender === 'male';
     };
-    Filter.call(this, filterFunction);
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
@@ -218,10 +150,9 @@ FemaleFilter.prototype = Object.create(Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    var filterFunction = function (element) {
+    this.test = function (element) {
         return element.gender === 'female';
     };
-    Filter.call(this, filterFunction);
 }
 
 exports.Iterator = Iterator;
@@ -230,5 +161,3 @@ exports.LimitedIterator = LimitedIterator;
 exports.Filter = Filter;
 exports.MaleFilter = MaleFilter;
 exports.FemaleFilter = FemaleFilter;
-
-exports.Graph = FriendsGraph;
