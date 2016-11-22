@@ -126,7 +126,7 @@ function findFriendWithName(friends, name) {
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
     if (this.friendshipLevels.length > maxLevel) {
-        this.friendshipLevels.length = maxLevel;
+        this.friendshipLevels.length = maxLevel >= 0 ? maxLevel : 0;
     }
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype);
