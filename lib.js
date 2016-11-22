@@ -105,6 +105,24 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 
+function getListLimitGuest(maxLevel) {
+    var listBestFriends = [].concat(foundFirstCircle());
+    usedFriendNames = listBestFriends.map(function (person) {
+        return person.name;
+    });
+    var listGuests = [].concat(listBestFriends);
+    if (maxLevel > 1) {
+        var currentListFriends = foundNextCircle(listBestFriends);
+        listGuests = listGuests.concat(currentListFriends);
+        while (countCircles < maxLevel) {
+            currentListFriends = foundNextCircle(currentListFriends);
+            listGuests = listGuests.concat(currentListFriends);
+        }
+    }
+
+    return listGuests;
+}
+
 function LimitedIterator(friends, filter, maxLevel) {
     countCircles = 0;
     usedFriendNames = [];
@@ -112,22 +130,15 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Incorrect data type Filter');
     }
-    var listBestFriends = [].concat(foundFirstCircle());
-    usedFriendNames = listBestFriends.map(function (person) {
-        return person.name;
-    });
-    this.listGuests = [].concat(listBestFriends);
-    var currentListFriends = foundNextCircle(listBestFriends);
-    this.listGuests = this.listGuests.concat(currentListFriends);
-
-    while (countCircles !== maxLevel) {
-        currentListFriends = foundNextCircle(currentListFriends);
-        this.listGuests = this.listGuests.concat(currentListFriends);
+    if (maxLevel <= 0) {
+        this.listGuests = [];
+    } else {
+        this.listGuests = getListLimitGuest(maxLevel);
+        this.listGuests = this.listGuests.filter(function (friend) {
+            return filter.filterFriends(friend);
+        });
+        this.listGuests.reverse();
     }
-    this.listGuests = this.listGuests.filter(function (friend) {
-        return filter.filterFriends(friend);
-    });
-    this.listGuests.reverse();
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
