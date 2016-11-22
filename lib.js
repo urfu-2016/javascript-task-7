@@ -29,17 +29,17 @@ function invitedGuests(friends, filter, maxLevel) {
     var guests = friends.filter(function (friend) {
         return isBestFriend(friend);
     }).sort(alphabeticalOrder);
-    var invitedFriends = [].concat(guests);
-    while (maxLevel > 1 && guests.length !== 0) {
+    var invitedFriends = [];
+    while (maxLevel > 0 && guests.length !== 0) {
         var countFriend = guests.length;
         guests.forEach(function (friend) {
-            friend.friends.sort(alphabeticalOrderTwo).forEach(function (name) {
-                var invitedFriend = getFriend(friends, name);
-                if (invitedFriends.indexOf(invitedFriend) === -1) {
+            if (invitedFriends.indexOf(friend) === -1) {
+                invitedFriends.push(friend);
+                friend.friends.sort(alphabeticalOrderTwo).forEach(function (name) {
+                    var invitedFriend = getFriend(friends, name);
                     guests.push(invitedFriend);
-                    invitedFriends.push(invitedFriend);
-                }
-            });
+                });
+            }
         });
         guests.splice(0, countFriend);
         maxLevel--;
