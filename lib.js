@@ -4,7 +4,7 @@ function byLevelThenByNameDescending(a, b) {
     return (b.level - a.level) * 10 + (b.name < a.name ? -1 : Number(b.name > a.name));
 }
 
-function changePrototype(clazz, proto) {
+function setPrototype(clazz, proto) {
     clazz.prototype = Object.create(proto);
     clazz.prototype.constructor = clazz;
 }
@@ -38,7 +38,7 @@ function getAppropriateFriends(friends, filter) {
     }
 
     return friends
-        .filter(filter.apply, filter)
+        .filter(filter.allow, filter)
         .sort(byLevelThenByNameDescending)
         .map(function (friend) {
             return delete friend.level && friend;
@@ -83,14 +83,14 @@ Iterator.prototype.done = function () {
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter, new LevelFilter(maxLevel));
 }
-changePrototype(LimitedIterator, Iterator.prototype);
+setPrototype(LimitedIterator, Iterator.prototype);
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    this.apply = function () {
+    this.allow = function () {
         return true;
     };
 }
@@ -99,18 +99,18 @@ function CompositeFilter(filters) {
     this.filters = filters;
 }
 
-CompositeFilter.prototype.apply = function (person) {
+CompositeFilter.prototype.allow = function (person) {
     return this.filters.every(function (filter) {
-        return filter.apply(person);
+        return filter.allow(person);
     });
 };
 
 function LevelFilter(maxLevel) {
-    this.apply = function (person) {
+    this.allow = function (person) {
         return person.hasOwnProperty('level') && person.level < maxLevel;
     };
 }
-changePrototype(LevelFilter, Filter.prototype);
+setPrototype(LevelFilter, Filter.prototype);
 
 /**
  * Фильтр друзей
@@ -118,11 +118,11 @@ changePrototype(LevelFilter, Filter.prototype);
  * @constructor
  */
 function MaleFilter() {
-    this.apply = function (person) {
+    this.allow = function (person) {
         return person.gender === 'male';
     };
 }
-changePrototype(MaleFilter, Filter.prototype);
+setPrototype(MaleFilter, Filter.prototype);
 
 /**
  * Фильтр друзей-девушек
@@ -130,11 +130,11 @@ changePrototype(MaleFilter, Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this.apply = function (person) {
+    this.allow = function (person) {
         return person.gender === 'female';
     };
 }
-changePrototype(FemaleFilter, Filter.prototype);
+setPrototype(FemaleFilter, Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
