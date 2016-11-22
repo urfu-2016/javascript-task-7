@@ -9,6 +9,7 @@
 var listAllPersons;
 var usedFriendNames;
 var countCircles;
+var hasCircle;
 
 function compareAlphabetically(person1, person2) {
     if (person1.name > person2.name) {
@@ -40,7 +41,7 @@ function foundNextCircle(currentListFriends) {
         }
     });
 
-    return listAllPersons.filter(function (person) {
+    var ansList = listAllPersons.filter(function (person) {
         var usedName = usedFriendNames.indexOf(person.name) !== -1;
         if (namesFriends.indexOf(person.name) !== -1 && !usedName) {
             usedFriendNames.push(person.name);
@@ -48,6 +49,11 @@ function foundNextCircle(currentListFriends) {
 
         return (namesFriends.indexOf(person.name) !== -1 && !usedName);
     }).sort(compareAlphabetically);
+    if (ansList.length === 0) {
+        hasCircle = false;
+    }
+
+    return ansList;
 }
 
 function foundIncoherentFriends() {
@@ -57,6 +63,7 @@ function foundIncoherentFriends() {
 }
 
 function getListGuest() {
+    hasCircle = true;
     var listBestFriends = [].concat(foundFirstCircle());
     usedFriendNames = listBestFriends.map(function (person) {
         return person.name;
@@ -64,8 +71,11 @@ function getListGuest() {
     var listGuests = [].concat(listBestFriends);
     var currentListFriends = foundNextCircle(listBestFriends);
     listGuests = listGuests.concat(currentListFriends);
+    if (listGuests.length === 0) {
+        hasCircle = false;
+    }
 
-    while (currentListFriends.length !== 0) {
+    while (currentListFriends.length !== 0 && hasCircle) {
         currentListFriends = foundNextCircle(currentListFriends);
         listGuests = listGuests.concat(currentListFriends);
     }
