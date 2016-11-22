@@ -58,6 +58,9 @@ function invitedGuests(friends, filter, maxLevel) {
  */
 
 function Iterator(friends, filter) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
     this.currentIndex = 0;
     this.invitedGuests = invitedGuests(friends, filter, Infinity);
 }
@@ -84,7 +87,6 @@ function LimitedIterator(friends, filter, maxLevel) {
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
-// LimitedIterator.prototype.constructor = LimitedIterator;
 
 /**
  * Фильтр друзей
@@ -108,7 +110,6 @@ function MaleFilter() {
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
-// MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
@@ -123,7 +124,6 @@ function FemaleFilter() {
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
-// FemaleFilter.prototype.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
