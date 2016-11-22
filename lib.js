@@ -29,6 +29,7 @@ function invitedGuests(friends, filter, maxLevel) {
     var guests = friends.filter(function (friend) {
         return isBestFriend(friend);
     }).sort(alphabeticalOrder);
+    guests = guests.length > 0 ? guests : friends.sort(alphabeticalOrder);
     var invitedFriends = [].concat(guests);
     while (maxLevel > 1 && guests.length !== 0) {
         var countFriend = guests.length;
