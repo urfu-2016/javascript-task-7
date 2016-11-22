@@ -79,7 +79,7 @@ function getListGuest() {
 
 function Iterator(friends, filter) {
     usedFriendNames = [];
-    listAllPersons = friends;
+    listAllPersons = friends.slice();
     if (!(filter instanceof Filter)) {
         throw new TypeError('Incorrect data type Filter');
     }
