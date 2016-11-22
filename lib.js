@@ -76,7 +76,7 @@ function Iterator(friends, filter) {
             return friendObj;
         }).filter(filter.filter);
         var limitedFriends = [];
-        if (wavesLimit === undefined) {
+        if (typeof wavesLimit !== 'number') {
             wavesLimit = filteredFriends[filteredFriends.length - 1][1];
         }
 
