@@ -7,8 +7,8 @@
  * @returns {Boolean}
  */
 function compareName(personA, personB) {
-    if (personA.circle < personB.circle) {
-        return personA.circle > personB.circle;
+    if (personA._circle < personB._circle) {
+        return personA._circle > personB._circle;
     }
 
     return personA.name > personB.name;
@@ -24,6 +24,7 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
+
     var friendsList = friends.map(function (entry) {
         return Object.assign({}, entry);
     });
@@ -31,7 +32,7 @@ function Iterator(friends, filter) {
     var friendWithCircleAfter = 0;
     friendsList.forEach(function (friend) {
         if (friend.best === true) {
-            friend.circle = 1;
+            friend._circle = 1;
             friendWithCircleBefore++;
         }
     });
@@ -56,14 +57,14 @@ function Iterator(friends, filter) {
 function setAndCheckCircle(friendsList, circle) {
     var count = 0;
     friendsList.forEach(function (friend) {
-        if (friend.circle !== undefined) {
+        if (friend._circle !== undefined) {
             count++;
         }
-        if (friend.circle === circle) {
+        if (friend._circle === circle) {
             friend.friends.forEach(function (name) {
                 friendsList.forEach(function (friend1) {
-                    if (friend1.name === name && friend1.circle === undefined) {
-                        friend1.circle = circle + 1;
+                    if (friend1.name === name && friend1._circle === undefined) {
+                        friend1._circle = circle + 1;
                     }
                 });
             });
@@ -75,19 +76,19 @@ function setAndCheckCircle(friendsList, circle) {
 
 Iterator.prototype.done = function () {
     this.friends = this.friends.filter(function (friend) {
-        return friend.circle !== undefined;
+        return friend._circle !== undefined;
     });
 
     return (checkDone(this.friends));
 };
 Iterator.prototype.next = function () {
     this.friends = this.friends.filter(function (friend) {
-        return friend.circle !== undefined;
+        return friend._circle !== undefined;
     });
     if (checkDone(this.friends)) {
         return null;
     }
-    delete this.friends[0].circle;
+    delete this.friends[0]._circle;
 
     return this.friends[0];
 };
@@ -110,7 +111,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
     maxLevel = maxLevel > 0 ? maxLevel : 0;
     this.friends = this.friends.filter(function (friend) {
-        return friend.circle <= maxLevel;
+        return friend._circle <= maxLevel;
     });
 }
 
