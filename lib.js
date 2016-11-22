@@ -17,7 +17,6 @@ function Iterator(friends, filter) {
         .filter(function (friend) {
             return filter.call(friend);
         });
-
 }
 
 Iterator.prototype._sortFriends = function (persons) {
@@ -43,11 +42,12 @@ Iterator.prototype._sortFriends = function (persons) {
 
         return nextFriends;
     };
-    while (friendsFriends.length !== 0 && friends.length <= this._maxLevel) {
+    while (friendsFriends.length !== 0) {
         friends.push({});
         friendsFriends = friendsFriends.reduce(addLevel, []);
     }
-    friends.shift();
+    friends.push(friends.shift());
+    friends = friends.slice(0, this._maxLevel);
 
     return friends.reduce(function (newFriends, rangFriends) {
         var sortName = Object.keys(rangFriends).sort(function (first, second) {
