@@ -11,55 +11,48 @@ function Iterator(friends, filter) {
         throw new TypeError('\'filter\' not a Filter()');
     }
 
-    this._maxLevel = arguments[2] || Infinity;
-
     this._friends = this._sortFriends(friends)
         .filter(function (friend) {
-            return filter.call(friend);
+            return filter.call(friend.person);
+        })
+        .sort(function (first, second) {
+            return first.person.name.localeCompare(second.person.name) &&
+                first.level >= second.level;
         });
 }
 
 Iterator.prototype._sortFriends = function (persons) {
     var friendsFriends = [];
     var friends = persons.reduce(function (newFriends, person) {
+        newFriends[person.name] = { person: person };
         if (person.best) {
-            newFriends[1][person.name] = person;
             friendsFriends = friendsFriends.concat(person.friends);
+            newFriends[person.name].level = 1;
         } else {
-            newFriends[0][person.name] = person;
+            newFriends[person.name].level = 0;
         }
 
         return newFriends;
-    }, [{}, {}]);
-    var addLevel = function (nextFriends, name) {
-        var lastIndex = friends.length - 1;
-        if (friends[0][name]) {
-            friends[lastIndex][name] = friends[0][name];
-            delete friends[0][name];
+    }, {});
+    var levelCount = 2;
+    var addRangRule = function (nextFriends, name) {
+        if (!friends[name].level) {
+            friends[name].level = levelCount;
 
-            return nextFriends.concat(friends[lastIndex][name].friends);
+            return nextFriends.concat(friends[name].person.friends);
         }
 
         return nextFriends;
     };
     while (friendsFriends.length !== 0) {
-        friends.push({});
-        friendsFriends = friendsFriends.reduce(addLevel, []);
+        friendsFriends = friendsFriends.reduce(addRangRule, []);
+        levelCount++;
     }
-    friends.push(friends.shift());
-    friends = friends.slice(0, this._maxLevel);
 
-    return friends.reduce(function (newFriends, rangFriends) {
-        var sortName = Object.keys(rangFriends).sort(function (first, second) {
-            return first.localeCompare(second);
-        });
-        sortName.reduce(function (res, name) {
-            res.push(rangFriends[name]);
+    return Object.keys(friends).reduce(function (arr, item) {
+        arr.push(friends[item]);
 
-            return res;
-        }, newFriends);
-
-        return newFriends;
+        return arr;
     }, []);
 };
 
@@ -68,7 +61,7 @@ Iterator.prototype.done = function () {
 };
 
 Iterator.prototype.next = function () {
-    return this.done() ? null : this._friends.shift();
+    return this.done() ? null : this._friends.shift().person;
 };
 
 /**
@@ -80,7 +73,11 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter, maxLevel);
+    Iterator.call(this, friends, filter);
+
+    this._friends = this._friends.filter(function (friend) {
+        return friend.level <= maxLevel;
+    });
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
