@@ -33,7 +33,11 @@ function foundNextCircle(currentListFriends) {
     countCircles++;
     var namesFriends = [];
     currentListFriends.forEach(function (person) {
-        namesFriends = namesFriends.concat(person.friends);
+        for (var i = 0; i < person.friends.length; i++) {
+            if (namesFriends.indexOf(person.friends[i]) === -1) {
+                namesFriends.push(person.friends[i]);
+            }
+        }
     });
 
     return listAllPersons.filter(function (person) {
@@ -46,25 +50,40 @@ function foundNextCircle(currentListFriends) {
     }).sort(compareAlphabetically);
 }
 
+function foundIncoherentFriends() {
+    return listAllPersons.filter(function (person) {
+        return usedFriendNames.indexOf(person.name) === -1;
+    }).sort(compareAlphabetically);
+}
+
+function getListGuest() {
+    var listBestFriends = [].concat(foundFirstCircle());
+    usedFriendNames = listBestFriends.map(function (person) {
+        return person.name;
+    });
+    var listGuests = [].concat(listBestFriends);
+    var currentListFriends = foundNextCircle(listBestFriends);
+    listGuests = listGuests.concat(currentListFriends);
+
+    while (currentListFriends.length !== 0) {
+        currentListFriends = foundNextCircle(currentListFriends);
+        listGuests = listGuests.concat(currentListFriends);
+    }
+    if (usedFriendNames.length !== listAllPersons.length) {
+        currentListFriends = foundIncoherentFriends();
+        listGuests = listGuests.concat(currentListFriends);
+    }
+
+    return listGuests;
+}
+
 function Iterator(friends, filter) {
-    countCircles = 0;
     usedFriendNames = [];
     listAllPersons = friends;
     if (!(filter instanceof Filter)) {
         throw new TypeError('Incorrect data type Filter');
     }
-    var listBestFriends = [].concat(foundFirstCircle());
-    usedFriendNames = listBestFriends.map(function (person) {
-        return person.name;
-    });
-    this.listGuests = [].concat(listBestFriends);
-    var currentListFriends = foundNextCircle(listBestFriends);
-    this.listGuests = this.listGuests.concat(currentListFriends);
-
-    while (usedFriendNames.length !== friends.length) {
-        currentListFriends = foundNextCircle(currentListFriends);
-        this.listGuests = this.listGuests.concat(currentListFriends);
-    }
+    this.listGuests = getListGuest();
     this.listGuests = this.listGuests.filter(function (friend) {
         return filter.filterFriends(friend);
     });
@@ -85,6 +104,7 @@ Iterator.prototype.next = function () {
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
  */
+
 function LimitedIterator(friends, filter, maxLevel) {
     countCircles = 0;
     usedFriendNames = [];
