@@ -53,7 +53,7 @@ function Iterator(friends, filter) {
     this.getWavesFriends = function (wavesLimit) {
 
         //  console.info('\n');
-        friends.sort(function (friend1, friend2) {
+        var copyFriends = friends.slice().sort(function (friend1, friend2) {
             if (friend1.hasOwnProperty('best') && friend2.hasOwnProperty('best') ||
                 !friend1.hasOwnProperty('best') && !friend2.hasOwnProperty('best')) {
                 return friend1.name < friend2.name ? -1 : 1;
@@ -61,13 +61,13 @@ function Iterator(friends, filter) {
 
             return friend1.hasOwnProperty('best') ? -1 : 1;
         });
-        var visited = searchWaves(friends);
+        var visited = searchWaves(copyFriends);
 
         //  console.info(visited);
         var filteredFriends = Object.keys(visited);
         var friendObj;
         filteredFriends = filteredFriends.map(function (friendName) {
-            friends.forEach(function (friend) {
+            copyFriends.forEach(function (friend) {
                 if (friend.name === friendName) {
                     friendObj = [friend, visited[friendName]];
                 }
