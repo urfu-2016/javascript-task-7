@@ -11,7 +11,7 @@ function Iterator(friends, filter) {
         throw new TypeError('Фильтр не является инстансом объекта Filter');
     }
 
-    var getFriendByName = friendByNameGetter();
+    var getFriendByName = createFriendByNameGetter();
     this.friendshipLevels = divideIntoFriendshipLevels().map(function (level) {
         return filter.filter(level)
             .sort(function (friend1, friend2) {
@@ -27,6 +27,7 @@ function Iterator(friends, filter) {
      * @returns {Array} - уровни друзей, где 0 - лучшие, 1 - друзья лучших и т.д.
      */
     function divideIntoFriendshipLevels() {
+        var levels = [];
 
         /* Начинаем с лучших друзей */
         var queueForAdding = friends.filter(function (friend) {
@@ -34,13 +35,11 @@ function Iterator(friends, filter) {
         });
 
         /* Запоминаем, что уже брали их */
-        var viewedFriends = queueForAdding.reduce(function (viewed, friend) {
-            viewed[friend.name] = true;
+        var viewedFriends = Object.create(null);
+        queueForAdding.forEach(function (friend) {
+            viewedFriends[friend.name] = true;
+        });
 
-            return viewed;
-        }, Object.create(null));
-
-        var levels = [];
         var numberOfFriendsInNextLevel;
         while ((numberOfFriendsInNextLevel = queueForAdding.length)) {
             var lastLevelIndex = levels.push([]) - 1;
@@ -56,7 +55,7 @@ function Iterator(friends, filter) {
         return levels;
     }
 
-    function friendByNameGetter() {
+    function createFriendByNameGetter() {
         var friendByName = Object.create(null);
         friends.forEach(function (friend) {
             friendByName[friend.name] = friend;
