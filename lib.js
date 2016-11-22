@@ -69,7 +69,7 @@ function getListGuest() {
         currentListFriends = foundNextCircle(currentListFriends);
         listGuests = listGuests.concat(currentListFriends);
     }
-    if (usedFriendNames.length !== listAllPersons.length) {
+    if (usedFriendNames.length !== listAllPersons.length && listGuests.length !== 0) {
         currentListFriends = foundIncoherentFriends();
         listGuests = listGuests.concat(currentListFriends);
     }
