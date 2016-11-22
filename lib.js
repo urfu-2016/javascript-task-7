@@ -7,11 +7,11 @@
  * @returns {Boolean}
  */
 function compareName(personA, personB) {
-    if (personA.circle < personB.circle) {
-        return personA.circle > personB.circle;
-    }
-
     return personA.name > personB.name;
+}
+
+function compareCircle(personA, personB) {
+    return personA.circle > personB.circle;
 }
 
 /**
@@ -45,7 +45,11 @@ function Iterator(friends, filter) {
 
     this.friends = friendsList.filter(function (friend) {
         return filter.rightGender(friend.gender);
-    }).sort(compareName);
+    }).filter(function (friend) {
+        return friend.circle !== undefined;
+    })
+        .sort(compareName)
+        .sort(compareCircle);
 }
 
 /**
@@ -124,7 +128,6 @@ LimitedIterator.prototype.constructor = LimitedIterator;
  */
 function Filter() {
     this.rightGender = function () {
-
         return true;
     };
 }
