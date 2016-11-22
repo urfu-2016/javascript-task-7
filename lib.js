@@ -93,7 +93,7 @@ Iterator.prototype.done = function () {
     return this.listGuests.length === 0;
 };
 Iterator.prototype.next = function () {
-    return this.listGuests.pop();
+    return this.done() ? null : this.listGuests.pop();
 };
 
 /**
@@ -124,6 +124,7 @@ function getListLimitGuest(maxLevel) {
 }
 
 function LimitedIterator(friends, filter, maxLevel) {
+    maxLevel = maxLevel === undefined ? 0 : maxLevel;
     countCircles = 0;
     usedFriendNames = [];
     listAllPersons = friends;
