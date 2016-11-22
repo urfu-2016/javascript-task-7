@@ -56,11 +56,11 @@ function foundNextCircle(currentListFriends) {
     return ansList;
 }
 
-function foundIncoherentFriends() {
+/* function foundIncoherentFriends() {
     return listAllPersons.filter(function (person) {
         return usedFriendNames.indexOf(person.name) === -1;
     }).sort(compareAlphabetically);
-}
+}*/
 
 function getListGuest() {
     hasCircle = true;
@@ -79,10 +79,10 @@ function getListGuest() {
         currentListFriends = foundNextCircle(currentListFriends);
         listGuests = listGuests.concat(currentListFriends);
     }
-    if (usedFriendNames.length !== listAllPersons.length && listGuests.length !== 0) {
-        currentListFriends = foundIncoherentFriends();
-        listGuests = listGuests.concat(currentListFriends);
-    }
+    // if (usedFriendNames.length !== listAllPersons.length && listGuests.length !== 0) {
+    //     currentListFriends = foundIncoherentFriends();
+    //    listGuests = listGuests.concat(currentListFriends);
+    // }
 
     return listGuests;
 }
