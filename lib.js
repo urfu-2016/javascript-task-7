@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Сортировка по алфавиту, с учетом крогов
+ * Сортировка по алфавиту, с учетом кругов
  * @param {Object} personA - первый друг
  * @param {Object} personB - второй друг
  * @returns {Boolean}
@@ -25,9 +25,7 @@ function Iterator(friends, filter) {
         throw new TypeError();
     }
 
-    var friendsList = friends.map(function (entry) {
-        return Object.assign({}, entry);
-    });
+    var friendsList = friends.slice();
     var friendWithCircleBefore = 0;
     var friendWithCircleAfter = 0;
     friendsList.forEach(function (friend) {
