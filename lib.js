@@ -19,10 +19,10 @@ function getFriend(friends, name) {
 
 function collectFriends(friends, filter, maxLevel) {
     var visitedFriends = [];
-    maxLevel = maxLevel > 0 ? maxLevel : Infinity;
+    maxLevel = maxLevel > 0 ? maxLevel : 0;
     var friendsToVisit = friends
         .filter(function (friend) {
-            return friend.best;
+            return friend.best === true;
         })
         .map(function (friend) {
             return friend.name;
@@ -43,6 +43,7 @@ function collectFriends(friends, filter, maxLevel) {
 
                 return currentFriendsToVisit.concat(filteredFriends);
             }, []);
+
 
         maxLevel--;
     }
