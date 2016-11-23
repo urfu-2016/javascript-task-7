@@ -1,16 +1,5 @@
 'use strict';
 
-function findNote(friends, name) {
-    var newFriend;
-    friends.forEach(function (friend) {
-        if (friend.name === name) {
-            newFriend = friend;
-        }
-    });
-
-    return newFriend;
-}
-
 function getFilteredFriends(friendsCircles, filter, maxLevel) {
     var filteredFriends = [];
     friendsCircles.slice(0, maxLevel).forEach(function (circle) {
@@ -47,7 +36,7 @@ function getCirclesOfFriends(friends) {
             friend.friends.forEach(function (name) {
                 if (checkedNames.indexOf(name) === -1) {
                     checkedNames.push(name);
-                    newCircle.push(findNote(friends, name));
+                    newCircle.push(findFriendByName(friends, name));
                 }
             });
         });
@@ -59,6 +48,17 @@ function getCirclesOfFriends(friends) {
     return circlesOfFriends;
 }
 
+function findFriendByName(friends, name) {
+    var newFriend;
+    friends.forEach(function (friend) {
+        if (friend.name === name) {
+            newFriend = friend;
+        }
+    });
+
+    return newFriend;
+}
+
 
 /**
  * Итератор по друзьям
@@ -67,6 +67,9 @@ function getCirclesOfFriends(friends) {
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
 
     this.circlesOfFriends = getCirclesOfFriends(friends);
     this.circlesOfFriends.forEach(function (circle) {
