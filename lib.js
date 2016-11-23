@@ -52,13 +52,14 @@ function getGuests(maxLevel) {
     usedFriendNames = listBestFriends.map(function (person) {
         return person.name;
     });
-    var listGuests = [].concat(listBestFriends);
+    // var listGuests = [].concat(listBestFriends);
+    var listGuests = [];
     var currentListFriends = listBestFriends;
     var level = maxLevel;
-    while (level > 1 && currentListFriends.length !== 0) {
-        level--;
-        currentListFriends = foundNextCircle(currentListFriends);
+    while (level > 0 && currentListFriends.length !== 0) {
         listGuests = listGuests.concat(currentListFriends);
+        currentListFriends = foundNextCircle(currentListFriends);
+        level--;
     }
 
     return listGuests;
