@@ -104,6 +104,10 @@ function getFriend(friends, name) {
 var guestsNames = [];
 
 function getGuests(friends, filter, limit) {
+    if (limit === 0) {
+
+        return [];
+    }
     var guests = [];
     guestsNames = [];
     friends.forEach(function (friend) {
