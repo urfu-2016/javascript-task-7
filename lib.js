@@ -31,7 +31,7 @@ function compare(a, b) {
 }
 function getCandidate(friends) {
     var currentFriendsCircle = friends.filter(function (friend) {
-        return friend.hasOwnProperty('best');
+        return friend.best;
     });
     var candidates = [];
     var currentLevel = 1;
