@@ -17,10 +17,11 @@ function choiceFriendsOnLevel(friends) {
     var noInviteFriends = [];
     var nameChoiceFriends = [];
     friendsBest.level = 0;
-    friendsBest.friends =friends.filter(function (item) {
+    friendsBest.friends = friends.filter(function (item) {
         if (item.best !== undefined) {
             choiceFriend(item, namesPeopleChoiceFriends);
             nameChoiceFriends.push(item.name);
+
             return true;
         }
         noInviteFriends.push(item);
@@ -34,18 +35,19 @@ function choiceFriendsOnLevel(friends) {
         friendsLevel.level = iteration;
         var choiceFriends = [];
         var name = [];
-        noInviteFriends.forEach(function (item) {
-            var indexNamePeople = namesPeopleChoiceFriends.indexOf(item.name);
-            if (nameChoiceFriends.indexOf(item.name) === -1) {
+        for (var index = 0; index < noInviteFriends.length; index++) {
+        //noInviteFriends.forEach(function (item) {
+            var indexNamePeople = namesPeopleChoiceFriends.indexOf(noInviteFriends[index].name);
+            if (nameChoiceFriends.indexOf(noInviteFriends[index].name) === -1) {
                 if (indexNamePeople !== -1) {
-                    choiceFriends.push(item);
-                    nameChoiceFriends.push(item.name);
-                    item.friends.forEach(function (nameFriendItem) {
+                    choiceFriends.push(noInviteFriends[index]);
+                    nameChoiceFriends.push(noInviteFriends[index].name);
+                    noInviteFriends[index].friends.forEach(function (nameFriendItem) {
                         name.push(nameFriendItem);
                     });
                 }
             }
-        });
+        }
         name.forEach(function (item) {
             namesPeopleChoiceFriends.push(item);
         });
@@ -71,7 +73,7 @@ function choiceFriend(item, namesPeopleChoiceFriends) {
  */
 function Iterator(friends, filter) {
     console.info(friends, filter);
-    if (!filter instanceof Filter) {
+    if (!(filter instanceof Filter)) {
         throw new TypeError('Filter не является прототипом filter');
     }
     this.inviteFriends = function () {
@@ -108,10 +110,8 @@ Iterator.prototype.next = function () {
     }
     this.indexFriend++;
 
-    return this.inviteFriends()[this.indexFriend-1];
+    return this.inviteFriends()[this.indexFriend - 1];
 };
-
-
 
 /**
  * Итератор по друзям с ограничением по кругу
