@@ -36,9 +36,21 @@ function removeExistingFriends(candidates, friendsCircle) {
         });
     });
 }
+function compare(a, b) {
+    if (a > b) {
+        return 1;
+    } else if (a < b) {
+        return -1;
+    }
+
+    return 0;
+}
 function getCandidate(friends) {
     var currentFriendsCircle = friends.filter(function (friend) {
         return friend.hasOwnProperty('best');
+    })
+    .sort(function (a, b) {
+        return compare(a.name, b.name);
     })
     .map(function (friend) {
         friend.level = 1;
