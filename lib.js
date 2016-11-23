@@ -10,14 +10,19 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('\'filter\' not a Filter()');
     }
+
     this._maxLevel = isNaN(arguments[2]) ? Infinity : arguments[2];
-    this._init(friends, filter);
+    this._invitedFriends = [];
+    this._uninvitedFriends = {};
+
+    this._init(friends);
+    this._inviteFriends();
+    this._filtered(filter);
 }
 
-Iterator.prototype._init = function (friends, filter) {
-    var invitedFriends = [];
-    var uninvitedFriends = {};
-    var currentFriends = friends.reduce(function (newFriends, friend) {
+Iterator.prototype._init = function (friends) {
+    var uninvitedFriends = this._uninvitedFriends;
+    this._currentFriends = friends.reduce(function (newFriends, friend) {
         if (friend.best) {
             newFriends.persons.push(friend);
             newFriends.friends = newFriends.friends.concat(friend.friends);
@@ -27,36 +32,50 @@ Iterator.prototype._init = function (friends, filter) {
 
         return newFriends;
     }, { persons: [], friends: [] });
-    while (currentFriends.persons.length > 0 && this._maxLevel-- > 0) {
-        invitedFriends = invitedFriends.concat(
-            currentFriends.persons.sort(function (first, second) {
-                return first.name.localeCompare(second.name);
-            })
-        );
+};
 
-        currentFriends = currentFriends.friends.reduce(function (newFriends, name) {
-            var friend = uninvitedFriends[name];
-            if (friend) {
-                newFriends.persons.push(friend);
-                newFriends.friends = newFriends.friends.concat(friend.friends);
-                delete uninvitedFriends[name];
-            }
-
-            return newFriends;
-        }, { persons: [], friends: [] });
+Iterator.prototype._inviteFriends = function () {
+    while (this._currentFriends.persons.length > 0 && this._maxLevel-- > 0) {
+        this._addInvited(this._currentFriends.persons);
+        this._currentFriends = this._friendsFriends(this._currentFriends.friends);
     }
+};
 
-    this._friends = invitedFriends.filter(function (friend) {
+Iterator.prototype._addInvited = function (friends) {
+    this._invitedFriends = this._invitedFriends.concat(
+        friends.sort(function (first, second) {
+            return first.name.localeCompare(second.name);
+        })
+    );
+};
+
+Iterator.prototype._friendsFriends = function (friends) {
+    var uninvitedFriends = this._uninvitedFriends;
+
+    return friends.reduce(function (newFriends, name) {
+        var friend = uninvitedFriends[name];
+        if (friend) {
+            newFriends.persons.push(friend);
+            newFriends.friends = newFriends.friends.concat(friend.friends);
+            delete uninvitedFriends[name];
+        }
+
+        return newFriends;
+    }, { persons: [], friends: [] });
+};
+
+Iterator.prototype._filtered = function (filter) {
+    this._invitedFriends = this._invitedFriends.filter(function (friend) {
         return filter.call(friend);
     });
 };
 
 Iterator.prototype.done = function () {
-    return this._friends.length === 0;
+    return this._invitedFriends.length === 0;
 };
 
 Iterator.prototype.next = function () {
-    return this.done() ? null : this._friends.shift();
+    return this.done() ? null : this._invitedFriends.shift();
 };
 
 /**
