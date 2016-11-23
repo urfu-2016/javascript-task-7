@@ -17,18 +17,13 @@ function sortByName(one, other) {
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
- * @param {Number} maxLevel - максимальный круг друзей
  */
-function Iterator(friends, filter, maxLevel) {
+function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('filter should be instance of Filter');
     }
 
-    function getInvitees() {
-        if (maxLevel === undefined) {
-            maxLevel = Number.POSITIVE_INFINITY;
-        }
-
+    this._getInvitees = function (maxLevel) {
         if (typeof(maxLevel) !== 'number' || maxLevel <= 0) {
             return [];
         }
@@ -62,7 +57,7 @@ function Iterator(friends, filter, maxLevel) {
         return visited.filter(function (visitedFriend) {
             return filter.filter(visitedFriend);
         });
-    }
+    };
 
     function getFriendsOf(friend) {
         return friend.friends
@@ -80,7 +75,7 @@ function Iterator(friends, filter, maxLevel) {
         }
     }
 
-    this._invitedFriends = getInvitees(friends, maxLevel);
+    this._invitedFriends = this._getInvitees(Infinity);
     this._currentFriendCount = 0;
 
     this.done = function () {
@@ -102,7 +97,7 @@ function Iterator(friends, filter, maxLevel) {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter, maxLevel);
-
+    this._invitedFriends = this._getInvitees(maxLevel)
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
