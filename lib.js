@@ -17,6 +17,11 @@ function getCopy(item) {
 }
 
 function sortFriends(friends) {
+    var roster = {
+        finished: [],
+        list: []
+    };
+
     var bestFriends = [];
 
     friends = friends.filter(function (person) {
@@ -29,27 +34,25 @@ function sortFriends(friends) {
         return true;
     });
 
-    friends = [bestFriends, friends];
+    roster.finished.push(bestFriends);
+    roster.list = friends;
 
-    while (friends[friends.length - 1].length) {
-        friends = getWave(friends);
+    while (roster.list.length) {
+        roster = getWave(roster);
     }
 
-    friends.pop();
-
-    return friends;
+    return roster.finished;
 }
 
-function getWave(friends) {
-    var roster = friends.pop();
+function getWave(roster) {
     var vawe = [];
     var result = [];
 
-    vawe = friends[friends.length - 1].reduce(function (acc, person) {
+    vawe = roster.finished[roster.finished.length - 1].reduce(function (acc, person) {
         return acc.concat(person.friends);
     }, vawe);
 
-    roster = roster.filter(function (person) {
+    roster.list = roster.list.filter(function (person) {
         if (vawe.indexOf(person.name) !== -1) {
             result.push(person);
 
@@ -59,7 +62,9 @@ function getWave(friends) {
         return true;
     });
 
-    return friends.concat([result, roster]);
+    roster.finished.push(result);
+
+    return roster;
 }
 
 /**
