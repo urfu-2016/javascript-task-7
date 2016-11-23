@@ -65,9 +65,9 @@ function Iterator(friends, filter) {
     };
 
     this.addBestFriends = function () {
-        this.addedFriends = sortCollection(friends.filter(function (friend) {
+        this.addedFriends = friends.filter(function (friend) {
             return Boolean(friend.best);
-        }));
+        }).sort();
         this.addedNameFriends = this.getNameFrends(this.addedFriends);
     };
 
@@ -100,11 +100,12 @@ Iterator.prototype.next = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     if (maxLevel === undefined || maxLevel < 1) {
-        this.maxLevel = 0;
+        this.all = [];
+        this.index = 0;
     } else {
         this.maxLevel = maxLevel;
+        Iterator.call(this, friends, filter);
     }
-    Iterator.call(this, friends, filter);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
