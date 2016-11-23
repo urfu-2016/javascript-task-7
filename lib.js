@@ -29,9 +29,7 @@ function searchWaves(friends) {
         return friend.hasOwnProperty('best') && friend.best;
     });
     if (queue.length === 0) {
-        queue = [friends.sort(function (f1, f2) {
-            return f1.name > f2.name;
-        })[0]];
+        return {};
     }
     var friendNameToFriendObj = {};
     friends.forEach(function (friendObj) {
@@ -46,6 +44,9 @@ function searchWaves(friends) {
 
 function getWavesFriends(friends, filter, wavesLimit) {
     var visited = searchWaves(friends);
+    if (!Object.keys(visited).length) {
+        return [];
+    }
     var visitedSort = {};
     Object.keys(visited).forEach(function (friend) {
         if (visitedSort.hasOwnProperty(visited[friend])) {
