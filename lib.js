@@ -10,10 +10,9 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
-    this.filteredFriends = getFriends(friends, Infinity).filter(filter.abc);
+    this.filteredFriends = getFriends(friends, Infinity).filter(filter.isAccepted);
+    this.nextIndex = 0;
 }
-
-Iterator.prototype.nextIndex = 0;
 
 Iterator.prototype.next = function () {
     return this.done() ? null : this.filteredFriends[this.nextIndex++];
@@ -23,22 +22,44 @@ Iterator.prototype.done = function () {
     return this.nextIndex === this.filteredFriends.length;
 };
 
-function getInformationByName(friends, name) {
-    return friends.filter(function (friend) {
-        return friend.name === name;
-    })[0];
+function HashSet() {
+    this.hashTable = {};
+    this.contains = function (person) {
+        var a = this.hashTable.hasOwnProperty(person.name);
+        return this.hashTable.hasOwnProperty(person.name);
+    };
+    this.add = function (person) {
+        this.hashTable[person.name] = person;
+    };
+    this.addRange = function (persons) {
+        persons.forEach(this.add, this);
+    };
+    this.getPersons = function () {
+        var hashTable = this.hashTable;
+        return Object.keys(this.hashTable).map(function (key) {
+            return hashTable[key];
+        });
+    }
 }
 
-function getFriendsOfFriends(friendsGraph, friendsNodes) {
-    var result = [];
-    friendsNodes.forEach(function (friend) {
-        var a = friend.friends.sort();
-        a.forEach(function (b) {
-            result.push(getInformationByName(friendsGraph, b));
-        });
-    });
+function getBestFriends(friends) {
+    return friends.filter(function (friend) {
+        return friend.best;
+    })
+}
 
-    return result;
+function getFriendByName(name, friends) {
+    for (var i = 0; i < friends.length; i++) {
+        if (friends[i].name === name) {
+            return friends[i];
+        }
+    }
+}
+
+function getFriendsOfFriend(friend, allFriends) {
+    return friend.friends.map(function (name) {
+        return getFriendByName(name, allFriends);
+    })
 }
 
 function friendsComparer(first, second) {
@@ -49,10 +70,18 @@ function friendsComparer(first, second) {
     return first.name === second.name ? 0 : -1;
 }
 
-function nextStep(queue, visited, friends) {
-    return getFriendsOfFriends(friends, queue)
-        .filter(function (person) {
-            return visited.indexOf(person) === -1;
+function getFriendsOfNextLevel(queue, allFriends, visited) {
+    var result = [];
+    for (var i = 0; i < queue.length; i++) {
+        var all = getFriendsOfFriend(queue[i], allFriends);
+        for (var j = 0; j < all.length; j++) {
+            result.push(all[j]);
+        }
+    }
+
+    return result
+        .filter(function (friend) {
+            return !visited.contains(friend);
         })
         .sort(friendsComparer);
 }
@@ -61,25 +90,18 @@ function getFriends(friends, maxLevel) {
     if (maxLevel < 1) {
         return [];
     }
-    var queue = friends.filter(function (person) {
-        return person.best;
-    });
-    var visited = [].slice.call(queue); // lint не дает использовать Set :(
-    var allFriends = [].slice.call(queue);
-    for (var level = 2; level <= maxLevel; level++) {
-        var newQueue = nextStep(queue, visited, friends);
-        if (!newQueue.length) {
-            return allFriends;
+    var visited = new HashSet();
+    visited.addRange(getBestFriends(friends));
+    var queue = getBestFriends(friends);
+    for (var i = 2; i <= maxLevel; i++) {
+        queue = getFriendsOfNextLevel(queue, friends, visited);
+        if (!queue.length) {
+            break;
         }
-        queue = [];
-        for (var j = 0; j < newQueue.length; j++) {
-            queue.push(newQueue[j]);
-            visited.push(newQueue[j]);
-            allFriends.push(newQueue[j]);
-        }
+        visited.addRange(queue);
     }
 
-    return allFriends;
+    return visited.getPersons();
 }
 
 /**
@@ -94,7 +116,8 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
-    this.filteredFriends = getFriends(friends, maxLevel).filter(filter.abc);
+    this.filteredFriends = getFriends(friends, maxLevel).filter(filter.isAccepted);
+    this.nextIndex = 0;
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
@@ -104,7 +127,7 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
  * @constructor
  */
 function Filter() {
-    this.abc = function () {
+    this.isAccepted = function () {
         return true;
     };
 }
@@ -115,7 +138,7 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.abc = function abc(person) {
+    this.isAccepted = function abc(person) {
         return person.gender === 'male';
     };
 }
@@ -128,7 +151,7 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this.abc = function (person) {
+    this.isAccepted = function (person) {
         return person.gender === 'female';
     };
 }
