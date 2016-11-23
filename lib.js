@@ -58,6 +58,9 @@ function nextStep(queue, visited, friends) {
 }
 
 function getFriends(friends, maxLevel) {
+    if (maxLevel < 1) {
+        return [];
+    }
     var visited = []; // lint не дает использовать Set :(
     var queue = friends.filter(function (person) {
         return person.best;
