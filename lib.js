@@ -117,7 +117,7 @@ function getListLimitGuest(maxLevel) {
         return person.name;
     });
     var listGuests = [].concat(listBestFriends);
-    if (maxLevel > 1) {
+    if (maxLevel >= 1) {
         var currentListFriends = listBestFriends;
         while (countCircles < maxLevel && hasCircle) {
             currentListFriends = foundNextCircle(currentListFriends);
