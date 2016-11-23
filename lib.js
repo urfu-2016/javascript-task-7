@@ -36,13 +36,17 @@ function foundNextCircle(currentListFriends) {
     });
 
     var ansList = listAllPersons.filter(function (person) {
+        var along = person.friends.length === 0;
         var usedName = usedFriendNames.indexOf(person.name) !== -1;
-        if (namesFriends.indexOf(person.name) !== -1 && !usedName) {
+        if (namesFriends.indexOf(person.name) !== -1 && !usedName && !along) {
             usedFriendNames.push(person.name);
         }
 
         return (namesFriends.indexOf(person.name) !== -1 && !usedName);
     }).sort(compareAlphabetically);
+    ansList.forEach(function (person) {
+        person.level++;
+    });
 
     return ansList;
 }
@@ -63,13 +67,16 @@ function getGuests(maxLevel) {
     }
 
     return listGuests.filter(function (person) {
-        return person.friends.length !== 0;
+        return person.level !== 0;
     });
 }
 
 function Iterator(friends, filter) {
     // usedFriendNames = [];
     listAllPersons = friends.slice();
+    listAllPersons.forEach(function (friend) {
+        friend.level = friend.best ? 1 : 0;
+    });
     if (!(filter instanceof Filter)) {
         throw new TypeError('Incorrect data type Filter');
     }
