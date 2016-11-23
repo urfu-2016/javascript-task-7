@@ -44,9 +44,7 @@ function foundNextCircle(currentListFriends) {
         return (namesFriends.indexOf(person.name) !== -1 && !usedName);
     }).sort(compareAlphabetically);
 
-    return ansList.filter(function (person) {
-        return usedFriendNames.indexOf(person.name) !== -1;
-    }).sort(compareAlphabetically);
+    return ansList;
 }
 
 function getGuests(maxLevel) {
@@ -64,7 +62,9 @@ function getGuests(maxLevel) {
         level--;
     }
 
-    return listGuests;
+    return listGuests.filter(function (person) {
+        return usedFriendNames.indexOf(person.name) !== -1;
+    });
 }
 
 function Iterator(friends, filter) {
