@@ -72,12 +72,10 @@ function Iterator(friends, filter, maxLevel) {
     }
 
     function getFriendWithName(name) {
-        for (var key in friends) {
-            if (friends.hasOwnProperty(key)) {
-                var friend = friends[key];
-                if (friend.name === name) {
-                    return friend;
-                }
+        for (var i = 0; i < friends.length; i++) {
+            var friend = friends[i];
+            if (friend.name === name) {
+                return friend;
             }
         }
     }
