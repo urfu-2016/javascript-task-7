@@ -1,11 +1,5 @@
 'use strict';
 
-/* function findByName(list, name) {
-    return list.find(function (element) {
-        return element.name === name;
-    });
-}*/
-
 function getCopy(item) {
     if (item instanceof Array) {
         return item.map(function (element) {
@@ -21,29 +15,6 @@ function getCopy(item) {
         return obj;
     }, copy);
 }
-
-function getWave(friends) {
-    var roster = friends.pop();
-    var vawe = [];
-    var result = [];
-
-    vawe = friends[friends.length - 1].reduce(function (acc, person) {
-        return acc.concat(person.friends);
-    }, vawe);
-
-    roster = roster.filter(function (person) {
-        if (vawe.indexOf(person.name) !== -1) {
-            result.push(person);
-
-            return false;
-        }
-
-        return true;
-    });
-
-    return friends.concat([result, roster]);
-}
-
 
 function sortFriends(friends) {
     var bestFriends = [];
@@ -69,6 +40,28 @@ function sortFriends(friends) {
     return friends;
 }
 
+function getWave(friends) {
+    var roster = friends.pop();
+    var vawe = [];
+    var result = [];
+
+    vawe = friends[friends.length - 1].reduce(function (acc, person) {
+        return acc.concat(person.friends);
+    }, vawe);
+
+    roster = roster.filter(function (person) {
+        if (vawe.indexOf(person.name) !== -1) {
+            result.push(person);
+
+            return false;
+        }
+
+        return true;
+    });
+
+    return friends.concat([result, roster]);
+}
+
 /**
  * Итератор по друзьям
  * @constructor
@@ -76,14 +69,12 @@ function sortFriends(friends) {
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    var roster = sortFriends(getCopy(friends));
-
-    this.invited = [];
-    while (roster.length) {
-        this.invited = this.invited.concat(
-                roster.pop().filter(filter.filter)
-            );
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('Wrong filter');
     }
+
+    var roster = sortFriends(getCopy(friends));
+    this.invited = filter.filterFunc(roster);
 
     Iterator.prototype.done = function done() {
         return this.invited.length === 0;
@@ -103,17 +94,14 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
+    Iterator.apply(this, arguments);
+    Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
+    LimitedIterator.prototype.constructor = LimitedIterator;
+
     var roster = sortFriends(getCopy(friends));
     roster = roster.splice(0, maxLevel);
 
-    this.invited = [];
-    while (roster.length) {
-        this.invited = this.invited.concat(
-                roster.pop().filter(filter.filter)
-            );
-    }
-
-    Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
+    this.invited = filter.filterFunc(roster);
 }
 
 /**
@@ -121,12 +109,19 @@ function LimitedIterator(friends, filter, maxLevel) {
  * @constructor
  */
 function Filter() {
-    var flag = true;
+    this.condition = function condition() {
+        return true;
+    };
 
-    return {
-        filter: function () {
-            return flag;
+    Filter.prototype.filterFunc = function filter(roster) {
+        var result = [];
+        while (roster.length) {
+            result = result.concat(
+                roster.pop().filter(this.condition)
+            );
         }
+
+        return result;
     };
 }
 
@@ -136,13 +131,13 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    var result = {
-        filter: function filter(person) {
-            return person.gender === 'male';
-        }
-    };
+    Filter.apply(this, arguments);
+    Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
+    MaleFilter.prototype.constructor = MaleFilter;
 
-    return Object.setPrototypeOf(result, new Filter());
+    this.condition = function (person) {
+        return person.gender === 'male';
+    };
 }
 
 /**
@@ -151,13 +146,12 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    var result = {
-        filter: function filter(person) {
-            return person.gender === 'female';
-        }
+    Filter.apply(this, arguments);
+    Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
+    FemaleFilter.prototype.constructor = FemaleFilter;
+    this.condition = function (person) {
+        return person.gender === 'female';
     };
-
-    return Object.setPrototypeOf(result, new Filter());
 }
 
 exports.Iterator = Iterator;
