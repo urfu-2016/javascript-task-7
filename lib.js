@@ -11,19 +11,21 @@ function getFilteredFriends(friends, filter, maxLevel) {
         })
         .sort(compareFriends);
     var filteredFriends = [];
+    var hasInFilteredFriends = function (name) {
+        return filteredFriends.some(function (friend) {
+            return friend.name === name;
+        });
+    };
     while (level !== 0 && friendsOfCurrentLevel.length !== 0) {
         filteredFriends = filteredFriends.concat(friendsOfCurrentLevel);
         friendsOfCurrentLevel = friendsOfCurrentLevel
             .reduce(function (namesOfFriends, friend) {
                 return namesOfFriends.concat(friend.friends.filter(function (name) {
-                    return namesOfFriends.indexOf(name) < 0;
+                    return namesOfFriends.indexOf(name) < 0 && !hasInFilteredFriends(name);
                 }));
-            },[])
+            }, [])
             .map(function (nameOfFriend) {
                 return getObjectOfFriend(nameOfFriend, friends);
-            })
-            .filter(function (friend) {
-                return filteredFriends.indexOf(friend) < 0;
             })
             .sort(compareFriends);
         level--;
@@ -70,13 +72,13 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
 function Filter() {
     this.isI = function () {
         return true;
-    }
+    };
 }
 
 function MaleFilter() {
     this.isI = function (friend) {
         return friend.gender === 'male';
-    }
+    };
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
@@ -84,7 +86,7 @@ MaleFilter.prototype = Object.create(Filter.prototype);
 function FemaleFilter() {
     this.isI = function (friend) {
         return friend.gender === 'female';
-    }
+    };
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
