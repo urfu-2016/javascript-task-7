@@ -1,52 +1,93 @@
 'use strict';
 
-/**
- * Итератор по друзьям
- * @constructor
- * @param {Object[]} friends
- * @param {Filter} filter
- */
+function getFilteredFriends(friends, filter, maxLevel) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
+    var level = maxLevel || Infinity;
+    var friendsOfCurrentLevel = friends
+        .filter(function (friend) {
+            return friend.best;
+        })
+        .sort(compareFriends);
+    var filteredFriends = [];
+    while (level !== 0 && friendsOfCurrentLevel.length !== 0) {
+        filteredFriends = filteredFriends.concat(friendsOfCurrentLevel);
+        friendsOfCurrentLevel = friendsOfCurrentLevel
+            .reduce(function (namesOfFriends, friend) {
+                return namesOfFriends.concat(friend.friends.filter(function (name) {
+                    return namesOfFriends.indexOf(name) < 0;
+                }));
+            },[])
+            .map(function (nameOfFriend) {
+                return getObjectOfFriend(nameOfFriend, friends);
+            })
+            .filter(function (friend) {
+                return filteredFriends.indexOf(friend) < 0;
+            })
+            .sort(compareFriends);
+        level--;
+    }
+
+    return filteredFriends.filter(filter.isI);
+}
+
+function compareFriends(firstFriend, secondFriend) {
+    return firstFriend.name.localeCompare(secondFriend.name);
+}
+
+function getObjectOfFriend(nameOfFriend, friends) {
+    var objectOfFriend;
+    friends.forEach(function (friend) {
+        if (friend.name === nameOfFriend) {
+            objectOfFriend = friend;
+        }
+    });
+
+    return objectOfFriend;
+}
+
 function Iterator(friends, filter) {
-    console.info(friends, filter);
+    this.filteredFriends = getFilteredFriends(friends, filter);
+    this.index = 0;
 }
 
-/**
- * Итератор по друзям с ограничением по кругу
- * @extends Iterator
- * @constructor
- * @param {Object[]} friends
- * @param {Filter} filter
- * @param {Number} maxLevel – максимальный круг друзей
- */
+Iterator.prototype.done = function () {
+    return this.index === this.filteredFriends.length;
+};
+
+Iterator.prototype.next = function () {
+    return this.done() ? null : this.filteredFriends[this.index++];
+};
+
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    this.filteredFriends = getFilteredFriends(friends, filter, maxLevel);
+    this.index = 0;
 }
 
-/**
- * Фильтр друзей
- * @constructor
- */
+LimitedIterator.prototype = Object.create(Iterator.prototype);
+
 function Filter() {
-    console.info('Filter');
+    this.isI = function () {
+        return true;
+    }
 }
 
-/**
- * Фильтр друзей
- * @extends Filter
- * @constructor
- */
 function MaleFilter() {
-    console.info('MaleFilter');
+    this.isI = function (friend) {
+        return friend.gender === 'male';
+    }
 }
 
-/**
- * Фильтр друзей-девушек
- * @extends Filter
- * @constructor
- */
+MaleFilter.prototype = Object.create(Filter.prototype);
+
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    this.isI = function (friend) {
+        return friend.gender === 'female';
+    }
 }
+
+FemaleFilter.prototype = Object.create(Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
