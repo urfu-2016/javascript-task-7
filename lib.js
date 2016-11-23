@@ -48,29 +48,23 @@ function compare(a, b) {
 function getCandidate(friends) {
     var currentFriendsCircle = friends.filter(function (friend) {
         return friend.hasOwnProperty('best');
-    })
-    .sort(function (a, b) {
-        return compare(a.name, b.name);
-    })
-    .map(function (friend) {
-        friend.level = 1;
-
-        return friend;
     });
     var candidates = [];
     var currentLevel = 1;
     while (currentFriendsCircle.length > 0) {
-        currentLevel++;
-        candidates = candidates.concat(currentFriendsCircle);
-        currentFriendsCircle = getNextCircle(currentFriendsCircle)
-        .sort()
-        .map(function (name) {
-            return getFriendByName(name, friends);
+        currentFriendsCircle = currentFriendsCircle.sort(function (a, b) {
+            return compare(a.name, b.name);
         });
         for (var i = 0; i < currentFriendsCircle.length; i++) {
             currentFriendsCircle[i].level = currentLevel;
         }
         currentFriendsCircle = removeExistingFriends(candidates, currentFriendsCircle);
+        candidates = candidates.concat(currentFriendsCircle);
+        currentFriendsCircle = getNextCircle(currentFriendsCircle)
+        .map(function (name) {
+            return getFriendByName(name, friends);
+        });
+        currentLevel++;
     }
 
     return candidates;
