@@ -33,14 +33,15 @@ function Iterator(friends, filter) {
             return friend.best;
         });
 
+        var isNotVisited = function(friend) {
+            return !contains(visited, friend);
+        };
+
         while (maxLevel-- > 0 && friendsToVisit.length !== 0) {
             friendsToVisit.sort(sortByName);
             visited = visited.concat(friendsToVisit);
             friendsToVisit = friendsToVisit.reduce(function (acc, friendToVisit) {
-                var notVisited = getFriendsOf(friendToVisit)
-                    .filter(function (friend) {
-                        return !contains(visited, friend);
-                    });
+                var notVisited = getFriendsOf(friendToVisit).filter(isNotVisited);
 
                 return acc.concat(notVisited);
             }, []);
