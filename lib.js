@@ -2,40 +2,38 @@
 
 function friendsSelect(friends, filter, maxLevel) {
     maxLevel = maxLevel || Infinity;
-    var sortFriends = [];
-    var noChecked = {};
-    var nextLevel = [];
-    var currentLevel = friends.reduce(function (levelFriends, friend) {
+    var invitedFriends = [];
+    var uninvitedFriends = {};
+    var level = friends.reduce(function (newLevel, friend) {
         if (friend.best) {
-            levelFriends.push(friend);
-            nextLevel = nextLevel.concat(friend.friends);
+            newLevel.current.push(friend);
+            newLevel.next = newLevel.next.concat(friend.friends);
         } else {
-            noChecked[friend.name] = friend;
+            uninvitedFriends[friend.name] = friend;
         }
 
-        return levelFriends;
-    }, []);
-    var newCurrentLevel = function (levelFriends, name) {
-        if (noChecked[name]) {
-            levelFriends.push(noChecked[name]);
-            nextLevel = nextLevel.concat(noChecked[name].friends);
-            delete noChecked[name];
-        }
-
-        return levelFriends;
-    };
-    while (currentLevel.length > 0 && maxLevel-- > 0) {
-        sortFriends = sortFriends.concat(
-            currentLevel.sort(function (first, second) {
+        return newLevel;
+    }, { current: [], next: [] });
+    while (level.current.length > 0 && maxLevel-- > 0) {
+        invitedFriends = invitedFriends.concat(
+            level.current.sort(function (first, second) {
                 return first.name.localeCompare(second.name);
             })
         );
-        var newNextLevel = nextLevel;
-        nextLevel = [];
-        currentLevel = newNextLevel.reduce(newCurrentLevel, []);
+
+        level = level.next.reduce(function (newLevel, name) {
+            var friend = uninvitedFriends[name];
+            if (friend) {
+                newLevel.current.push(friend);
+                newLevel.next = newLevel.next.concat(friend.friends);
+                delete uninvitedFriends[name];
+            }
+
+            return newLevel;
+        }, { current: [], next: [] });
     }
 
-    return sortFriends.filter(function (friend) {
+    return invitedFriends.filter(function (friend) {
         return filter.call(friend);
     });
 }
