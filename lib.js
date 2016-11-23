@@ -33,7 +33,7 @@ function Iterator(friends, filter) {
             return friend.best;
         });
 
-        var isNotVisited = function(friend) {
+        var isNotVisited = function (friend) {
             return !contains(visited, friend);
         };
 
