@@ -87,7 +87,7 @@ Iterator.prototype.next = function () {
     }
     this.indexEnumeration++;
 
-    return this.friends[this.indexEnumeration].name;
+    return this.friends[this.indexEnumeration];
 };
 
 
