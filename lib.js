@@ -76,7 +76,7 @@ Iterator.prototype.next = function () {
         return null;
     }
 
-    return this.listGuests.pop();
+    return this.listGuests.pop() || null;
 };
 
 /**
