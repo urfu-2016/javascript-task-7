@@ -62,11 +62,13 @@ function collectFriends(friends, friendsDict, filter, maxLevel) {
 
     while (friendsToVisit.length > 0) {
         friendsToVisit = friendsToVisit
-            .reduce(function (currentFriendsToVisit, currentFriend) {
+            .reduce(function (currentFriendsToVisit, currentFriend, index, arr) {
 
                 var filteredFriends = getFriendsOfFriend(currentFriend, friendsDict)
                     .filter(function (friend) {
-                        return !isArrayContainsFriend(visitedFriends, friend);
+                        return (
+                            !isArrayContainsFriend(visitedFriends, friend) &&
+                            !isArrayContainsFriend(arr, friend));
                     });
 
                 currentFriendsToVisit = currentFriendsToVisit.concat(filteredFriends);
