@@ -23,7 +23,16 @@ function Iterator(friends, filter, maxLevel) {
     var invitedFriends = inviteFriends(bestFriends, book, filter, depth);
 
     this.next = function () {
-        return this.done() ? null : invitedFriends[index++];
+        if (this.done) {
+            return null;
+        }
+
+        var name = invitedFriends[index++];
+        for (var i = 0; i < friends.length; i++) {
+            if (friends[i].name === name) {
+                return friends[i];
+            }
+        }
     };
 
     this.done = function () {
