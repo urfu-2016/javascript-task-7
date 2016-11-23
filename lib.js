@@ -54,11 +54,11 @@ function getGuests(maxLevel) {
     });
     // var listGuests = [].concat(listBestFriends);
     var listGuests = [];
-    var currentListFriends = listBestFriends;
+    var currentListFriends = listBestFriends.sort(compareAlphabetically);
     var level = maxLevel;
     while (level > 0 && currentListFriends.length !== 0) {
         listGuests = listGuests.concat(currentListFriends);
-        currentListFriends = foundNextCircle(currentListFriends);
+        currentListFriends = foundNextCircle(currentListFriends.sort(compareAlphabetically));
         level--;
     }
 
