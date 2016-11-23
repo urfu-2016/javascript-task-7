@@ -74,6 +74,7 @@ function roundFriend(friends, filter, maxLevel) {
     while (countRound !== maxLevel && indCurentFriend < addedFriends.length) {
         while (indCurentFriend !== addedFriends.length) {
             nameCurrentFriends = addedFriends[indCurentFriend].friends;
+            nameCurrentFriends = filterRepeat(nameCurrentFriends);
             nameCurrentFriends.forEach(function (nameCurrentFriend) {
                 friends.forEach(function (friend) {
                     if (friend.name === nameCurrentFriend) {
@@ -94,6 +95,12 @@ function roundFriend(friends, filter, maxLevel) {
 function sortCollection(collection) {
     return collection.sort(function (a, b) {
         return a.name < b.name ? -1 : 1;
+    });
+}
+
+function filterRepeat(nameCurrentFriends) {
+    return nameCurrentFriends.filter(function (nameCurrentFriend) {
+        return addedNameFriends.indexOf(nameCurrentFriend) === -1;
     });
 }
 
@@ -134,6 +141,7 @@ function isNotInvitedFriend(friend) {
 function Filter() {
     this.propertyFilter = '';
 }
+
 Filter.prototype.filterFunction = function (friends) {
     return filterOnProperty(this.propertyFilter, friends);
 };
