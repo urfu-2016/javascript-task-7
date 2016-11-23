@@ -26,7 +26,7 @@ function bfs(queue, visited, friendNameToFriendObj) {
 function searchWaves(friends) {
     var visited = {};
     var queue = friends.filter(function (friend) {
-        return friend.hasOwnProperty('best');
+        return friend.hasOwnProperty('best') && friend.best;
     });
     var friendNameToFriendObj = {};
     friends.forEach(function (friendObj) {
@@ -40,14 +40,7 @@ function searchWaves(friends) {
 }
 
 function getWavesFriends(friends, filter, wavesLimit) {
-    var copyFriends = friends.slice().sort(function (friend1, friend2) {
-        if (friend1.hasOwnProperty('best') && friend2.hasOwnProperty('best') ||
-            !friend1.hasOwnProperty('best') && !friend2.hasOwnProperty('best')) {
-            return friend1.name < friend2.name ? -1 : 1;
-        }
-
-        return friend1.hasOwnProperty('best') ? -1 : 1;
-    });
+    var copyFriends = friends.slice();
     var visited = searchWaves(copyFriends);
     var visitedSort = {};
     Object.keys(visited).forEach(function (friend) {
