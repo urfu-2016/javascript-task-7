@@ -97,7 +97,7 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    if (typeof maxLevel === undefined || maxLevel < 1) {
+    if (maxLevel === undefined || maxLevel < 1) {
         this.maxLevel = 0;
     } else {
         this.maxLevel = maxLevel;
@@ -121,14 +121,10 @@ function Filter() {
 }
 
 Filter.prototype.filterFunction = function (friends) {
-    return filterOnProperty(this.propertyFilter, friends);
-};
-
-function filterOnProperty(propertyFilter, friends) {
     return friends.filter(function (friend) {
-        return friend.gender === propertyFilter || propertyFilter === '';
+        return friend.gender === this.propertyFilter || this.propertyFilter === '';
     });
-}
+};
 
 /*
  * Фильтр друзей
@@ -138,6 +134,7 @@ function filterOnProperty(propertyFilter, friends) {
 function MaleFilter() {
     this.propertyFilter = 'male';
 }
+
 MaleFilter.prototype = Object.create(Filter.prototype);
 
 /*
@@ -148,6 +145,7 @@ MaleFilter.prototype = Object.create(Filter.prototype);
 function FemaleFilter() {
     this.propertyFilter = 'female';
 }
+
 FemaleFilter.prototype = Object.create(Filter.prototype);
 
 exports.Iterator = Iterator;
