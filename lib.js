@@ -34,9 +34,9 @@ function getCandidate(friends) {
         }
         currentFriendsCircle = getNextCircle(currentFriendsCircle, friends)
         .filter(function (currentFriend) {
-            return !candidates.some(function (candidate) {
-                return candidate.friend === currentFriend;
-            });
+            return candidates.map(function (candidate) {
+                return candidate.friend;
+            }).indexOf(currentFriend) === -1;
         });
         currentLevel++;
     }
