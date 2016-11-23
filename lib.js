@@ -1,23 +1,13 @@
 'use strict';
 
-function sortByNameAndFrendshipType(firstFriend, secondFriend) {
-    var nameRelation = 0;
-
+function sortByName(firstFriend, secondFriend) {
     if (firstFriend.name > secondFriend.name) {
-        nameRelation = 1;
+        return 1;
     } else if (secondFriend.name < firstFriend.name) {
-        nameRelation = -1;
+        return -1;
     }
 
-    // if (firstFriend.best && secondFriend.best) {
-    //     return nameRelation;
-    // } else if (firstFriend.best) {
-    //     return -1;
-    // } else if (secondFriend.best) {
-    //     return 1;
-    // }
-
-    return nameRelation;
+    return 0;
 }
 
 function getFriendsDict(friends) {
@@ -58,21 +48,21 @@ function collectFriends(friends, friendsDict, filter, maxLevel) {
     var visitedFriends = [];
     var appropriateFriends = [];
     var friendsToVisit = friends
-        .sort(sortByNameAndFrendshipType)
         .filter(function (friend) {
             return friend.best;
-        });
+        })
+        .sort(sortByName);
 
-    var currentDepth;
+    var currentDepth = 0;
     if (maxLevel > 0) {
         currentDepth = 1;
-    } else if (maxLevel <= 0) {
-        return [];
-    } else {
+    } else if (maxLevel === undefined) {
         maxLevel = Infinity;
+    } else {
+        maxLevel = 0;
     }
 
-    while (friendsToVisit.length > 0) {
+    while (friendsToVisit.length > 0 && currentDepth <= maxLevel) {
         friendsToVisit = friendsToVisit
             .reduce(function (currentFriendsToVisit, currentFriend) {
 
@@ -80,7 +70,7 @@ function collectFriends(friends, friendsDict, filter, maxLevel) {
                     .filter(function (friend) {
                         return !isArrayContainsFriend(visitedFriends, friend);
                     })
-                    .sort(sortByNameAndFrendshipType);
+                    .sort(sortByName);
 
                 currentFriendsToVisit = currentFriendsToVisit.concat(filteredFriends);
                 visitedFriends.push(currentFriend);
@@ -95,10 +85,6 @@ function collectFriends(friends, friendsDict, filter, maxLevel) {
 
         if (currentDepth) {
             currentDepth++;
-        }
-
-        if (currentDepth > maxLevel) {
-            break;
         }
     }
 
