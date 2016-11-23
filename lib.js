@@ -16,7 +16,7 @@ function Iterator(friends, filter) {
     this.filter = filter;
 
     friends.forEach(function (friend) {
-        if (friend.hasOwnProperty('best') {
+        if (friend.hasOwnProperty('best')) {
             this.currentFriends.push(friend);
         } else {
             this.otherFriends.push(friend);
