@@ -11,55 +11,48 @@ function Iterator(friends, filter) {
         throw new TypeError('\'filter\' not a Filter()');
     }
 
-    this._maxLevel = arguments[2] || Infinity;
+    var maxLevel = arguments[2];
 
-    this._friends = this._sortFriends(friends)
-        .filter(function (friend) {
-            return filter.call(friend);
-        });
+    this._friends = this._init(friends, filter, maxLevel);
 }
 
-Iterator.prototype._sortFriends = function (persons) {
-    var friendsFriends = [];
-    var friends = persons.reduce(function (newFriends, person) {
-        if (person.best) {
-            newFriends[1][person.name] = person;
-            friendsFriends = friendsFriends.concat(person.friends);
+Iterator.prototype._init = function (friends, filter, maxLevel) {
+    maxLevel = maxLevel || Infinity;
+    var sortFriends = [];
+    var noChecked = {};
+    var level = friends.reduce(function (levelFrinds, friend) {
+        if (friend.best) {
+            levelFrinds.current.push(friend);
+            levelFrinds.next = levelFrinds.next.concat(friend.friends);
         } else {
-            newFriends[0][person.name] = person;
+            noChecked[friend.name] = friend;
         }
 
-        return newFriends;
-    }, [{}, {}]);
-    var addLevel = function (nextFriends, name) {
-        var lastIndex = friends.length - 1;
-        if (friends[0][name]) {
-            friends[lastIndex][name] = friends[0][name];
-            delete friends[0][name];
+        return levelFrinds;
+    }, { current: [], next: [] });
+    while (level.current.length > 0 && maxLevel > 0) {
+        sortFriends = sortFriends.concat(
+            level.current.sort(function (first, second) {
+                return first.name.localeCompare(second.name);
+            })
+        );
 
-            return nextFriends.concat(friends[lastIndex][name].friends);
-        }
+        level = level.next.reduce(function (levelFriends, name) {
+            if (noChecked[name]) {
+                levelFriends.current.push(noChecked[name]);
+                levelFriends.next = levelFriends.next.concat(noChecked[name].friends);
+                delete noChecked[name];
+            }
 
-        return nextFriends;
-    };
-    while (friendsFriends.length !== 0 && friends.length <= this._maxLevel) {
-        friends.push({});
-        friendsFriends = friendsFriends.reduce(addLevel, []);
+            return levelFriends;
+        }, { current: [], next: [] });
+
+        maxLevel--;
     }
-    friends.shift();
 
-    return friends.reduce(function (newFriends, rangFriends) {
-        var sortName = Object.keys(rangFriends).sort(function (first, second) {
-            return first.localeCompare(second);
-        });
-        sortName.reduce(function (res, name) {
-            res.push(rangFriends[name]);
-
-            return res;
-        }, newFriends);
-
-        return newFriends;
-    }, []);
+    return sortFriends.filter(function (friend) {
+        return filter.call(friend);
+    });
 };
 
 Iterator.prototype.done = function () {
