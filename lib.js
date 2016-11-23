@@ -15,11 +15,6 @@ function getFriendByName(friendName, friends) {
 
     return foundFriends[0];
 }
-// function removeExistingFriends(candidates, friendsCircle) {
-//     return friendsCircle.filter(function (friend) {
-//         return candidates.indexOf(friend) === -1;
-//     });
-// }
 
 function getCandidate(friends) {
     var currentFriendsCircle = friends.filter(function (friend) {
@@ -49,7 +44,6 @@ function getCandidate(friends) {
     return candidates;
 }
 
-
 /**
  * Итератор по друзьям
  * @constructor
@@ -58,7 +52,7 @@ function getCandidate(friends) {
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError('Мне нужен ФИЛЬТР, а не ЭТО!!!');
+        throw new TypeError();
     }
     this.invitedFriends = getCandidate(friends).filter(function (candidate) {
         return filter.isRight(candidate.friend);
