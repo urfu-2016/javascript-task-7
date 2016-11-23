@@ -20,15 +20,7 @@ function getFriendByName(friendName, friends) {
 //         return candidates.indexOf(friend) === -1;
 //     });
 // }
-function compare(a, b) {
-    if (a > b) {
-        return 1;
-    } else if (a < b) {
-        return -1;
-    }
 
-    return 0;
-}
 function getCandidate(friends) {
     var currentFriendsCircle = friends.filter(function (friend) {
         return friend.best;
@@ -37,11 +29,11 @@ function getCandidate(friends) {
     var currentLevel = 1;
     while (currentFriendsCircle.length !== 0) {
         currentFriendsCircle = currentFriendsCircle.sort(function (a, b) {
-            return compare(a.name, b.name);
+            return a.name.localeCompare(b.name);
         })
-        .filter(function (friend) {
+        .filter(function (currentFriend) {
             return !candidates.some(function (candidate) {
-                return candidate.friend === friend;
+                return candidate.friend === currentFriend;
             });
         });
         for (var i = 0; i < currentFriendsCircle.length; i++) {
