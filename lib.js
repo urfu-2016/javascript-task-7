@@ -11,17 +11,23 @@ function Iterator(friends, filter) {
         throw new TypeError('filter не является инстансом функции-конструктора Filter');
     }
 
+    friends = (friends instanceof Array) ? friends : [];
+
     this.currentFriends = [];
     this.otherFriends = [];
     this.filter = filter;
 
-    friends.forEach(function (friend) {
-        if (friend.hasOwnProperty('best') && friend.best === true) {
-            this.currentFriends.push(friend);
-        } else {
-            this.otherFriends.push(friend);
+    for (var i = 0; i < friends.length; i++) {
+        if (!(friends[i] instanceof Object)) {
+            continue;
         }
-    }, this);
+
+        if (friends[i].hasOwnProperty('best') && friends[i].best === true) {
+            this.currentFriends.push(friends[i]);
+        } else {
+            this.otherFriends.push(friends[i]);
+        }
+    }
 
     this.currentFriends.sort(compare);
     this.nextFriend = this.getNext();
@@ -96,7 +102,7 @@ function getNextLevel(otherFriends, level) {
                 return item.name === nameFriend;
             });
 
-            if (friendIndex !== -1 && nextLevel.indexOf(otherFriends[friendIndex]) === -1) {
+            if (friendIndex !== -1) {
                 nextLevel.push(otherFriends[friendIndex]);
                 otherFriends.splice(friendIndex, 1);
             }
@@ -117,7 +123,7 @@ function getNextLevel(otherFriends, level) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    this.maxLevel = maxLevel;
+    this.maxLevel = (typeof maxLevel === 'number') ? maxLevel : 0;
     Iterator.call(this, friends, filter);
 }
 
