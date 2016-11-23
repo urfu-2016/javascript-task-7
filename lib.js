@@ -12,14 +12,14 @@ function Iterator(friends, filter) {
     }
 
     this.currentFriends = [];
-    this.otherFriends = {};
+    this.otherFriends = [];
     this.filter = filter;
 
     friends.forEach(function (friend) {
         if (friend.hasOwnProperty('best') && friend.best === true) {
             this.currentFriends.push(friend);
         } else {
-            this.otherFriends[friend.name] = friend;
+            this.otherFriends.push(friend);
         }
     }, this);
 
@@ -43,11 +43,7 @@ Iterator.prototype.getNext = (function () {
     var friendIndex = 0;
 
     return function () {
-        if (this.done()) {
-            return null;
-        }
-
-        while (friendIndex < this.currentFriends.length) {
+        while (this.currentFriends.length) {
             var friend = this.currentFriends[friendIndex];
             friendIndex++;
 
@@ -80,16 +76,29 @@ Iterator.prototype.done = function () {
     return this.nextFriend === null;
 };
 
+function findIndex(collection, callback) {
+    for (var i = 0; i < collection.length; i++) {
+        if (callback(collection[i])) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
 function getNextLevel(otherFriends, level) {
     var nextLevel = [];
 
     for (var i = 0; i < level.length; i++) {
         var currentFriend = level[i];
         currentFriend.friends.forEach(function (nameFriend) {
-            if (otherFriends.hasOwnProperty(nameFriend) &&
-                nextLevel.indexOf(otherFriends[nameFriend]) === -1) {
-                nextLevel.push(otherFriends[nameFriend]);
-                delete otherFriends[nameFriend];
+            var friendIndex = findIndex(otherFriends, function (item) {
+                return item.name === nameFriend;
+            });
+
+            if (friendIndex !== -1 && nextLevel.indexOf(otherFriends[friendIndex] === -1)) {
+                nextLevel.push(otherFriends[friendIndex]);
+                otherFriends.splice(friendIndex, 1);
             }
         });
     }
@@ -120,11 +129,7 @@ LimitedIterator.prototype.getNext = (function () {
     var currentLevel = 1;
 
     return function () {
-        if (this.done()) {
-            return null;
-        }
-
-        while (friendIndex < this.currentFriends.length && currentLevel <= this.maxLevel) {
+        while (this.currentFriends.length && currentLevel <= this.maxLevel) {
             var friend = this.currentFriends[friendIndex];
             friendIndex++;
 
@@ -157,8 +162,8 @@ function Filter() {
     this.nothing = 'nothing';
 }
 
-Filter.prototype.isSuitable = function (item) {
-    return item !== null;
+Filter.prototype.isSuitable = function () {
+    return true;
 };
 
 function GenderFilter() {
