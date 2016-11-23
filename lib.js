@@ -55,7 +55,7 @@ function Iterator(friends, filter) {
         this.addedFriends = this.filter.filterFunction(this.addedFriends);
         this.addedNameFriends = this.getNameFrends(this.addedFriends);
 
-        return this.filter.filterFunction(this.addedFriends);
+        return maxLevel !== 0 ? this.filter.filterFunction(this.addedFriends) : [];
     };
 
     this.getNameFrends = function getNameFrends() {
@@ -100,12 +100,11 @@ Iterator.prototype.next = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     if (maxLevel === undefined || maxLevel < 1) {
-        this.all = [];
-        this.index = 0;
+        this.maxLevel = 0;
     } else {
         this.maxLevel = maxLevel;
-        Iterator.call(this, friends, filter);
     }
+    Iterator.call(this, friends, filter);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
