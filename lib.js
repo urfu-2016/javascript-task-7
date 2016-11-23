@@ -134,7 +134,7 @@ function getListLimitGuest(maxLevel) {
 function LimitedIterator(friends, filter, maxLevel) {
     maxLevel = maxLevel === (undefined || null) ? 0 : maxLevel;
     countCircles = 0;
-    usedFriendNames = [];
+    // usedFriendNames = [];
     listAllPersons = friends.slice();
     if (!(filter instanceof Filter)) {
         throw new TypeError('Incorrect data type Filter');
