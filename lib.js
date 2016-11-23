@@ -17,7 +17,7 @@ function friendsSelect(friends, filter, maxLevel) {
     while (level.current.length > 0 && maxLevel > 0) {
         sortFriends = sortFriends.concat(
             level.current.sort(function (first, second) {
-                return first.name > second.name;
+                return first.name.localeCompare(second.name);
             })
         );
 
