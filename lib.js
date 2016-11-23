@@ -37,7 +37,7 @@ Iterator.prototype._init = function (friends) {
 Iterator.prototype._inviteFriends = function () {
     while (this._currentFriends.persons.length > 0 && this._maxLevel-- > 0) {
         this._addInvited(this._currentFriends.persons);
-        this._currentFriends = this._friendsFriends(this._currentFriends.friends);
+        this._currentFriends = this._getFriendsFriends(this._currentFriends.friends);
     }
 };
 
@@ -49,7 +49,7 @@ Iterator.prototype._addInvited = function (friends) {
     );
 };
 
-Iterator.prototype._friendsFriends = function (friends) {
+Iterator.prototype._getFriendsFriends = function (friends) {
     var uninvitedFriends = this._uninvitedFriends;
 
     return friends.reduce(function (newFriends, name) {
