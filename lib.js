@@ -172,16 +172,6 @@ Filter.prototype.isSuitable = function () {
     return true;
 };
 
-function GenderFilter() {
-    this.gender = 'nothing';
-}
-
-GenderFilter.prototype = Object.create(Filter.prototype);
-GenderFilter.prototype.constructor = GenderFilter;
-
-GenderFilter.prototype.isSuitable = function (item) {
-    return item.hasOwnProperty('gender') && item.gender === this.gender;
-};
 
 /**
  * Фильтр друзей
@@ -192,8 +182,12 @@ function MaleFilter() {
     this.gender = 'male';
 }
 
-MaleFilter.prototype = Object.create(GenderFilter.prototype);
+MaleFilter.prototype = Object.create(Filter.prototype);
 MaleFilter.prototype.constructor = MaleFilter;
+
+MaleFilter.prototype.isSuitable = function (item) {
+    return item.hasOwnProperty('gender') && item.gender === this.gender;
+};
 
 /**
  * Фильтр друзей-девушек
@@ -204,9 +198,12 @@ function FemaleFilter() {
     this.gender = 'female';
 }
 
-FemaleFilter.prototype = Object.create(GenderFilter.prototype);
+FemaleFilter.prototype = Object.create(Filter.prototype);
 FemaleFilter.prototype.constructor = FemaleFilter;
 
+FemaleFilter.prototype.isSuitable = function (item) {
+    return item.hasOwnProperty('gender') && item.gender === this.gender;
+};
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
