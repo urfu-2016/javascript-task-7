@@ -137,7 +137,7 @@ function LimitedIterator(friends, filter, maxLevel) {
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 LimitedIterator.prototype.done = function () {
-    return Iterator.prototype.done.call(this) || this.currentLevel >= this.maxLevel;
+    return Iterator.prototype.done.call(this) || this.currentLevel >= this.maxLevel || this.maxLevel <= 0;
 };
 
 LimitedIterator.prototype.moveToNextCircle = function () {
