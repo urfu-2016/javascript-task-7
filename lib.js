@@ -61,16 +61,11 @@ function getFriends(friends, maxLevel) {
     if (maxLevel < 1) {
         return [];
     }
-    var visited = []; // lint не дает использовать Set :(
     var queue = friends.filter(function (person) {
         return person.best;
     });
-    var allFriends = [];
-    queue.forEach(function (person) {
-        visited.push(person);
-        allFriends.push(person);
-    });
-
+    var visited = [].slice.call(queue); // lint не дает использовать Set :(
+    var allFriends = [].slice.call(queue);
     for (var level = 2; level <= maxLevel; level++) {
         var newQueue = nextStep(queue, visited, friends);
         if (!newQueue.length) {
