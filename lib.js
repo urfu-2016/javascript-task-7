@@ -78,14 +78,16 @@ function Iterator(friends, filter) {
     this.addBestFriends(friends);
     this.all = this.roundFriend(friends, this.maxLevel ? this.maxLevel : Number.POSITIVE_INFINITY);
 }
+
 Iterator.prototype.done = function () {
     return this.all.length <= this.index;
 };
+
 Iterator.prototype.next = function () {
     var nextFriend = this.all[this.index];
     this.index++;
 
-    return nextFriend;
+    return nextFriend ? nextFriend : null;
 };
 
 /*
@@ -104,6 +106,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     }
     Iterator.call(this, friends, filter);
 }
+
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 function sortCollection(collection) {
@@ -119,6 +122,10 @@ function sortCollection(collection) {
 function Filter() {
     this.propertyFilter = '';
 }
+
+Filter.prototype.filter = function (friend) {
+    return friend.gender === this.propertyFilter || this.propertyFilter === '';
+};
 
 Filter.prototype.filterFunction = function (friends) {
     return friends.filter(function (friend) {
