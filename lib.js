@@ -44,9 +44,10 @@ function getFriendsOfFriend(currentFriend, friendsDict) {
         }, []);
 }
 
-function collectFriends(friends, friendsDict, filter, maxLevel) {
+function collectFriends(friends, filter, maxLevel) {
     var visitedFriends = [];
     var appropriateFriends = [];
+    var friendsDict = getFriendsDict(friends);
     maxLevel = maxLevel === undefined ? Infinity : maxLevel;
     var friendsToVisit = friends
         .filter(function (friend) {
@@ -65,25 +66,17 @@ function collectFriends(friends, friendsDict, filter, maxLevel) {
                             !isArrayContainsFriend(arr, friend));
                     });
 
-                currentFriendsToVisit = currentFriendsToVisit.concat(filteredFriends);
                 visitedFriends.push(currentFriend);
-
-                if (filter.filter(currentFriend) &&
-                    !isArrayContainsFriend(appropriateFriends, currentFriend)) {
+                if (filter.filter(currentFriend)) {
                     appropriateFriends.push(currentFriend);
                 }
-                console.info('Current ', currentFriend.name,
-                    currentFriendsToVisit.map(function (p) {
-                        return p.name;
-                    }), '\n');
 
-                return currentFriendsToVisit;
+                return currentFriendsToVisit.concat(filteredFriends);
             }, [])
             .sort(sortByName);
 
         maxLevel--;
     }
-    console.info('Appropriate', appropriateFriends);
 
     return appropriateFriends;
 }
@@ -100,9 +93,7 @@ function Iterator(friends, filter, maxLevel) {
         throw new TypeError('Wrong filter argument');
     }
 
-    var friendsDict = getFriendsDict(friends);
-    console.info('\n\n\n');
-    this.friends = collectFriends(friends, friendsDict, filter, maxLevel);
+    this.friends = collectFriends(friends, filter, maxLevel);
 }
 
 Iterator.prototype.done = function () {
@@ -127,6 +118,7 @@ function LimitedIterator(friends, filter, maxLevel) {
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = LimitedIterator;
 
 /**
  * Фильтр друзей
@@ -150,6 +142,7 @@ function MaleFilter() {
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
@@ -163,6 +156,7 @@ function FemaleFilter() {
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
