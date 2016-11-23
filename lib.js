@@ -39,7 +39,7 @@ function IteratorByCircle(friends) {
 
     var bestFriends = friends.filter(function (friend) {
         return friend.best;
-    });
+    }).sort(compareBy('name'));
     bestFriends.forEach(this.pushNextIfPossible, this);
 }
 
@@ -101,6 +101,8 @@ Iterator.prototype = Object.create(IteratorByCircle.prototype);
 
 Iterator.prototype.next = function () {
     if (this.done()) {
+        this.current = null;
+
         return null;
     }
 
