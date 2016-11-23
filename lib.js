@@ -146,7 +146,7 @@ function Filter() {
     this.filter = function () {
         return true;
     };
-}d
+}
 
 /**
  * Фильтр друзей
