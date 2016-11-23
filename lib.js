@@ -27,7 +27,12 @@ function searchWaves(friends) {
     var visited = {};
     var queue = friends.filter(function (friend) {
         return friend.hasOwnProperty('best') && friend.best;
-    }).sort();
+    });
+    if (queue.length === 0) {
+        queue = [friends.sort(function (f1, f2) {
+            return f1.name > f2.name;
+        })[0]];
+    }
     var friendNameToFriendObj = {};
     friends.forEach(function (friendObj) {
         friendNameToFriendObj[friendObj.name] = friendObj;
@@ -51,10 +56,7 @@ function getWavesFriends(friends, filter, wavesLimit) {
     });
     var filteredFriends = [];
     Object.keys(visitedSort).forEach(function (numberWave) {
-        filteredFriends = filteredFriends.concat(
-        visitedSort[numberWave].sort(function (f1, f2) {
-            return f1 > f2;
-        }));
+        filteredFriends = filteredFriends.concat(visitedSort[numberWave].sort());
     });
 
     var friendObj;
