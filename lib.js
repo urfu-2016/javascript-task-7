@@ -52,11 +52,11 @@ function collectFriends(friends, filter, maxLevel) {
     var friendsToVisit = friends
         .filter(function (friend) {
             return friend.best;
-        })
-        .sort(sortByName);
+        });
 
     while (friendsToVisit.length > 0 && maxLevel > 0) {
         friendsToVisit = friendsToVisit
+            .sort(sortByName)
             .reduce(function (currentFriendsToVisit, currentFriend, index, arr) {
 
                 var filteredFriends = getFriendsOfFriend(currentFriend, friendsDict)
@@ -72,8 +72,7 @@ function collectFriends(friends, filter, maxLevel) {
                 }
 
                 return currentFriendsToVisit.concat(filteredFriends);
-            }, [])
-            .sort(sortByName);
+            }, []);
 
         maxLevel--;
     }
@@ -88,12 +87,12 @@ function collectFriends(friends, filter, maxLevel) {
  * @param {Filter} filter
  * @param {Number} maxLevel
  */
-function Iterator(friends, filter, maxLevel) {
+function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Wrong filter argument');
     }
 
-    this.friends = collectFriends(friends, filter, maxLevel);
+    this.friends = collectFriends(friends, filter);
 }
 
 Iterator.prototype.done = function () {
@@ -114,7 +113,8 @@ Iterator.prototype.next = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
 
-    Iterator.call(this, friends, filter, maxLevel);
+    Iterator.call(this, friends, filter);
+    this.friends = collectFriends(friends, filter, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
