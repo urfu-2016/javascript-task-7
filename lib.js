@@ -5,27 +5,12 @@ function friendsABCComparator(f1, f2) {
     return f1.name.localeCompare(f2.name);
 }
 
-function findFriend(friends, name) {
-    for (var index = 0; index < friends.length; index++) {
-        if (friends[index].name === name) {
-
-            return friends[index];
-        }
-    }
-}
-
-function getFriendsCircle(currCircle, friends) {
+function getFriendsCircle(currCircle, friendsDict) {
     var friendsCircle = [];
-    var friendNames = currCircle.map(function (friend) {
-
-        return friend.friends;
-    });
-
-    friendNames.forEach(function (nameArray) {
-        nameArray.forEach(function (name) {
-            var friend = findFriend(friends, name);
-            if (friendsCircle.indexOf(friend) === -1) {
-                friendsCircle.push(findFriend(friends, name));
+    currCircle.forEach(function (friend) {
+        friend.friends.forEach(function (name) {
+            if (friendsCircle.indexOf(friendsDict[name]) === -1) {
+                friendsCircle.push(friendsDict[name]);
             }
         });
     });
@@ -33,8 +18,17 @@ function getFriendsCircle(currCircle, friends) {
     return friendsCircle;
 }
 
+function makeFriendsDict(friends) {
+    var friendsDict = {};
+    friends.forEach(function (friend) {
+        friendsDict[friend.name] = friend;
+    });
+
+    return friendsDict;
+}
 
 function getFriendsUpToCircle(friends, filter, limitCircle) {
+    var friendsDict = makeFriendsDict(friends);
     var invitedFriends = [];
     var currCircle = friends.filter(function (friend) {
 
@@ -53,7 +47,7 @@ function getFriendsUpToCircle(friends, filter, limitCircle) {
             limitCircle--;
         }
         invitedFriends = invitedFriends.concat(currCircle);
-        var currFriendsCircle = getFriendsCircle(currCircle, friends);
+        var currFriendsCircle = getFriendsCircle(currCircle, friendsDict);
         currCircle = currFriendsCircle.filter(notInList).sort(friendsABCComparator);
     }
 
@@ -70,7 +64,7 @@ function getFriendsUpToCircle(friends, filter, limitCircle) {
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('Not instance of Filter');
     }
     this._current = 0;
     this._invitedFriends = getFriendsUpToCircle(friends, filter);
@@ -87,7 +81,7 @@ function Iterator(friends, filter) {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('Not instance of Filter');
     }
     this._current = 0;
     this._invitedFriends = getFriendsUpToCircle(friends, filter, maxLevel);
@@ -128,24 +122,28 @@ function FemaleFilter() {
     };
 }
 
+function inherit(obj, parent) {
+    obj.prototype = Object.create(parent.prototype);
+    obj.prototype.constructor = obj;
+}
+
 Filter.prototype.isApropToQuery = function (obj) {
     return this._query(obj);
 };
 
-MaleFilter.prototype = Object.create(Filter.prototype);
-MaleFilter.prototype.constructor = MaleFilter;
-FemaleFilter.prototype = Object.create(Filter.prototype);
-FemaleFilter.prototype.constructor = FemaleFilter;
+
+inherit(MaleFilter, Filter);
+inherit(FemaleFilter, Filter);
 Iterator.prototype.done = function () {
 
     return this._current === this._invitedFriends.length;
 };
+
 Iterator.prototype.next = function () {
 
     return this.done() ? null : this._invitedFriends[this._current++];
 };
-LimitedIterator.prototype = Object.create(Iterator.prototype);
-LimitedIterator.prototype.constructor = LimitedIterator;
+inherit(LimitedIterator, Iterator);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
