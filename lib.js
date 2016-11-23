@@ -63,7 +63,7 @@ function getGuests(maxLevel) {
     }
 
     return listGuests.filter(function (person) {
-        return usedFriendNames.indexOf(person.name) !== -1;
+        return person.friends.length !== 0;
     });
 }
 
