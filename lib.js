@@ -103,15 +103,11 @@ function LimitedIterator(friends, filter, maxLevel) {
  * @constructor
  * @param {String} gender
  */
-function Filter(gender) {
-    this.gender = gender;
-    this.filter = function (invited, book) {
-        var inv = invited.filter(function (friend) {
-            return book[friend].gender === gender;
-        });
-        inv.sort();
+function Filter() {
+    this.filter = function (invited) {
+        invited.sort();
 
-        return inv;
+        return invited;
     };
 }
 
@@ -121,7 +117,14 @@ function Filter(gender) {
  * @constructor
  */
 function MaleFilter() {
-    Filter.call(this, 'male');
+    this.filter = function (invited, book) {
+        var inv = invited.filter(function (friend) {
+            return book[friend].gender === 'male';
+        });
+        inv.sort();
+
+        return inv;
+    };
 }
 
 /**
@@ -130,7 +133,14 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    Filter.call(this, 'female');
+    this.filter = function (invited, book) {
+        var inv = invited.filter(function (friend) {
+            return book[friend].gender === 'female';
+        });
+        inv.sort();
+
+        return inv;
+    };
 }
 
 FemaleFilter.prototype = Filter.prototype;
