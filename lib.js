@@ -63,20 +63,25 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Incorrect data type Filter');
     }
+    this.index = 0;
     this.listGuests = getGuests(friends, filter, Infinity);
-    this.listGuests.reverse();
+    // this.listGuests.reverse();
 }
 
 Iterator.prototype.done = function () {
-    return this.listGuests.length <= 0;
+    // return this.listGuests.length <= 0;
+    return this.index === this.listGuests.length;
 };
 
 Iterator.prototype.next = function () {
     if (this.done()) {
         return null;
     }
+    var guest = this.listGuests[this.index];
+    this.index++;
 
-    return this.listGuests.pop() || null;
+    return guest;
+    // return this.listGuests.pop();
 };
 
 /**
@@ -93,8 +98,9 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Incorrect data type Filter');
     }
+    this.index = 0;
     this.listGuests = getGuests(friends, filter, maxLevel);
-    this.listGuests.reverse();
+    // this.listGuests.reverse();
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
