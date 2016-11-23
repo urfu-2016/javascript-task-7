@@ -57,14 +57,13 @@ function getFriendsOfFriend(currentFriend, friendsDict) {
 function collectFriends(friends, friendsDict, filter, maxLevel) {
     var visitedFriends = [];
     var appropriateFriends = [];
-
     var friendsToVisit = friends
         .sort(sortByNameAndFrendshipType)
         .filter(function (friend) {
             return friend.best;
         });
 
-    var currentDepth = -1;
+    var currentDepth;
     if (maxLevel > 0) {
         currentDepth = 0;
     } else if (maxLevel <= 0) {
@@ -79,18 +78,12 @@ function collectFriends(friends, friendsDict, filter, maxLevel) {
 
                 var filteredFriends = getFriendsOfFriend(currentFriend, friendsDict)
                     .filter(function (friend) {
-                        return (
-                            !isArrayContainsFriend(visitedFriends, friend) &&
-                            !isArrayContainsFriend(currentFriendsToVisit, friend)
-                        );
+                        return !isArrayContainsFriend(visitedFriends, friend);
                     })
                     .sort(sortByNameAndFrendshipType);
 
                 currentFriendsToVisit = currentFriendsToVisit.concat(filteredFriends);
-
-                if (!isArrayContainsFriend(visitedFriends, currentFriend)) {
-                    visitedFriends.push(currentFriend);
-                }
+                visitedFriends.push(currentFriend);
 
                 if (filter.filter(currentFriend) &&
                     !isArrayContainsFriend(appropriateFriends, currentFriend)) {
@@ -100,7 +93,7 @@ function collectFriends(friends, friendsDict, filter, maxLevel) {
                 return currentFriendsToVisit;
             }, []);
 
-        if (currentDepth >= 0) {
+        if (currentDepth) {
             currentDepth++;
         }
 
@@ -133,11 +126,7 @@ Iterator.prototype.done = function () {
 };
 
 Iterator.prototype.next = function () {
-    if (!this.done()) {
-        return this.friends.shift();
-    }
-
-    return null;
+    return this.done() ? null : this.friends.shift();
 };
 
 /**
