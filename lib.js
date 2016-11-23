@@ -30,11 +30,6 @@ function getCandidate(friends) {
     while (currentFriendsCircle.length !== 0) {
         currentFriendsCircle = currentFriendsCircle.sort(function (a, b) {
             return a.name.localeCompare(b.name);
-        })
-        .filter(function (currentFriend) {
-            return !candidates.some(function (candidate) {
-                return candidate.friend === currentFriend;
-            });
         });
         for (var i = 0; i < currentFriendsCircle.length; i++) {
             candidates.push({
@@ -42,7 +37,12 @@ function getCandidate(friends) {
                 level: currentLevel
             });
         }
-        currentFriendsCircle = getNextCircle(currentFriendsCircle, friends);
+        currentFriendsCircle = getNextCircle(currentFriendsCircle, friends)
+        .filter(function (currentFriend) {
+            return !candidates.some(function (candidate) {
+                return candidate.friend === currentFriend;
+            });
+        });
         currentLevel++;
     }
 
