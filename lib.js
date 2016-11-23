@@ -20,7 +20,7 @@ Iterator.prototype.next = function () {
 };
 
 Iterator.prototype.done = function () {
-    return this.nextIndex >= this.filteredFriends.length;
+    return this.nextIndex === this.filteredFriends.length;
 };
 
 function getInformationByName(friends, name) {
@@ -32,12 +32,10 @@ function getInformationByName(friends, name) {
 function getFriendsOfFriends(friendsGraph, friendsNodes) {
     var result = [];
     friendsNodes.forEach(function (friend) {
-        if (friend.hasOwnProperty('friends')) {
-            var a = friend.friends.sort();
-            a.forEach(function (b) {
-                result.push(getInformationByName(friendsGraph, b));
-            });
-        }
+        var a = friend.friends.sort();
+        a.forEach(function (b) {
+            result.push(getInformationByName(friendsGraph, b));
+        });
     });
 
     return result;
@@ -64,9 +62,10 @@ function getFriends(friends, maxLevel) {
     var queue = friends.filter(function (person) {
         return person.best;
     });
-    var allFriends = [].slice.call(queue);
+    var allFriends = [];
     queue.forEach(function (person) {
         visited.push(person);
+        allFriends.push(person);
     });
 
     for (var level = 2; level <= maxLevel; level++) {
