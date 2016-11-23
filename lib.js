@@ -66,6 +66,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     this.index = 0;
     if (!maxLevel || maxLevel < 1) {
         this.filteredFriends = [];
+
         return;
     }
     this.filteredFriends = getFilteredFriends(friends, filter, maxLevel);
