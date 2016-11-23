@@ -54,8 +54,9 @@ function getGuests(maxLevel) {
     });
     var listGuests = [].concat(listBestFriends);
     var currentListFriends = listBestFriends;
-    while (maxLevel > 1 && currentListFriends.length !== 0) {
-        maxLevel--;
+    var level = maxLevel;
+    while (level > 1 && currentListFriends.length !== 0) {
+        level--;
         currentListFriends = foundNextCircle(currentListFriends);
         listGuests = listGuests.concat(currentListFriends);
     }
@@ -64,21 +65,32 @@ function getGuests(maxLevel) {
 }
 
 function Iterator(friends, filter) {
-    usedFriendNames = [];
+    // usedFriendNames = [];
     listAllPersons = friends.slice();
     if (!(filter instanceof Filter)) {
         throw new TypeError('Incorrect data type Filter');
     }
+    this.indexPersons = 0;
     this.listGuests = getGuests(Infinity).filter(function (friend) {
         return filter.filterFriends(friend);
     });
     this.listGuests.reverse();
 }
 Iterator.prototype.done = function () {
-    return this.listGuests.length === 0;
+    // return this.listGuests.length === 0;
+
+    return this.indexPersons >= this.listGuests.length;
 };
 Iterator.prototype.next = function () {
-    return this.done() ? null : this.listGuests.pop();
+    if (this.done()) {
+        return null;
+    }
+
+    // return this.listGuests.pop();
+    var index = this.indexPersons++;
+
+    return this.listGuests[this.listGuests.length - index - 1];
+    // return this.done() ? null : this.listGuests.pop();
 };
 
 /**
@@ -99,6 +111,8 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (maxLevel <= 0) {
         this.listGuests = [];
     } else {
+
+        this.indexPersons = 0;
         this.listGuests = getGuests(maxLevel).filter(function (friend) {
             return filter.filterFriends(friend);
         });
