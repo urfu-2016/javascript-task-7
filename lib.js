@@ -17,7 +17,7 @@ function Iterator(friends, filter) {
             return (current < last) ? filteredFriends[current++] : null;
         },
         done: function () {
-            return (current < last);
+            return !(current < last);
         }
     };
 }
