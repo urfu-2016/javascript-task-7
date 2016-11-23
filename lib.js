@@ -3,7 +3,7 @@
 function checkNeighbors(queue, visited, friendNameToFriendObj) {
     var node = queue[0];
     queue = queue.slice(1);
-    var neighbors = node.friends.sort();
+    var neighbors = node.friends;
     for (var i = 0; i < neighbors.length; i++) {
         if (neighbors[i] in visited) {
             continue;
@@ -62,9 +62,19 @@ function Iterator(friends, filter) {
             return friend1.hasOwnProperty('best') ? -1 : 1;
         });
         var visited = searchWaves(copyFriends);
+        var visitedSort = {};
+        Object.keys(visited).forEach(function (friend) {
+            if (visitedSort.hasOwnProperty(visited[friend])) {
+                visitedSort[visited[friend]].push(friend);
+            } else {
+                visitedSort[visited[friend]] = [friend];
+            }
+        });
+        var filteredFriends = [];
+        Object.keys(visitedSort).forEach(function (numberWave) {
+            filteredFriends = filteredFriends.concat(visitedSort[numberWave].sort());
+        });
 
-        //  console.info(visited);
-        var filteredFriends = Object.keys(visited);
         var friendObj;
         filteredFriends = filteredFriends.map(function (friendName) {
             copyFriends.forEach(function (friend) {
