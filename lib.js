@@ -1,5 +1,65 @@
 'use strict';
 
+function findNote(friends, name) {
+    var newFriend;
+    friends.forEach(function (friend) {
+        if (friend.name === name) {
+            newFriend = friend;
+        }
+    });
+
+    return newFriend;
+}
+
+function getFilteredFriends(friendsCircles, filter, maxLevel) {
+    var filteredFriends = [];
+    friendsCircles.slice(0, maxLevel).forEach(function (circle) {
+        circle.forEach(function (friend) {
+            if (filter.filterFunction(friend)) {
+                filteredFriends.push(friend);
+            }
+        });
+    });
+
+    return filteredFriends;
+}
+
+
+function getCirclesOfFriends(friends) {
+    var circlesOfFriends = [[]];
+    var checkedNames = [];
+
+    friends.forEach(function (friend) {
+        if (friend.best === true) {
+            circlesOfFriends[0].push(friend);
+            checkedNames.push(friend.name);
+        }
+    });
+
+    for (var i = 0; i < circlesOfFriends.length; i++) {
+        createNewCircle(i);
+    }
+
+    // В отдельной функции тк " Don't make functions within a loop"
+    function createNewCircle(circleId) {
+        var newCircle = [];
+        circlesOfFriends[circleId].forEach(function (friend) {
+            friend.friends.forEach(function (name) {
+                if (checkedNames.indexOf(name) === -1) {
+                    checkedNames.push(name);
+                    newCircle.push(findNote(friends, name));
+                }
+            });
+        });
+        if (newCircle.length) {
+            circlesOfFriends.push(newCircle);
+        }
+    }
+
+    return circlesOfFriends;
+}
+
+
 /**
  * Итератор по друзьям
  * @constructor
@@ -7,8 +67,38 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    console.info(friends, filter);
+
+    this.circlesOfFriends = getCirclesOfFriends(friends);
+    this.circlesOfFriends.forEach(function (circle) {
+        circle.sort(function (one, another) {
+            return one.name > another.name ? 1 : -1;
+        });
+    });
+    this.sortedCircles = this.circlesOfFriends;
+
+    this.filteredFriends = getFilteredFriends(
+        this.sortedCircles,
+        filter,
+        this.sortedCircles.length
+    );
+    this.currentIndex = 0;
+
 }
+
+Iterator.prototype.next = function () {
+    if (this.done()) {
+        return null;
+    }
+
+    this.currentIndex++;
+
+    return this.filteredFriends[this.currentIndex - 1];
+};
+
+Iterator.prototype.done = function () {
+    return this.currentIndex === this.filteredFriends.length;
+};
+
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -19,15 +109,20 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    Iterator.call(this, friends, filter);
+    this.filteredFriends = getFilteredFriends(this.sortedCircles, filter, maxLevel);
 }
+
+LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    console.info('Filter');
+    this.filterFunction = function () {
+        return true;
+    };
 }
 
 /**
@@ -36,8 +131,12 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    console.info('MaleFilter');
+    this.filterFunction = function (friend) {
+        return friend.gender === 'male';
+    };
 }
+
+MaleFilter.prototype = Object.create(Filter.prototype);
 
 /**
  * Фильтр друзей-девушек
@@ -45,8 +144,12 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    this.filterFunction = function (friend) {
+        return friend.gender === 'female';
+    };
 }
+
+FemaleFilter.prototype = Object.create(Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
