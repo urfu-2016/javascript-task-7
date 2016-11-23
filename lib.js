@@ -123,7 +123,7 @@ function getNextLevel(otherFriends, level) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    this.maxLevel = (typeof maxLevel === 'number') ? maxLevel : 0;
+    this.maxLevel = (typeof maxLevel === 'number' && !isNaN(maxLevel)) ? maxLevel : 0;
     Iterator.call(this, friends, filter);
 }
 
