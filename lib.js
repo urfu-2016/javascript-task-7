@@ -14,7 +14,7 @@ function Iterator(friends, filter) {
     this._init(friends, filter);
 }
 
-Iterator.prototype._init = function friendsSelect(friends, filter) {
+Iterator.prototype._init = function (friends, filter) {
     var invitedFriends = [];
     var uninvitedFriends = {};
     var currentFriends = friends.reduce(function (newFriends, friend) {
@@ -55,7 +55,7 @@ Iterator.prototype.done = function () {
     return this._friends.length === 0;
 };
 
-Iterator.prototype.friends = function () {
+Iterator.prototype.next = function () {
     return this.done() ? null : this._friends.shift();
 };
 
