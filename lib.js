@@ -9,11 +9,11 @@ function getNextCircle(oldCircle, friends) {
     });
 }
 function getFriendByName(friendName, friends) {
-    var foundFriend = friends.find(function (friend) {
+    var foundFriends = friends.filter(function (friend) {
         return friend.name === friendName;
     });
 
-    return foundFriend;
+    return foundFriends[0];
 }
 // function removeExistingFriends(candidates, friendsCircle) {
 //     return friendsCircle.filter(function (friend) {
@@ -95,7 +95,6 @@ Iterator.prototype.next = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
-    maxLevel = maxLevel > 0 ? maxLevel : 0;
     this.invitedFriends = this.invitedFriends.filter(function (friend) {
         return friend.level <= maxLevel;
     });
