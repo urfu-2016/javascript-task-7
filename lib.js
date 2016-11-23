@@ -59,14 +59,14 @@ function collectFriends(friends, friendsDict, filter, maxLevel) {
     var appropriateFriends = [];
 
     var friendsToVisit = friends
-        .sort(sortByNameAndFrendshipType);
+        .sort(sortByNameAndFrendshipType)
+        .filter(function (friend) {
+            return friend.best;
+        });
+
     var currentDepth = -1;
     if (maxLevel) {
         currentDepth = 0;
-        friendsToVisit = friendsToVisit
-            .filter(function (friend) {
-                return friend.best;
-            });
     } else {
         maxLevel = Infinity;
     }
