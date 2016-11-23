@@ -49,6 +49,7 @@ function getCandidate(friends) {
     return candidates;
 }
 
+
 /**
  * Итератор по друзьям
  * @constructor
