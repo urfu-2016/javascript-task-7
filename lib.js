@@ -38,24 +38,20 @@ function getCandidate(friends) {
     while (currentFriendsCircle.length !== 0) {
         currentFriendsCircle = currentFriendsCircle.sort(function (a, b) {
             return compare(a.name, b.name);
-        });
-        currentFriendsCircle = currentFriendsCircle.filter(function (friend) {
-            return candidates.indexOf(friend) === -1;
-        });
-        currentFriendsCircle.forEach(function (friend) {
-            if (candidates.indexOf(friend) === -1) {
-                candidates.push(friend);
-            }
+        })
+        .filter(function (friend) {
+            return !candidates.some(function (candidate) {
+                return candidate.friend === friend;
+            });
         });
         for (var i = 0; i < currentFriendsCircle.length; i++) {
-            currentFriendsCircle[i].level = currentLevel;
+            candidates.push({
+                friend: currentFriendsCircle[i],
+                level: currentLevel
+            });
         }
         currentFriendsCircle = getNextCircle(currentFriendsCircle, friends);
         currentLevel++;
-
-        // currentFriendsCircle = removeExistingFriends(candidates, currentFriendsCircle);
-        // candidates = candidates.concat(currentFriendsCircle);
-
     }
 
     return candidates;
@@ -71,8 +67,8 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Мне нужен ФИЛЬТР, а не ЭТО!!!');
     }
-    this.invitedFriends = getCandidate(friends).filter(function (a) {
-        return filter.isRight(a);
+    this.invitedFriends = getCandidate(friends).filter(function (candidate) {
+        return filter.isRight(candidate.friend);
     });
 }
 
@@ -84,10 +80,9 @@ Iterator.prototype.next = function () {
     if (this.done()) {
         return null;
     }
-    var friend = this.invitedFriends.shift();
-    delete friend.level;
+    var friendAndLevel = this.invitedFriends.shift();
 
-    return friend;
+    return friendAndLevel.friend;
 };
 
 /**
