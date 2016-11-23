@@ -65,9 +65,9 @@ function Iterator(friends, filter) {
     };
 
     this.addBestFriends = function () {
-        this.addedFriends = friends.filter(function (friend) {
+        this.addedFriends = sortCollection(friends.filter(function (friend) {
             return Boolean(friend.best);
-        }).sort();
+        }));
         this.addedNameFriends = this.getNameFrends(this.addedFriends);
     };
 
