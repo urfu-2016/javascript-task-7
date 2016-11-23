@@ -1,42 +1,5 @@
 'use strict';
 
-function friendsSelect(friends, filter, maxLevel) {
-    var invitedFriends = [];
-    var uninvitedFriends = {};
-    var level = friends.reduce(function (newLevel, friend) {
-        if (friend.best) {
-            newLevel.current.push(friend);
-            newLevel.next = newLevel.next.concat(friend.friends);
-        } else {
-            uninvitedFriends[friend.name] = friend;
-        }
-
-        return newLevel;
-    }, { current: [], next: [] });
-    while (level.current.length > 0 && maxLevel-- > 0) {
-        invitedFriends = invitedFriends.concat(
-            level.current.sort(function (first, second) {
-                return first.name.localeCompare(second.name);
-            })
-        );
-
-        level = level.next.reduce(function (newLevel, name) {
-            var friend = uninvitedFriends[name];
-            if (friend) {
-                newLevel.current.push(friend);
-                newLevel.next = newLevel.next.concat(friend.friends);
-                delete uninvitedFriends[name];
-            }
-
-            return newLevel;
-        }, { current: [], next: [] });
-    }
-
-    return invitedFriends.filter(function (friend) {
-        return filter.call(friend);
-    });
-}
-
 /**
  * Итератор по друзьям
  * @constructor
@@ -47,15 +10,52 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('\'filter\' not a Filter()');
     }
-
-    this._friends = friendsSelect(friends, filter, Infinity);
+    this._maxLevel = isNaN(arguments[2]) ? Infinity : arguments[2];
+    this._init(friends, filter);
 }
+
+Iterator.prototype._init = function friendsSelect(friends, filter) {
+    var invitedFriends = [];
+    var uninvitedFriends = {};
+    var currentFriends = friends.reduce(function (newFriends, friend) {
+        if (friend.best) {
+            newFriends.persons.push(friend);
+            newFriends.friends = newFriends.friends.concat(friend.friends);
+        } else {
+            uninvitedFriends[friend.name] = friend;
+        }
+
+        return newFriends;
+    }, { persons: [], friends: [] });
+    while (currentFriends.persons.length > 0 && this._maxLevel-- > 0) {
+        invitedFriends = invitedFriends.concat(
+            currentFriends.persons.sort(function (first, second) {
+                return first.name.localeCompare(second.name);
+            })
+        );
+
+        currentFriends = currentFriends.friends.reduce(function (newFriends, name) {
+            var friend = uninvitedFriends[name];
+            if (friend) {
+                newFriends.persons.push(friend);
+                newFriends.friends = newFriends.friends.concat(friend.friends);
+                delete uninvitedFriends[name];
+            }
+
+            return newFriends;
+        }, { persons: [], friends: [] });
+    }
+
+    this._friends = invitedFriends.filter(function (friend) {
+        return filter.call(friend);
+    });
+};
 
 Iterator.prototype.done = function () {
     return this._friends.length === 0;
 };
 
-Iterator.prototype.next = function () {
+Iterator.prototype.friends = function () {
     return this.done() ? null : this._friends.shift();
 };
 
@@ -68,11 +68,7 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError('\'filter\' not a Filter()');
-    }
-
-    this._friends = friendsSelect(friends, filter, maxLevel);
+    Iterator.call(this, friends, filter, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
