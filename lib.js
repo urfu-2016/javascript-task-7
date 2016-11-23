@@ -104,7 +104,7 @@ function getFriend(friends, name) {
 var guestsNames = [];
 
 function getGuests(friends, filter, limit) {
-    if (limit === 0) {
+    if (limit < 1) {
 
         return [];
     }
