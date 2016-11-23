@@ -76,7 +76,9 @@ function Iterator(friends, filter) {
         throw new TypeError('Неверный тип фильтра');
     }
     this.addBestFriends(friends);
-    this.all = this.roundFriend(friends, this.maxLevel ? this.maxLevel : Number.POSITIVE_INFINITY);
+    this.all = this.roundFriend(friends, this.maxLevel !== undefined
+        ? this.maxLevel : Number.POSITIVE_INFINITY
+    );
 }
 
 Iterator.prototype.done = function () {
