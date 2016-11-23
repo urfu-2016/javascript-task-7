@@ -65,8 +65,10 @@ function getWavesFriends(friends, filter, wavesLimit) {
         return friendObj;
     }).filter(filter.filter);
     var limitedFriends = [];
-    if (typeof wavesLimit !== 'number') {
+    if (typeof wavesLimit === 'undefined') {
         wavesLimit = filteredFriends[filteredFriends.length - 1][1];
+    } else {
+        wavesLimit = wavesLimit > 0 ? wavesLimit : 0;
     }
 
     //  console.info(filteredFriends);
