@@ -8,9 +8,7 @@
  */
 var listAllPersons;
 var usedFriendNames;
-var countCircles;
-var hasCircle;
-
+// var countCircles;
 function compareAlphabetically(person1, person2) {
     if (person1.name > person2.name) {
         return 1;
@@ -23,7 +21,7 @@ function compareAlphabetically(person1, person2) {
 }
 
 function foundFirstCircle() {
-    countCircles++;
+    // countCircles++;
 
     return listAllPersons.filter(function (person) {
         return person.best === true;
@@ -31,7 +29,7 @@ function foundFirstCircle() {
 }
 
 function foundNextCircle(currentListFriends) {
-    countCircles++;
+    // countCircles++;
     var namesFriends = [];
     currentListFriends.forEach(function (person) {
         for (var i = 0; i < person.friends.length; i++) {
@@ -49,32 +47,35 @@ function foundNextCircle(currentListFriends) {
 
         return (namesFriends.indexOf(person.name) !== -1 && !usedName);
     }).sort(compareAlphabetically);
-    if (ansList.length === 0) {
-        hasCircle = false;
-    }
 
     return ansList;
 }
 
-/* function foundIncoherentFriends() {
-    return listAllPersons.filter(function (person) {
-        return usedFriendNames.indexOf(person.name) === -1;
-    }).sort(compareAlphabetically);
-}*/
-
-function getListGuest() {
-    hasCircle = true;
+/* function getListGuest() {
     var listBestFriends = [].concat(foundFirstCircle());
     usedFriendNames = listBestFriends.map(function (person) {
         return person.name;
     });
     var listGuests = [].concat(listBestFriends);
     var currentListFriends = listBestFriends;
-    if (listGuests.length === 0) {
-        hasCircle = false;
+
+    while (currentListFriends.length !== 0) {
+        currentListFriends = foundNextCircle(currentListFriends);
+        listGuests = listGuests.concat(currentListFriends);
     }
 
-    while (currentListFriends.length !== 0 && hasCircle) {
+    return listGuests;
+}*/
+
+function getGuests(maxLevel) {
+    var listBestFriends = [].concat(foundFirstCircle());
+    usedFriendNames = listBestFriends.map(function (person) {
+        return person.name;
+    });
+    var listGuests = [].concat(listBestFriends);
+    var currentListFriends = listBestFriends;
+    while (maxLevel > 1 && currentListFriends.length !== 0) {
+        maxLevel--;
         currentListFriends = foundNextCircle(currentListFriends);
         listGuests = listGuests.concat(currentListFriends);
     }
@@ -88,14 +89,13 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Incorrect data type Filter');
     }
-    this.listGuests = getListGuest();
-    this.listGuests = this.listGuests.filter(function (friend) {
+    this.listGuests = getGuests(Infinity).filter(function (friend) {
         return filter.filterFriends(friend);
     });
     this.listGuests.reverse();
 }
 Iterator.prototype.done = function () {
-    return this.listGuests.length === 0;
+    return (this.listGuests.length === 0);
 };
 Iterator.prototype.next = function () {
     return this.done() ? null : this.listGuests.pop();
@@ -110,8 +110,7 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 
-function getListLimitGuest(maxLevel) {
-    hasCircle = true;
+/* function getListLimitGuest(maxLevel) {
     var listBestFriends = [].concat(foundFirstCircle());
     usedFriendNames = listBestFriends.map(function (person) {
         return person.name;
@@ -119,18 +118,18 @@ function getListLimitGuest(maxLevel) {
     var listGuests = [].concat(listBestFriends);
     if (maxLevel >= 1) {
         var currentListFriends = listBestFriends;
-        while (countCircles < maxLevel && hasCircle) {
+        while (countCircles < maxLevel) {
             currentListFriends = foundNextCircle(currentListFriends);
             listGuests = listGuests.concat(currentListFriends);
         }
     }
 
     return listGuests;
-}
+}*/
 
 function LimitedIterator(friends, filter, maxLevel) {
     maxLevel = maxLevel === (undefined || null) ? 0 : maxLevel;
-    countCircles = 0;
+    // countCircles = 0;
     listAllPersons = friends.slice();
     if (!(filter instanceof Filter)) {
         throw new TypeError('Incorrect data type Filter');
@@ -138,8 +137,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (maxLevel <= 0) {
         this.listGuests = [];
     } else {
-        this.listGuests = getListLimitGuest(maxLevel);
-        this.listGuests = this.listGuests.filter(function (friend) {
+        this.listGuests = getGuests(maxLevel).filter(function (friend) {
             return filter.filterFriends(friend);
         });
         this.listGuests.reverse();
