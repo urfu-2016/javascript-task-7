@@ -95,6 +95,7 @@ Iterator.prototype.next = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
+    maxLevel = maxLevel > 0 ? maxLevel : 0;
     this.invitedFriends = this.invitedFriends.filter(function (friend) {
         return friend.level <= maxLevel;
     });
