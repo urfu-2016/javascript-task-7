@@ -6,8 +6,7 @@
  * @param {Object[]} friends
  * @param {Filter} filter
  */
-// var listAllPersons;
-var usedFriendNames;
+
 function compareAlphabetically(person1, person2) {
     if (person1.name > person2.name) {
         return 1;
@@ -19,46 +18,38 @@ function compareAlphabetically(person1, person2) {
     return 0;
 }
 
-function foundFirstCircle(friends) {
+function getFirstCircle(friends) {
     return friends.filter(function (person) {
         return person.best === true;
     }).sort(compareAlphabetically);
 }
 
-function foundNextCircle(friends, currentListFriends) {
-    var namesFriends = [];
-    currentListFriends.sort(compareAlphabetically).forEach(function (person) {
-        for (var i = 0; i < person.friends.length; i++) {
-            if (namesFriends.indexOf(person.friends[i]) === -1) {
-                namesFriends.push(person.friends[i]);
-            }
+function getNextCircle(friends, currFriends, listGuests) {
+    currFriends.sort(compareAlphabetically).forEach(function (person) {
+        if (listGuests.indexOf(person) === -1) {
+            listGuests.push(person);
+            person.friends.forEach(function (name) {
+                var guest = friends.filter(function (friend) {
+                    return friend.name === name;
+                })[0];
+                currFriends.push(guest);
+            });
         }
     });
 
-    var ansList = friends.filter(function (person) {
-        var along = person.friends.length === 0;
-        var usedName = usedFriendNames.indexOf(person.name) !== -1;
-        if (namesFriends.indexOf(person.name) !== -1 && !usedName && !along) {
-            usedFriendNames.push(person.name);
-        }
-
-        return (namesFriends.indexOf(person.name) !== -1 && !usedName);
-    }).sort(compareAlphabetically);
-
-    return ansList;
+    return [currFriends, listGuests];
 }
 
 function getGuests(friends, filter, maxLevel) {
-    var listBestFriends = [].concat(foundFirstCircle(friends));
-    usedFriendNames = listBestFriends.map(function (person) {
-        return person.name;
-    });
+    var currFriends = [].concat(getFirstCircle(friends));
     var listGuests = [];
-    var currListFriends = listBestFriends.sort(compareAlphabetically);
     var level = maxLevel;
-    while (level > 0 && currListFriends.length !== 0) {
-        listGuests = listGuests.concat(currListFriends);
-        currListFriends = foundNextCircle(friends, currListFriends.sort(compareAlphabetically));
+    while (level > 0 && currFriends.length !== 0) {
+        var countFriends = currFriends.length;
+        var resultNextCircle = getNextCircle (friends, currFriends, listGuests);
+        currFriends = resultNextCircle[0];
+        listGuests = resultNextCircle[1];
+        currFriends.splice(0, countFriends);
         level--;
     }
 
@@ -68,30 +59,24 @@ function getGuests(friends, filter, maxLevel) {
 }
 
 function Iterator(friends, filter) {
-    // usedFriendNames = [];
-    // listAllPersons = friends.slice();
+
     if (!(filter instanceof Filter)) {
         throw new TypeError('Incorrect data type Filter');
     }
-    // this.indexPersons = 0;
     this.listGuests = getGuests(friends, filter, Infinity);
     this.listGuests.reverse();
 }
+
 Iterator.prototype.done = function () {
     return this.listGuests.length <= 0;
-
-    // return this.indexPersons >= this.listGuests.length;
 };
+
 Iterator.prototype.next = function () {
     if (this.done()) {
         return null;
     }
 
     return this.listGuests.pop();
-    // var index = this.indexPersons++;
-
-    // return this.listGuests[this.listGuests.length - index - 1];
-    // return this.done() ? null : this.listGuests.pop();
 };
 
 /**
@@ -105,15 +90,12 @@ Iterator.prototype.next = function () {
 
 function LimitedIterator(friends, filter, maxLevel) {
     maxLevel = (typeof maxLevel === 'undefined') ? 0 : maxLevel;
-    // listAllPersons = friends.slice();
     if (!(filter instanceof Filter)) {
         throw new TypeError('Incorrect data type Filter');
     }
     if (maxLevel <= 0) {
         this.listGuests = [];
     } else {
-
-        // this.indexPersons = 0;
         this.listGuests = getGuests(friends, filter, maxLevel);
         this.listGuests.reverse();
     }
