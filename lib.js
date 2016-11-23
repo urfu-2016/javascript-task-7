@@ -45,7 +45,7 @@ function distributeByLevels(friends, filter, maxLevel) {
     var nextLevel = [];
     var objectForFriends = convertArrayToObject(friends);
     friends.forEach(function (person) {
-        if (person.best) {
+        if (person.best === true) {
             invited.push(person);
             person.friends.forEach(function (friend) {
                 if (!(nextLevel.indexOf(objectForFriends[friend]) !== -1 ||
