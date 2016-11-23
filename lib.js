@@ -1,9 +1,12 @@
 'use strict';
 
-function getNextCircle(friends) {
-    return friends.reduce(function (nextCircle, friend) {
+function getNextCircle(oldCircle, friends) {
+    return oldCircle.reduce(function (nextCircle, friend) {
         return nextCircle.concat(friend.friends);
-    }, []);
+    }, [])
+    .map(function (name) {
+        return getFriendByName(name, friends);
+    });
 }
 function getFriendByName(friendName, friends) {
     var foundFriend = friends.find(function (friend) {
@@ -12,11 +15,11 @@ function getFriendByName(friendName, friends) {
 
     return foundFriend;
 }
-function removeExistingFriends(candidates, friendsCircle) {
-    return friendsCircle.filter(function (friend) {
-        return candidates.indexOf(friend) === -1;
-    });
-}
+// function removeExistingFriends(candidates, friendsCircle) {
+//     return friendsCircle.filter(function (friend) {
+//         return candidates.indexOf(friend) === -1;
+//     });
+// }
 function compare(a, b) {
     if (a > b) {
         return 1;
@@ -32,20 +35,27 @@ function getCandidate(friends) {
     });
     var candidates = [];
     var currentLevel = 1;
-    while (currentFriendsCircle.length > 0) {
+    while (currentFriendsCircle.length !== 0) {
         currentFriendsCircle = currentFriendsCircle.sort(function (a, b) {
             return compare(a.name, b.name);
         });
-        currentFriendsCircle = removeExistingFriends(candidates, currentFriendsCircle);
+        currentFriendsCircle = currentFriendsCircle.filter(function (friend) {
+            return candidates.indexOf(friend) === -1;
+        });
+        currentFriendsCircle.forEach(function (friend) {
+            if (candidates.indexOf(friend) === -1) {
+                candidates.push(friend);
+            }
+        });
         for (var i = 0; i < currentFriendsCircle.length; i++) {
             currentFriendsCircle[i].level = currentLevel;
         }
-        candidates = candidates.concat(currentFriendsCircle);
-        currentFriendsCircle = getNextCircle(currentFriendsCircle)
-        .map(function (name) {
-            return getFriendByName(name, friends);
-        });
+        currentFriendsCircle = getNextCircle(currentFriendsCircle, friends);
         currentLevel++;
+
+        // currentFriendsCircle = removeExistingFriends(candidates, currentFriendsCircle);
+        // candidates = candidates.concat(currentFriendsCircle);
+
     }
 
     return candidates;
