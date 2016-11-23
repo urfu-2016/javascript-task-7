@@ -44,7 +44,7 @@ function HashSet() {
 
 function getBestFriends(friends) {
     return friends.filter(function (friend) {
-        return friend.best;
+        return friend.hasOwnProperty('best') && friend.best;
     });
 }
 
@@ -63,11 +63,7 @@ function getFriendsOfFriend(friend, allFriends) {
 }
 
 function friendsComparer(first, second) {
-    if (first.name > second.name) {
-        return 1;
-    }
-
-    return first.name === second.name ? 0 : -1;
+    return first.name.localeCompare(second.name);
 }
 
 function getFriendsOfNextLevel(queue, allFriends, visited) {
