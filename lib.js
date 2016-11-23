@@ -15,21 +15,21 @@ function Iterator(friends, filter) {
     this.sortedCircleOfFriends = friends.filter(function (person) {
         return person.best;
     }).sort(this.compareFriends);
-    this.visited = this.sortedCircleOfFriends.map(function (person) {
+    this.viewedFriends = this.sortedCircleOfFriends.map(function (person) {
         return person.name;
     });
-    this.hasRound = this.sortedCircleOfFriends.length > 0;
-    this.createFilteredFriends();
+    this.processCircleOfFriends();
 }
 
-Iterator.prototype.compareFriends = function (friend1, friend2) {
-    return friend1.name.localeCompare(friend2.name);
+Iterator.prototype.compareFriends = function (person1, person2) {
+    return person1.name.localeCompare(person2.name);
 };
 
-Iterator.prototype.createFilteredFriends = function () {
+Iterator.prototype.processCircleOfFriends = function () {
+    this.haveLevel = this.sortedCircleOfFriends.length > 0;
     this.filteredFriends = this.sortedCircleOfFriends.filter(this.filterObject.customFilter());
-    this.current = 0;
-    this.last = this.filteredFriends.length;
+    this.currentPersonIndex = 0;
+    this.maxPersonIndex = this.filteredFriends.length;
 };
 
 Iterator.prototype.fromNameToFriendObj = function (names) {
@@ -38,39 +38,38 @@ Iterator.prototype.fromNameToFriendObj = function (names) {
     });
 };
 
-Iterator.prototype.createNextFriendsRound = function () {
+Iterator.prototype.createNextFriendsCircle = function () {
     var thisIterator = this;
-    var nextFriendsNames = this.sortedCircleOfFriends.reduce(function (nextFriends, friend) {
-        friend.friends.forEach(function (friendName) {
+    var nextCircleNames = this.sortedCircleOfFriends.reduce(function (nextFriends, person) {
+        person.friends.forEach(function (friendName) {
             if (nextFriends.indexOf(friendName) === -1 &&
-                thisIterator.visited.indexOf(friendName) === -1) {
+                thisIterator.viewedFriends.indexOf(friendName) === -1) {
                 nextFriends.push(friendName);
-                thisIterator.visited.push(friendName);
+                thisIterator.viewedFriends.push(friendName);
             }
         });
 
         return nextFriends;
     }, []);
-    this.sortedCircleOfFriends = this.fromNameToFriendObj(nextFriendsNames)
+    this.sortedCircleOfFriends = this.fromNameToFriendObj(nextCircleNames)
                                      .sort(this.compareFriends);
-    this.hasRound = this.sortedCircleOfFriends.length > 0;
-    this.createFilteredFriends();
+    this.processCircleOfFriends();
 };
 
 Iterator.prototype.done = function () {
-    if (!this.hasRound) {
+    if (!this.haveLevel) {
         return true;
     }
-    while (this.current >= this.last && this.hasRound) {
-        this.createNextFriendsRound();
+    while (this.currentPersonIndex >= this.maxPersonIndex && this.haveLevel) {
+        this.createNextFriendsCircle();
     }
 
-    return !this.hasRound;
+    return !this.haveLevel;
 };
 
 Iterator.prototype.next = function () {
-    var nextFriend = this.done() ? null : this.filteredFriends[this.current];
-    this.current++;
+    var nextFriend = this.done() ? null : this.filteredFriends[this.currentPersonIndex];
+    this.currentPersonIndex++;
 
     return nextFriend;
 };
@@ -92,15 +91,16 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = LimitedIterator;
 
 LimitedIterator.prototype.done = function () {
-    if (!this.hasRound || this.currentLevel >= this.maxLevel) {
+    if (!this.haveLevel || this.currentLevel >= this.maxLevel) {
         return true;
     }
-    while (this.currentLevel < this.maxLevel && this.current >= this.last && this.hasRound) {
-        this.createNextFriendsRound();
+    while (this.currentLevel < this.maxLevel &&
+           this.currentPersonIndex >= this.maxPersonIndex && this.haveLevel) {
+        this.createNextFriendsCircle();
         this.currentLevel++;
     }
 
-    return !(this.hasRound && this.currentLevel < this.maxLevel);
+    return !(this.haveLevel && this.currentLevel < this.maxLevel);
 };
 
 /**
@@ -159,7 +159,6 @@ function FemaleFilter() {
 }
 FemaleFilter.prototype = Object.create(GenderFilter.prototype);
 FemaleFilter.prototype.constructor = FemaleFilter;
-
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
