@@ -108,7 +108,7 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 function sortCollection(collection) {
     return collection.sort(function (a, b) {
-        return a.name < b.name ? -1 : 1;
+        return a.name > b.name ? 1 : -1;
     });
 }
 
