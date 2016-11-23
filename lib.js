@@ -27,7 +27,7 @@ function LimitedIterator(friends, filter, maxLevel) {
  * @constructor
  */
 function Filter() {
-    console.info('Filter');
+    console.info('Filter123');
 }
 
 /**
