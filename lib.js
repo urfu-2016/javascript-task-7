@@ -62,15 +62,16 @@ function Iterator(friends, filter) {
         throw new TypeError('Wrong filter argument');
     }
 
+    this.index = 0;
     this.friends = collectFriends(friends, filter, Infinity);
 }
 
 Iterator.prototype.done = function () {
-    return this.friends.length === 0;
+    return this.friends.length === this.index;
 };
 
 Iterator.prototype.next = function () {
-    return this.done() ? null : this.friends.shift();
+    return this.done() ? null : this.friends[this.index++];
 };
 
 /**
