@@ -93,19 +93,19 @@ function Iterator(friends, filter) {
     }
 
     this.filteredFriends = getWavesFriends(friends, filter, undefined);
-    this.currentFriend = 0;
+    var currentFriend = 0;
 
     this.done = function () {
-        return this.currentFriend === this.filteredFriends.length;
+        return currentFriend === this.filteredFriends.length;
     };
 
     this.next = function () {
         if (this.done()) {
             return null;
         }
-        this.currentFriend++;
+        currentFriend++;
 
-        return this.filteredFriends[this.currentFriend - 1];
+        return this.filteredFriends[currentFriend - 1];
     };
 }
 
