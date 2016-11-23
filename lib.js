@@ -1,5 +1,23 @@
 'use strict';
 
+function getInvitedFriends(friends, filter, maxLevel) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
+
+    var depth = maxLevel || -1;
+    var book = createBook(friends);
+
+    var bestFriends = friends.filter(function (friend) {
+        return friend.best;
+    }).map(function (friend) {
+        return friend.name;
+    });
+    var invitedFriends = inviteFriends(bestFriends, book, filter, depth);
+
+    return invitedFriends;
+}
+
 /**
  * Итератор по друзьям
  * @constructor
@@ -8,37 +26,26 @@
  * @param {Number} maxLevel
  */
 function Iterator(friends, filter, maxLevel) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError();
+    this.invitedFriends = getInvitedFriends(friends, filter, maxLevel);
+    this.index = 0;
+    this.friends = friends;
+}
+Iterator.prototype.next = function () {
+    if (this.done()) {
+        return null;
     }
 
-    var depth = maxLevel || -1;
-    var book = createBook(friends);
-    var index = 0;
-    var bestFriends = friends.filter(function (friend) {
-        return friend.best;
-    }).map(function (friend) {
-        return friend.name;
-    });
-    var invitedFriends = inviteFriends(bestFriends, book, filter, depth);
-
-    this.next = function () {
-        if (this.done()) {
-            return null;
+    var name = this.invitedFriends[this.index++];
+    for (var i = 0; i < this.friends.length; i++) {
+        if (this.friends[i].name === name) {
+            return this.friends[i];
         }
+    }
+};
 
-        var name = invitedFriends[index++];
-        for (var i = 0; i < friends.length; i++) {
-            if (friends[i].name === name) {
-                return friends[i];
-            }
-        }
-    };
-
-    this.done = function () {
-        return index >= invitedFriends.length;
-    };
-}
+Iterator.prototype.done = function () {
+    return this.index >= this.invitedFriends.length;
+};
 
 function createBook(friends) {
     return friends.reduce(function (book, friend) {
@@ -101,7 +108,6 @@ function LimitedIterator(friends, filter, maxLevel) {
 /**
  * Фильтр друзей
  * @constructor
- * @param {String} gender
  */
 function Filter() {
     this.filter = function (invited) {
@@ -143,9 +149,9 @@ function FemaleFilter() {
     };
 }
 
-FemaleFilter.prototype = Filter.prototype;
-MaleFilter.prototype = Filter.prototype;
-LimitedIterator.prototype = Iterator.prototype;
+FemaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype = Object.create(Filter.prototype);
+LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
