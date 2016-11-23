@@ -49,6 +49,13 @@ function getAllFriends(people, book) {
     }, []);
 }
 
+function filterCollection(nextInvitedFriends, invited) {
+
+    return nextInvitedFriends.filter(function (friend) {
+        return invited.indexOf(friend) === -1;
+    });
+}
+
 function inviteFriends(bestFriends, book, filter, depth) {
     var invited = filter.filter(bestFriends, book);
     invited.sort();
@@ -59,9 +66,7 @@ function inviteFriends(bestFriends, book, filter, depth) {
     while (depth !== 0) {
         allFriends = getAllFriends(allFriends, book);
         var nextInvitedFriends = filter.filter(allFriends, book);
-        nextInvitedFriends = nextInvitedFriends.filter(function (friend) {
-            return invited.indexOf(friend) === -1;
-        });
+        nextInvitedFriends = filterCollection(nextInvitedFriends, invited);
         if (nextInvitedFriends.length === 0) {
             break;
         }
