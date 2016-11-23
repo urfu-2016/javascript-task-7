@@ -67,8 +67,7 @@ function collectFriends(friends, friendsDict, filter, maxLevel) {
                 var filteredFriends = getFriendsOfFriend(currentFriend, friendsDict)
                     .filter(function (friend) {
                         return !isArrayContainsFriend(visitedFriends, friend);
-                    })
-                    .sort(sortByName);
+                    });
 
                 currentFriendsToVisit = currentFriendsToVisit.concat(filteredFriends);
                 visitedFriends.push(currentFriend);
@@ -79,7 +78,8 @@ function collectFriends(friends, friendsDict, filter, maxLevel) {
                 }
 
                 return currentFriendsToVisit;
-            }, []);
+            }, [])
+            .sort(sortByName);
 
         if (currentDepth) {
             currentDepth++;
