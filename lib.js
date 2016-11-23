@@ -1,20 +1,5 @@
 'use strict';
 
-function clone(obj) {
-    if (obj === null || typeof obj !== 'object') {
-        return obj;
-    }
-
-    var temp = obj.constructor();
-    var keys = Object.keys(obj);
-    for (var i = 0; i < keys.length; i++) {
-        var key = keys[i];
-        temp[key] = clone(obj[key]);
-    }
-
-    return temp;
-}
-
 function getNextCircle(friends) {
     return friends.reduce(function (nextCircle, friend) {
         nextCircle = nextCircle.concat(friend.friends);
@@ -27,13 +12,11 @@ function getFriendByName(friendName, friends) {
         return friend.name === friendName;
     });
 
-    return clone(foundFriend);
+    return foundFriend;
 }
 function removeExistingFriends(candidates, friendsCircle) {
     return friendsCircle.filter(function (friend) {
-        return !candidates.some(function (candidate) {
-            return candidate.name === friend.name;
-        });
+        return candidates.indexOf(friend) === -1;
     });
 }
 function compare(a, b) {
@@ -55,10 +38,10 @@ function getCandidate(friends) {
         currentFriendsCircle = currentFriendsCircle.sort(function (a, b) {
             return compare(a.name, b.name);
         });
+        currentFriendsCircle = removeExistingFriends(candidates, currentFriendsCircle);
         for (var i = 0; i < currentFriendsCircle.length; i++) {
             currentFriendsCircle[i].level = currentLevel;
         }
-        currentFriendsCircle = removeExistingFriends(candidates, currentFriendsCircle);
         candidates = candidates.concat(currentFriendsCircle);
         currentFriendsCircle = getNextCircle(currentFriendsCircle)
         .map(function (name) {
