@@ -34,9 +34,9 @@ function getCandidate(friends) {
         }
         currentFriendsCircle = getNextCircle(currentFriendsCircle, friends)
         .filter(function (currentFriend) {
-            return candidates.map(function (candidate) {
-                return candidate.friend;
-            }).indexOf(currentFriend) === -1;
+            return !candidates.some(function (candidate) {
+                return candidate.friend === currentFriend;
+            });
         });
         currentLevel++;
     }
@@ -44,7 +44,7 @@ function getCandidate(friends) {
     return candidates;
 }
 
-/**
+ /**
  * Итератор по друзьям
  * @constructor
  * @param {Object[]} friends
@@ -57,19 +57,21 @@ function Iterator(friends, filter) {
     this.invitedFriends = getCandidate(friends).filter(function (candidate) {
         return filter.isRight(candidate.friend);
     });
+    this.currentIndex = 0;
 }
 
 Iterator.prototype.done = function () {
-    return this.invitedFriends.length === 0;
+    return this.invitedFriends.length === this.currentIndex;
 };
 
 Iterator.prototype.next = function () {
     if (this.done()) {
         return null;
     }
-    var friendAndLevel = this.invitedFriends.shift();
+    // var friendAndLevel = this.invitedFriends.shift();
+    // return friendAndLevel.friend;
 
-    return friendAndLevel.friend;
+    return this.invitedFriends[this.currentIndex++].friend;
 };
 
 /**
