@@ -19,7 +19,6 @@ function getFriend(friends, name) {
 
 function collectFriends(friends, filter, maxLevel) {
     var visitedFriends = [];
-    var appropriateFriends = [];
     maxLevel = maxLevel > 0 ? maxLevel : 0;
     var friendsToVisit = friends
         .filter(function (friend) {
@@ -37,14 +36,10 @@ function collectFriends(friends, filter, maxLevel) {
                 var filteredFriends = currentFriend.friends
                     .filter(function (friend) {
                         return (
-                            visitedFriends.indexOf(friend) === -1 &&
+                            visitedFriends.indexOf(getFriend(friends, friend)) === -1 &&
                             arr.indexOf(friend) === -1);
                     });
-
-                visitedFriends.push(friendName);
-                if (filter.filter(currentFriend)) {
-                    appropriateFriends.push(currentFriend);
-                }
+                visitedFriends.push(currentFriend);
 
                 return currentFriendsToVisit.concat(filteredFriends);
             }, []);
@@ -52,7 +47,7 @@ function collectFriends(friends, filter, maxLevel) {
         maxLevel--;
     }
 
-    return appropriateFriends;
+    return visitedFriends.filter(filter.filter);
 }
 
 /**
