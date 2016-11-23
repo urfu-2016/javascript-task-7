@@ -123,7 +123,7 @@ function Filter() {
 Filter.prototype.filterFunction = function (friends) {
     return friends.filter(function (friend) {
         return friend.gender === this.propertyFilter || this.propertyFilter === '';
-    });
+    }, this);
 };
 
 /*
