@@ -31,21 +31,17 @@ function choiceFriendsOnLevel(friends) {
     sortFriends.push(friendsBest);
     var argument = [noInviteFriends,
         namesPeopleChoiceFriends,
-        nameChoiceFriends,
-        sortFriends,
-        friends
+        nameChoiceFriends
     ];
-    findFriends(argument);
+    findFriends(argument, friends, sortFriends);
 
     return sortFriends;
 }
 
-function findFriends(arg) {
+function findFriends(arg, friends, sortFriends) {
     var noInviteFriends = arg[0];
     var namesPeopleChoiceFriends = arg[1];
     var nameChoiceFriends = arg[2];
-    var sortFriends = arg[3];
-    var friends = arg[4];
     var iteration = 1;
     while (nameChoiceFriends.length !== friends.length) {
         var friendsLevel = Object.create(levels);
@@ -58,9 +54,6 @@ function findFriends(arg) {
             choiceFriends,
             name];
         inspection(argument);
-        name.forEach(function (item) {
-            namesPeopleChoiceFriends.push(item);
-        });
         friendsLevel.friends = choiceFriends.sort(functionCompareByName);
         sortFriends.push(friendsLevel);
         iteration++;
@@ -73,16 +66,19 @@ function inspection(arg) {
     var nameChoiceFriends = arg[2];
     var choiceFriends = arg[3];
     var name = arg[4];
-    for (var index = 0; index < noInviteFriends.length; index++) {
-        var indexNamePeople = namesPeopleChoiceFriends.indexOf(noInviteFriends[index].name);
-        if (nameChoiceFriends.indexOf(noInviteFriends[index].name) === -1 && indexNamePeople !== -1) {
-            choiceFriends.push(noInviteFriends[index]);
-            nameChoiceFriends.push(noInviteFriends[index].name);
-            noInviteFriends[index].friends.forEach(function (nameFriendItem) {
+    for (var i = 0; i < noInviteFriends.length; i++) {
+        var indexNamePeople = namesPeopleChoiceFriends.indexOf(noInviteFriends[i].name);
+        if (nameChoiceFriends.indexOf(noInviteFriends[i].name) === -1 && indexNamePeople !== -1) {
+            choiceFriends.push(noInviteFriends[i]);
+            nameChoiceFriends.push(noInviteFriends[i].name);
+            noInviteFriends[i].friends.forEach(function (nameFriendItem) {
                 name.push(nameFriendItem);
             });
         }
     }
+    name.forEach(function (item) {
+        namesPeopleChoiceFriends.push(item);
+    });
 }
 
 function choiceFriend(item, namesPeopleChoiceFriends) {
