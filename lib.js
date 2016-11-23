@@ -16,7 +16,7 @@ function Iterator(friends, filter) {
     this.filter = filter;
 
     friends.forEach(function (friend) {
-        if (friend.hasOwnProperty('best')) {
+        if (friend.hasOwnProperty('best') && friend.best === true) {
             this.currentFriends.push(friend);
         } else {
             this.otherFriends.push(friend);
@@ -96,7 +96,7 @@ function getNextLevel(otherFriends, level) {
                 return item.name === nameFriend;
             });
 
-            if (friendIndex !== -1 && nextLevel.indexOf(otherFriends[friendIndex] === -1)) {
+            if (friendIndex !== -1 && nextLevel.indexOf(otherFriends[friendIndex]) === -1) {
                 nextLevel.push(otherFriends[friendIndex]);
                 otherFriends.splice(friendIndex, 1);
             }
