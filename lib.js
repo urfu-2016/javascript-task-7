@@ -20,18 +20,18 @@ function getFriend(friends, name) {
 function collectFriends(friends, filter, maxLevel) {
     var visitedFriends = [];
     var appropriateFriends = [];
-    maxLevel = maxLevel === undefined ? Infinity : maxLevel;
+    maxLevel = maxLevel > 0 ? maxLevel : 0;
     var friendsToVisit = friends
         .filter(function (friend) {
             return friend.best;
         })
         .map(function (friend) {
             return friend.name;
-        })
-        .sort(sortByName);
+        });
 
     while (friendsToVisit.length > 0 && maxLevel > 0) {
         friendsToVisit = friendsToVisit
+            .sort(sortByName)
             .reduce(function (currentFriendsToVisit, friendName, index, arr) {
                 var currentFriend = getFriend(friends, friendName);
                 var filteredFriends = currentFriend.friends
@@ -39,8 +39,7 @@ function collectFriends(friends, filter, maxLevel) {
                         return (
                             visitedFriends.indexOf(friend) === -1 &&
                             arr.indexOf(friend) === -1);
-                    })
-                    .sort(sortByName);
+                    });
 
                 visitedFriends.push(friendName);
                 if (filter.filter(currentFriend)) {
@@ -68,7 +67,7 @@ function Iterator(friends, filter) {
         throw new TypeError('Wrong filter argument');
     }
 
-    this.friends = collectFriends(friends, filter);
+    this.friends = collectFriends(friends, filter, Infinity);
 }
 
 Iterator.prototype.done = function () {
