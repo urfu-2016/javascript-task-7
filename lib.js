@@ -29,21 +29,18 @@ function Iterator(friends, filter) {
         }
 
         var visited = [];
-        var friendsToVisit = friends
-            .filter(function (friend) {
-                return friend.best;
-            })
-            .sort(sortByName);
+        var friendsToVisit = friends.filter(function (friend) {
+            return friend.best;
+        });
 
         while (maxLevel-- > 0 && friendsToVisit.length !== 0) {
-            friendsToVisit = friendsToVisit.reduce(function (acc, friendToVisit, index, arr) {
-                visited.push(friendToVisit);
-                var notVisited = getFriendsOf(friendToVisit, friends)
+            friendsToVisit.sort(sortByName);
+            visited = visited.concat(friendsToVisit);
+            friendsToVisit = friendsToVisit.reduce(function (acc, friendToVisit) {
+                var notVisited = getFriendsOf(friendToVisit)
                     .filter(function (friend) {
-                        return !contains(arr, friend) &&
-                            !contains(visited, friend);
-                    })
-                    .sort(sortByName);
+                        return !contains(visited, friend);
+                    });
 
                 return acc.concat(notVisited);
             }, []);
