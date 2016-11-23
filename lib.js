@@ -4,34 +4,35 @@ function friendsSelect(friends, filter, maxLevel) {
     maxLevel = maxLevel || Infinity;
     var sortFriends = [];
     var noChecked = {};
-    var level = friends.reduce(function (levelFrinds, friend) {
+    var nextLevel = [];
+    var currentLevel = friends.reduce(function (levelFriends, friend) {
         if (friend.best) {
-            levelFrinds.current.push(friend);
-            levelFrinds.next = levelFrinds.next.concat(friend.friends);
+            levelFriends.push(friend);
+            nextLevel = nextLevel.concat(friend.friends);
         } else {
             noChecked[friend.name] = friend;
         }
 
-        return levelFrinds;
-    }, { current: [], next: [] });
-    while (level.current.length > 0 && maxLevel > 0) {
+        return levelFriends;
+    }, []);
+    var newCurrentLevel = function (levelFriends, name) {
+        if (noChecked[name]) {
+            levelFriends.push(noChecked[name]);
+            nextLevel = nextLevel.concat(noChecked[name].friends);
+            delete noChecked[name];
+        }
+
+        return levelFriends;
+    };
+    while (currentLevel.length > 0 && maxLevel-- > 0) {
         sortFriends = sortFriends.concat(
-            level.current.sort(function (first, second) {
+            currentLevel.sort(function (first, second) {
                 return first.name.localeCompare(second.name);
             })
         );
-
-        level = level.next.reduce(function (levelFriends, name) {
-            if (noChecked[name]) {
-                levelFriends.current.push(noChecked[name]);
-                levelFriends.next = levelFriends.next.concat(noChecked[name].friends);
-                delete noChecked[name];
-            }
-
-            return levelFriends;
-        }, { current: [], next: [] });
-
-        maxLevel--;
+        var newNextLevel = nextLevel;
+        nextLevel = [];
+        currentLevel = newNextLevel.reduce(newCurrentLevel, []);
     }
 
     return sortFriends.filter(function (friend) {
