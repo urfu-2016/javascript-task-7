@@ -12,15 +12,13 @@ function Iterator(friends, filter) {
     }
     this.filteredFriends = getFriends(friends, Infinity).filter(filter.isAccepted);
     this.nextIndex = 0;
+    this.next = function () {
+        return this.done() ? null : this.filteredFriends[this.nextIndex++];
+    };
+    this.done = function () {
+        return this.nextIndex === this.filteredFriends.length;
+    };
 }
-
-Iterator.prototype.next = function () {
-    return this.done() ? null : this.filteredFriends[this.nextIndex++];
-};
-
-Iterator.prototype.done = function () {
-    return this.nextIndex === this.filteredFriends.length;
-};
 
 function HashSet() {
     this.hashTable = {};
@@ -44,7 +42,7 @@ function HashSet() {
 
 function getBestFriends(friends) {
     return friends.filter(function (friend) {
-        return friend.hasOwnProperty('best') && friend.best;
+        return friend.best;
     });
 }
 
@@ -114,6 +112,12 @@ function LimitedIterator(friends, filter, maxLevel) {
     }
     this.filteredFriends = getFriends(friends, maxLevel).filter(filter.isAccepted);
     this.nextIndex = 0;
+    this.next = function () {
+        return this.done() ? null : this.filteredFriends[this.nextIndex++];
+    };
+    this.done = function () {
+        return this.nextIndex === this.filteredFriends.length;
+    };
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
