@@ -16,7 +16,7 @@ function getFilteredFriends(friends, filter, maxLevel) {
             return friend.name === name;
         });
     };
-    while (level !== 0 && friendsOfCurrentLevel.length !== 0) {
+    while (level && friendsOfCurrentLevel.length) {
         filteredFriends = filteredFriends.concat(friendsOfCurrentLevel);
         friendsOfCurrentLevel = friendsOfCurrentLevel
             .reduce(function (namesOfFriends, friend) {
@@ -31,7 +31,7 @@ function getFilteredFriends(friends, filter, maxLevel) {
         level--;
     }
 
-    return filteredFriends.filter(filter.isI);
+    return filteredFriends.filter(filter.isFiltered);
 }
 
 function compareFriends(firstFriend, secondFriend) {
@@ -63,20 +63,24 @@ Iterator.prototype.next = function () {
 };
 
 function LimitedIterator(friends, filter, maxLevel) {
-    this.filteredFriends = getFilteredFriends(friends, filter, maxLevel);
     this.index = 0;
+    if (!maxLevel || maxLevel < 1) {
+        this.filteredFriends = [];
+        return;
+    }
+    this.filteredFriends = getFilteredFriends(friends, filter, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 function Filter() {
-    this.isI = function () {
+    this.isFiltered = function () {
         return true;
     };
 }
 
 function MaleFilter() {
-    this.isI = function (friend) {
+    this.isFiltered = function (friend) {
         return friend.gender === 'male';
     };
 }
@@ -84,7 +88,7 @@ function MaleFilter() {
 MaleFilter.prototype = Object.create(Filter.prototype);
 
 function FemaleFilter() {
-    this.isI = function (friend) {
+    this.isFiltered = function (friend) {
         return friend.gender === 'female';
     };
 }
