@@ -68,13 +68,11 @@ function getUniqueFriends(collection) {
     var result = [];
     collection.forEach(function (element) {
         var newFriends = element.friendsCollection;
-        if (newFriends !== undefined || newFriends.length > 0) {
-            newFriends.forEach(function (friend) {
-                if (result.indexOf(friend) === -1) {
-                    result.push(friend);
-                }
-            });
-        }
+        newFriends.forEach(function (friend) {
+            if (result.indexOf(friend) === -1) {
+                result.push(friend);
+            }
+        });
     });
 
     return result;
