@@ -27,7 +27,7 @@ function searchWaves(friends) {
     var visited = {};
     var queue = friends.filter(function (friend) {
         return friend.hasOwnProperty('best') && friend.best;
-    });
+    }).sort();
     var friendNameToFriendObj = {};
     friends.forEach(function (friendObj) {
         friendNameToFriendObj[friendObj.name] = friendObj;
@@ -40,8 +40,7 @@ function searchWaves(friends) {
 }
 
 function getWavesFriends(friends, filter, wavesLimit) {
-    var copyFriends = friends.slice();
-    var visited = searchWaves(copyFriends);
+    var visited = searchWaves(friends);
     var visitedSort = {};
     Object.keys(visited).forEach(function (friend) {
         if (visitedSort.hasOwnProperty(visited[friend])) {
@@ -57,7 +56,7 @@ function getWavesFriends(friends, filter, wavesLimit) {
 
     var friendObj;
     filteredFriends = filteredFriends.map(function (friendName) {
-        copyFriends.forEach(function (friend) {
+        friends.forEach(function (friend) {
             if (friend.name === friendName) {
                 friendObj = [friend, visited[friendName]];
             }
@@ -66,12 +65,14 @@ function getWavesFriends(friends, filter, wavesLimit) {
         return friendObj;
     }).filter(filter.filter);
     var limitedFriends = [];
-    if (typeof wavesLimit === 'undefined') {
+    if (typeof wavesLimit !== 'number') {
         wavesLimit = filteredFriends[filteredFriends.length - 1][1];
     }
-    if (!(wavesLimit >= 0)) {
+    if (wavesLimit < 0) {
         wavesLimit = 0;
     }
+
+    //  console.info(filteredFriends);
     filteredFriends.forEach(function (friend) {
         if (friend[1] <= wavesLimit) {
             limitedFriends.push(friend[0]);
