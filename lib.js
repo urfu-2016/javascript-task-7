@@ -1,22 +1,6 @@
 'use strict';
 
-/**
- * Итератор по друзьям
- * @constructor
- * @param {Object[]} friends
- * @param {Filter} filter
- */
-function Iterator(friends, filter) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError('\'filter\' not a Filter()');
-    }
-
-    var maxLevel = arguments[2];
-
-    this._friends = this._init(friends, filter, maxLevel);
-}
-
-Iterator.prototype._init = function (friends, filter, maxLevel) {
+function friendsSelect(friends, filter, maxLevel) {
     maxLevel = maxLevel || Infinity;
     var sortFriends = [];
     var noChecked = {};
@@ -33,7 +17,7 @@ Iterator.prototype._init = function (friends, filter, maxLevel) {
     while (level.current.length > 0 && maxLevel > 0) {
         sortFriends = sortFriends.concat(
             level.current.sort(function (first, second) {
-                return first.name.localeCompare(second.name);
+                return first.name > second.name;
             })
         );
 
@@ -53,7 +37,21 @@ Iterator.prototype._init = function (friends, filter, maxLevel) {
     return sortFriends.filter(function (friend) {
         return filter.call(friend);
     });
-};
+}
+
+/**
+ * Итератор по друзьям
+ * @constructor
+ * @param {Object[]} friends
+ * @param {Filter} filter
+ */
+function Iterator(friends, filter) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('\'filter\' not a Filter()');
+    }
+
+    this._friends = friendsSelect(friends, filter);
+}
 
 Iterator.prototype.done = function () {
     return this._friends.length === 0;
@@ -72,7 +70,11 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter, maxLevel);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('\'filter\' not a Filter()');
+    }
+
+    this._friends = friendsSelect(friends, filter, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
