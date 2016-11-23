@@ -23,7 +23,7 @@ function Iterator(friends, filter, maxLevel) {
     var invitedFriends = inviteFriends(bestFriends, book, filter, depth);
 
     this.next = function () {
-        if (this.done) {
+        if (this.done()) {
             return null;
         }
 
