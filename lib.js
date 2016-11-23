@@ -24,10 +24,6 @@ function Iterator(friends, filter) {
     }
 
     this._getInvitees = function (maxLevel) {
-        if (typeof(maxLevel) !== 'number' || maxLevel <= 0) {
-            return [];
-        }
-
         var visited = [];
         var friendsToVisit = friends.filter(function (friend) {
             return friend.best;
