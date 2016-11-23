@@ -30,17 +30,21 @@ function Iterator(friends, filter) {
         });
 
         var isNotVisited = function (friend) {
-            return !contains(visited, friend);
+            return !contains(visited, friend) && !contains(friendsToVisit, friend);
         };
 
         while (maxLevel-- > 0 && friendsToVisit.length !== 0) {
-            friendsToVisit.sort(sortByName);
-            visited = visited.concat(friendsToVisit);
-            friendsToVisit = friendsToVisit.reduce(function (acc, friendToVisit) {
-                var notVisited = getFriendsOf(friendToVisit).filter(isNotVisited);
-
-                return acc.concat(notVisited);
-            }, []);
+            var previousLength = friendsToVisit.length;
+            friendsToVisit
+                .sort(sortByName)
+                .forEach(function (currentFriend, index, arr) {
+                    visited.push(currentFriend);
+                    var notVisited = getFriendsOf(currentFriend).filter(isNotVisited);
+                    notVisited.forEach(function (notVisitedFriend) {
+                        arr.push(notVisitedFriend);
+                    });
+                }, []);
+            friendsToVisit = friendsToVisit.slice(previousLength);
         }
 
         return visited.filter(function (visitedFriend) {
