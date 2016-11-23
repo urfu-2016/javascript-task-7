@@ -68,9 +68,6 @@ function getWavesFriends(friends, filter, wavesLimit) {
     if (typeof wavesLimit !== 'number') {
         wavesLimit = filteredFriends[filteredFriends.length - 1][1];
     }
-    if (wavesLimit < 0) {
-        wavesLimit = 0;
-    }
 
     //  console.info(filteredFriends);
     filteredFriends.forEach(function (friend) {
