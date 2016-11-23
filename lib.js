@@ -3,7 +3,7 @@
 function checkNeighbors(queue, visited, friendNameToFriendObj) {
     var node = queue[0];
     queue = queue.slice(1);
-    var neighbors = node.friends;
+    var neighbors = node.friends.sort();
     for (var i = 0; i < neighbors.length; i++) {
         if (neighbors[i] in visited) {
             continue;
@@ -39,50 +39,6 @@ function searchWaves(friends) {
     return bfs(queue, visited, friendNameToFriendObj);
 }
 
-function getWavesFriends(friends, filter, wavesLimit) {
-    var copyFriends = friends.slice();
-    var visited = searchWaves(copyFriends);
-    var visitedSort = {};
-    Object.keys(visited).forEach(function (friend) {
-        if (visitedSort.hasOwnProperty(visited[friend])) {
-            visitedSort[visited[friend]].push(friend);
-        } else {
-            visitedSort[visited[friend]] = [friend];
-        }
-    });
-    var filteredFriends = [];
-    Object.keys(visitedSort).forEach(function (numberWave) {
-        filteredFriends = filteredFriends.concat(visitedSort[numberWave].sort());
-    });
-
-    var friendObj;
-    filteredFriends = filteredFriends.map(function (friendName) {
-        copyFriends.forEach(function (friend) {
-            if (friend.name === friendName) {
-                friendObj = [friend, visited[friendName]];
-            }
-        });
-
-        return friendObj;
-    }).filter(filter.filter);
-    var limitedFriends = [];
-    if (typeof wavesLimit !== 'number') {
-        wavesLimit = filteredFriends[filteredFriends.length - 1][1];
-    }
-    if (wavesLimit < 0) {
-        wavesLimit = 0;
-    }
-
-    //  console.info(filteredFriends);
-    filteredFriends.forEach(function (friend) {
-        if (friend[1] <= wavesLimit) {
-            limitedFriends.push(friend[0]);
-        }
-    });
-
-    return limitedFriends;
-}
-
 /**
  * Итератор по друзьям
  * @constructor
@@ -94,7 +50,47 @@ function Iterator(friends, filter) {
         throw new TypeError();
     }
 
-    this.filteredFriends = getWavesFriends(friends, filter, undefined);
+    this.getWavesFriends = function (wavesLimit) {
+
+        //  console.info('\n');
+        friends.sort(function (friend1, friend2) {
+            if (friend1.hasOwnProperty('best') && friend2.hasOwnProperty('best') ||
+                !friend1.hasOwnProperty('best') && !friend2.hasOwnProperty('best')) {
+                return friend1.name < friend2.name ? -1 : 1;
+            }
+
+            return friend1.hasOwnProperty('best') ? -1 : 1;
+        });
+        var visited = searchWaves(friends);
+
+        //  console.info(visited);
+        var filteredFriends = Object.keys(visited);
+        var friendObj;
+        filteredFriends = filteredFriends.map(function (friendName) {
+            friends.forEach(function (friend) {
+                if (friend.name === friendName) {
+                    friendObj = [friend, visited[friendName]];
+                }
+            });
+
+            return friendObj;
+        }).filter(filter.filter);
+        var limitedFriends = [];
+        if (wavesLimit === undefined) {
+            wavesLimit = filteredFriends[filteredFriends.length - 1][1];
+        }
+
+        //  console.info(filteredFriends);
+        filteredFriends.forEach(function (friend) {
+            if (friend[1] <= wavesLimit) {
+                limitedFriends.push(friend[0]);
+            }
+        });
+
+        return limitedFriends;
+    };
+
+    this.filteredFriends = this.getWavesFriends();
     this.currentFriend = 0;
 
     this.done = function () {
@@ -121,7 +117,7 @@ function Iterator(friends, filter) {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
-    this.filteredFriends = getWavesFriends(friends, filter, maxLevel);
+    this.filteredFriends = this.getWavesFriends(maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
