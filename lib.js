@@ -25,7 +25,6 @@ Iterator.prototype.done = function () {
 function HashSet() {
     this.hashTable = {};
     this.contains = function (person) {
-        var a = this.hashTable.hasOwnProperty(person.name);
         return this.hashTable.hasOwnProperty(person.name);
     };
     this.add = function (person) {
@@ -36,16 +35,17 @@ function HashSet() {
     };
     this.getPersons = function () {
         var hashTable = this.hashTable;
+
         return Object.keys(this.hashTable).map(function (key) {
             return hashTable[key];
         });
-    }
+    };
 }
 
 function getBestFriends(friends) {
     return friends.filter(function (friend) {
         return friend.best;
-    })
+    });
 }
 
 function getFriendByName(name, friends) {
@@ -59,7 +59,7 @@ function getFriendByName(name, friends) {
 function getFriendsOfFriend(friend, allFriends) {
     return friend.friends.map(function (name) {
         return getFriendByName(name, allFriends);
-    })
+    });
 }
 
 function friendsComparer(first, second) {
