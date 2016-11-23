@@ -2,9 +2,7 @@
 
 function getNextCircle(friends) {
     return friends.reduce(function (nextCircle, friend) {
-        nextCircle = nextCircle.concat(friend.friends);
-
-        return nextCircle;
+        return nextCircle.concat(friend.friends);
     }, []);
 }
 function getFriendByName(friendName, friends) {
@@ -73,10 +71,13 @@ Iterator.prototype.done = function () {
 };
 
 Iterator.prototype.next = function () {
+    if (this.done()) {
+        return null;
+    }
     var friend = this.invitedFriends.shift();
     delete friend.level;
 
-    return friend || null;
+    return friend;
 };
 
 /**
