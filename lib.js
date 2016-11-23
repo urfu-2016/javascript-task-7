@@ -10,13 +10,6 @@ function sortByName(firstName, secondName) {
     return 0;
 }
 
-function isArrayContainsFriend(array, friendName) {
-    return array
-        .some(function (currentFriendName) {
-            return currentFriendName === friendName;
-        });
-}
-
 function getFriend(friends, name) {
 
     return friends.filter(function (friend) {
@@ -34,19 +27,20 @@ function collectFriends(friends, filter, maxLevel) {
         })
         .map(function (friend) {
             return friend.name;
-        });
+        })
+        .sort(sortByName);
 
     while (friendsToVisit.length > 0 && maxLevel > 0) {
         friendsToVisit = friendsToVisit
-            .sort(sortByName)
             .reduce(function (currentFriendsToVisit, friendName, index, arr) {
                 var currentFriend = getFriend(friends, friendName);
                 var filteredFriends = currentFriend.friends
                     .filter(function (friend) {
                         return (
-                            !isArrayContainsFriend(visitedFriends, friend) &&
-                            !isArrayContainsFriend(arr, friend));
-                    });
+                            visitedFriends.indexOf(friend) === -1 &&
+                            arr.indexOf(friend) === -1);
+                    })
+                    .sort(sortByName);
 
                 visitedFriends.push(friendName);
                 if (filter.filter(currentFriend)) {
