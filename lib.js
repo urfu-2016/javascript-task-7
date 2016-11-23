@@ -1,72 +1,54 @@
 'use strict';
 
-function sortByName(firstFriend, secondFriend) {
-    if (firstFriend.name > secondFriend.name) {
+function sortByName(firstName, secondName) {
+    if (firstName > secondName) {
         return 1;
-    } else if (secondFriend.name < firstFriend.name) {
+    } else if (secondName < firstName) {
         return -1;
     }
 
     return 0;
 }
 
-function getFriendsDict(friends) {
-    return friends
-        .reduce(function (dict, currentFriend) {
-            dict[currentFriend.name] = {
-                friends: currentFriend.friends,
-                gender: currentFriend.gender
-            };
-
-            if (currentFriend.best) {
-                dict[currentFriend.name].best = currentFriend.best;
-            }
-
-            return dict;
-        }, {});
-}
-
-function isArrayContainsFriend(array, friend) {
+function isArrayContainsFriend(array, friendName) {
     return array
-        .some(function (currentFriend) {
-            return currentFriend.name === friend.name;
+        .some(function (currentFriendName) {
+            return currentFriendName === friendName;
         });
 }
 
-function getFriendsOfFriend(currentFriend, friendsDict) {
-    return currentFriend.friends
-        .reduce(function (result, friend) {
-            var friendWithName = friendsDict[friend];
-            friendWithName.name = friend;
-            result.push(friendWithName);
+function getFriend(friends, name) {
 
-            return result;
-        }, []);
+    return friends.filter(function (friend) {
+        return friend.name === name;
+    })[0];
 }
 
 function collectFriends(friends, filter, maxLevel) {
     var visitedFriends = [];
     var appropriateFriends = [];
-    var friendsDict = getFriendsDict(friends);
     maxLevel = maxLevel === undefined ? Infinity : maxLevel;
     var friendsToVisit = friends
         .filter(function (friend) {
             return friend.best;
+        })
+        .map(function (friend) {
+            return friend.name;
         });
 
     while (friendsToVisit.length > 0 && maxLevel > 0) {
         friendsToVisit = friendsToVisit
             .sort(sortByName)
-            .reduce(function (currentFriendsToVisit, currentFriend, index, arr) {
-
-                var filteredFriends = getFriendsOfFriend(currentFriend, friendsDict)
+            .reduce(function (currentFriendsToVisit, friendName, index, arr) {
+                var currentFriend = getFriend(friends, friendName);
+                var filteredFriends = currentFriend.friends
                     .filter(function (friend) {
                         return (
                             !isArrayContainsFriend(visitedFriends, friend) &&
                             !isArrayContainsFriend(arr, friend));
                     });
 
-                visitedFriends.push(currentFriend);
+                visitedFriends.push(friendName);
                 if (filter.filter(currentFriend)) {
                     appropriateFriends.push(currentFriend);
                 }
