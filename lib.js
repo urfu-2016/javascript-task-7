@@ -41,6 +41,7 @@ function distributeByLevels(friends, filter, maxLevel) {
     if (!maxLevel || maxLevel < 1) {
         return [];
     }
+    
     var invited = [];
     var nextLevel = [];
     var objectForFriends = convertArrayToObject(friends);
