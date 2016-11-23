@@ -29,22 +29,21 @@ function collectFriends(friends, filter, maxLevel) {
         });
 
     while (friendsToVisit.length > 0 && maxLevel > 0) {
-        friendsToVisit = friendsToVisit
+        var prevLength = friendsToVisit.length;
+        friendsToVisit
             .sort(sortByName)
-            .reduce(function (currentFriendsToVisit, friendName, index, arr) {
+            .forEach(function (friendName, index, arr) {
                 var currentFriend = getFriend(friends, friendName);
-                var filteredFriends = currentFriend.friends
-                    .filter(function (friend) {
-                        return (
-                            visitedFriends.indexOf(getFriend(friends, friend)) === -1 &&
-                            arr.indexOf(friend) === -1);
-                    });
-                visitedFriends.push(currentFriend);
+                if (visitedFriends.indexOf(currentFriend) === -1) {
+                    visitedFriends.push(currentFriend);
+                    currentFriend.friends
+                        .forEach(function (friend) {
+                            arr.push(friend);
+                        });
+                }
+            });
 
-                return currentFriendsToVisit.concat(filteredFriends);
-            }, []);
-
-
+        friendsToVisit = friendsToVisit.slice(prevLength);
         maxLevel--;
     }
 
