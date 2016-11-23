@@ -53,7 +53,7 @@ function foundNextCircle(currentListFriends) {
         hasCircle = false;
     }
 
-    return ansList.sort(compareAlphabetically);
+    return ansList;
 }
 
 /* function foundIncoherentFriends() {
@@ -69,8 +69,9 @@ function getListGuest() {
         return person.name;
     });
     var listGuests = [].concat(listBestFriends);
-    var currentListFriends = foundNextCircle(listBestFriends);
-    listGuests = listGuests.concat(currentListFriends);
+    // var currentListFriends = foundNextCircle(listBestFriends);
+    // listGuests = listGuests.concat(currentListFriends);
+    var currentListFriends = listBestFriends;
     if (listGuests.length === 0) {
         hasCircle = false;
     }
@@ -118,8 +119,9 @@ function getListLimitGuest(maxLevel) {
     });
     var listGuests = [].concat(listBestFriends);
     if (maxLevel > 1) {
-        var currentListFriends = foundNextCircle(listBestFriends);
-        listGuests = listGuests.concat(currentListFriends);
+        // var currentListFriends = foundNextCircle(listBestFriends);
+        // listGuests = listGuests.concat(currentListFriends);
+        var currentListFriends = listBestFriends;
         while (countCircles < maxLevel) {
             currentListFriends = foundNextCircle(currentListFriends);
             listGuests = listGuests.concat(currentListFriends);
