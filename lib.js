@@ -29,29 +29,24 @@ function Iterator(friends, filter) {
         }
 
         var visited = [];
-        var currentDepth = 1;
         var friendsToVisit = friends
             .filter(function (friend) {
                 return friend.best;
             })
             .sort(sortByName);
 
-        while (friendsToVisit.length !== 0) {
+        while (maxLevel-- > 0 && friendsToVisit.length !== 0) {
             friendsToVisit = friendsToVisit.reduce(function (acc, friendToVisit, index, arr) {
                 visited.push(friendToVisit);
                 var notVisited = getFriendsOf(friendToVisit, friends)
-                    .filter(function (potentialFriend) {
-                        return !contains(arr, potentialFriend) &&
-                            !contains(visited, potentialFriend);
+                    .filter(function (friend) {
+                        return !contains(arr, friend) &&
+                            !contains(visited, friend);
                     })
                     .sort(sortByName);
 
                 return acc.concat(notVisited);
             }, []);
-
-            if (++currentDepth > maxLevel) {
-                break;
-            }
         }
 
         return visited.filter(function (visitedFriend) {
