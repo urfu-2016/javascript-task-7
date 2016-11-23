@@ -35,11 +35,8 @@ Iterator.prototype.buildCollection = function (friends, filter, maxLevel) {
 
     var visited = lastLevel;
 
-    for (var level = 2; level <= maxLevel; level++) {
+    for (var level = 2; level <= maxLevel && lastLevel.length !== 0; level++) {
         lastLevel = this.getNextLevel(lastLevel, friends, visited);
-        if (lastLevel.length === 0) {
-            break;
-        }
         this.collection = this.collection.concat(lastLevel.filter(filter.apply));
     }
 };
@@ -87,7 +84,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     this.collection = [];
     this.curIndex = 0;
 
-    if (!friends || !maxLevel) {
+    if (!friends || !maxLevel || maxLevel < 1) {
         return;
     }
 
