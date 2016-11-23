@@ -27,7 +27,7 @@ function foundFirstCircle() {
 
 function foundNextCircle(currentListFriends) {
     var namesFriends = [];
-    currentListFriends.forEach(function (person) {
+    currentListFriends.sort(compareAlphabetically).forEach(function (person) {
         for (var i = 0; i < person.friends.length; i++) {
             if (namesFriends.indexOf(person.friends[i]) === -1) {
                 namesFriends.push(person.friends[i]);
@@ -44,7 +44,9 @@ function foundNextCircle(currentListFriends) {
         return (namesFriends.indexOf(person.name) !== -1 && !usedName);
     }).sort(compareAlphabetically);
 
-    return ansList;
+    return ansList.filter(function (person) {
+        return usedFriendNames.indexOf(person.name) !== -1;
+    }).sort(compareAlphabetically);
 }
 
 function getGuests(maxLevel) {
