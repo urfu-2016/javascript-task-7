@@ -26,7 +26,6 @@ function fillingLevels(invited, nextLevel, maxLevel, objectForFriends) {
             }
         });
     };
-
     while (currentLevel.length !== 0 && maxLevel !== 0) {
         currentLevel.sort(compareNames);
         currentLevel.forEach(fillingLevel);
