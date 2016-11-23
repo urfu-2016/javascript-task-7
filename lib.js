@@ -47,20 +47,14 @@ function getFriendsOfFriend(currentFriend, friendsDict) {
 function collectFriends(friends, friendsDict, filter, maxLevel) {
     var visitedFriends = [];
     var appropriateFriends = [];
+    maxLevel = maxLevel === undefined ? Infinity : maxLevel;
     var friendsToVisit = friends
         .filter(function (friend) {
             return friend.best;
         })
         .sort(sortByName);
 
-    var currentDepth;
-    if (maxLevel > 0) {
-        currentDepth = 1;
-    } else if (maxLevel <= 0) {
-        return [];
-    }
-
-    while (friendsToVisit.length > 0) {
+    while (friendsToVisit.length > 0 && maxLevel > 0) {
         friendsToVisit = friendsToVisit
             .reduce(function (currentFriendsToVisit, currentFriend, index, arr) {
 
@@ -78,19 +72,18 @@ function collectFriends(friends, friendsDict, filter, maxLevel) {
                     !isArrayContainsFriend(appropriateFriends, currentFriend)) {
                     appropriateFriends.push(currentFriend);
                 }
+                console.info('Current ', currentFriend.name,
+                    currentFriendsToVisit.map(function (p) {
+                        return p.name;
+                    }), '\n');
 
                 return currentFriendsToVisit;
             }, [])
             .sort(sortByName);
 
-        if (currentDepth) {
-            currentDepth++;
-        }
-
-        if (currentDepth > maxLevel) {
-            break;
-        }
+        maxLevel--;
     }
+    console.info('Appropriate', appropriateFriends);
 
     return appropriateFriends;
 }
@@ -108,6 +101,7 @@ function Iterator(friends, filter, maxLevel) {
     }
 
     var friendsDict = getFriendsDict(friends);
+    console.info('\n\n\n');
     this.friends = collectFriends(friends, friendsDict, filter, maxLevel);
 }
 
