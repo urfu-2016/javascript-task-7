@@ -51,7 +51,10 @@ function getWavesFriends(friends, filter, wavesLimit) {
     });
     var filteredFriends = [];
     Object.keys(visitedSort).forEach(function (numberWave) {
-        filteredFriends = filteredFriends.concat(visitedSort[numberWave].sort());
+        filteredFriends = filteredFriends.concat(visitedSort[numberWave]
+        .sort(function (friend1, friend2) {
+            return friend1.name < friend2.name ? -1 : 1;
+        }));
     });
 
     var friendObj;
