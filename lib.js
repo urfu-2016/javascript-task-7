@@ -65,7 +65,7 @@ function collectFriends(friends, friendsDict, filter, maxLevel) {
 
     var currentDepth;
     if (maxLevel > 0) {
-        currentDepth = 0;
+        currentDepth = 1;
     } else if (maxLevel <= 0) {
         return [];
     } else {
@@ -97,7 +97,7 @@ function collectFriends(friends, friendsDict, filter, maxLevel) {
             currentDepth++;
         }
 
-        if (currentDepth >= maxLevel) {
+        if (currentDepth > maxLevel) {
             break;
         }
     }
