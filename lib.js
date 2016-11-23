@@ -1,12 +1,5 @@
 'use strict';
 
-/**
- * Итератор по друзьям
- * @constructor
- * @param {Object[]} friends
- * @param {Filter} filter
- */
-
 function compareAlphabetically(person1, person2) {
     if (person1.name > person2.name) {
         return 1;
@@ -57,6 +50,13 @@ function getGuests(friends, filter, maxLevel) {
         return filter.filterFriends(friend);
     });
 }
+
+/**
+ * Итератор по друзьям
+ * @constructor
+ * @param {Object[]} friends
+ * @param {Filter} filter
+ */
 
 function Iterator(friends, filter) {
 
