@@ -9,13 +9,13 @@ function sortByNameAndFrendshipType(firstFriend, secondFriend) {
         nameRelation = -1;
     }
 
-    if (firstFriend.best && secondFriend.best) {
-        return nameRelation;
-    } else if (firstFriend.best) {
-        return -1;
-    } else if (secondFriend.best) {
-        return 1;
-    }
+    // if (firstFriend.best && secondFriend.best) {
+    //     return nameRelation;
+    // } else if (firstFriend.best) {
+    //     return -1;
+    // } else if (secondFriend.best) {
+    //     return 1;
+    // }
 
     return nameRelation;
 }
