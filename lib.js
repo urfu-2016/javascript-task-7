@@ -11,10 +11,6 @@ function alphabeticalOrder(firstFriend, secondFriend) {
     return firstFriend.name.localeCompare(secondFriend.name);
 }
 
-function alphabeticalOrderTwo(firstFriend, secondFriend) {
-    return firstFriend.localeCompare(secondFriend);
-}
-
 function isBestFriend(friend) {
     return friend.best === true;
 }
@@ -28,14 +24,14 @@ function getFriend(friends, name) {
 function invitedGuests(friends, filter, maxLevel) {
     var guests = friends.filter(function (friend) {
         return isBestFriend(friend);
-    }).sort(alphabeticalOrder);
+    });
     var invitedFriends = [];
     while (maxLevel > 0 && guests.length !== 0) {
         var countFriend = guests.length;
-        guests.forEach(function (friend) {
+        guests.sort(alphabeticalOrder).forEach(function (friend) {
             if (invitedFriends.indexOf(friend) === -1) {
                 invitedFriends.push(friend);
-                friend.friends.sort(alphabeticalOrderTwo).forEach(function (name) {
+                friend.friends.forEach(function (name) {
                     var invitedFriend = getFriend(friends, name);
                     guests.push(invitedFriend);
                 });
