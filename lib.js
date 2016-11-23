@@ -35,19 +35,7 @@ function choiceFriendsOnLevel(friends) {
         friendsLevel.level = iteration;
         var choiceFriends = [];
         var name = [];
-        for (var index = 0; index < noInviteFriends.length; index++) {
-        //noInviteFriends.forEach(function (item) {
-            var indexNamePeople = namesPeopleChoiceFriends.indexOf(noInviteFriends[index].name);
-            if (nameChoiceFriends.indexOf(noInviteFriends[index].name) === -1) {
-                if (indexNamePeople !== -1) {
-                    choiceFriends.push(noInviteFriends[index]);
-                    nameChoiceFriends.push(noInviteFriends[index].name);
-                    noInviteFriends[index].friends.forEach(function (nameFriendItem) {
-                        name.push(nameFriendItem);
-                    });
-                }
-            }
-        }
+        inspection(noInviteFriends, namesPeopleChoiceFriends, nameChoiceFriends, choiceFriends, name);
         name.forEach(function (item) {
             namesPeopleChoiceFriends.push(item);
         });
@@ -57,6 +45,21 @@ function choiceFriendsOnLevel(friends) {
     }
 
     return sortFriends;
+}
+
+function inspection(noInviteFriends, namesPeopleChoiceFriends, nameChoiceFriends, choiceFriends, name) {
+    for (var index = 0; index < noInviteFriends.length; index++) {
+        var indexNamePeople = namesPeopleChoiceFriends.indexOf(noInviteFriends[index].name);
+        if (nameChoiceFriends.indexOf(noInviteFriends[index].name) === -1) {
+            if (indexNamePeople !== -1) {
+                choiceFriends.push(noInviteFriends[index]);
+                nameChoiceFriends.push(noInviteFriends[index].name);
+                noInviteFriends[index].friends.forEach(function (nameFriendItem) {
+                    name.push(nameFriendItem);
+                });
+            }
+        }
+    }
 }
 
 function choiceFriend(item, namesPeopleChoiceFriends) {
@@ -83,7 +86,7 @@ function Iterator(friends, filter) {
     this.indexFriend = 0;
 }
 
-function filterFriendsByGender (friends, filter, maxLevel) {
+function filterFriendsByGender(friends, filter, maxLevel) {
     var friendsFilter = [];
     friends.forEach(function (item) {
         item.friends.forEach(function (friend) {
