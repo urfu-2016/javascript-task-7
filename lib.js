@@ -65,8 +65,10 @@ function collectFriends(friends, friendsDict, filter, maxLevel) {
         });
 
     var currentDepth = -1;
-    if (maxLevel) {
+    if (maxLevel > 0) {
         currentDepth = 0;
+    } else if (maxLevel <= 0) {
+        return [];
     } else {
         maxLevel = Infinity;
     }
@@ -124,19 +126,19 @@ function Iterator(friends, filter, maxLevel) {
 
     var friendsDict = getFriendsDict(friends);
     this.friends = collectFriends(friends, friendsDict, filter, maxLevel);
-
-    this.filter = filter;
-    this.done = function () {
-        return this.friends.length === 0;
-    };
-    this.next = function () {
-        if (!this.done()) {
-            return this.friends.shift();
-        }
-
-        return null;
-    };
 }
+
+Iterator.prototype.done = function () {
+    return this.friends.length === 0;
+};
+
+Iterator.prototype.next = function () {
+    if (!this.done()) {
+        return this.friends.shift();
+    }
+
+    return null;
+};
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -149,17 +151,17 @@ function Iterator(friends, filter, maxLevel) {
 function LimitedIterator(friends, filter, maxLevel) {
 
     Iterator.call(this, friends, filter, maxLevel);
-    // this.maxLevel = maxLevel;
 }
+
+LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-
-    this.filter = function (friends) {
-        return friends;
+    this.filter = function () {
+        return true;
     };
 }
 
@@ -169,12 +171,12 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-
-    Filter.call(this);
     this.filter = function (friend) {
         return friend.gender === 'male';
     };
 }
+
+MaleFilter.prototype = Object.create(Filter.prototype);
 
 /**
  * Фильтр друзей-девушек
@@ -182,15 +184,12 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-
-    Filter.call(this);
     this.filter = function (friend) {
         return friend.gender === 'female';
     };
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
-MaleFilter.prototype = Object.create(Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
