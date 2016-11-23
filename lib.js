@@ -1,7 +1,6 @@
 'use strict';
 
 function friendsSelect(friends, filter, maxLevel) {
-    maxLevel = maxLevel || Infinity;
     var invitedFriends = [];
     var uninvitedFriends = {};
     var level = friends.reduce(function (newLevel, friend) {
@@ -49,7 +48,7 @@ function Iterator(friends, filter) {
         throw new TypeError('\'filter\' not a Filter()');
     }
 
-    this._friends = friendsSelect(friends, filter);
+    this._friends = friendsSelect(friends, filter, Infinity);
 }
 
 Iterator.prototype.done = function () {
