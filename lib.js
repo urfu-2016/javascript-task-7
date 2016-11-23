@@ -32,10 +32,12 @@ function getInformationByName(friends, name) {
 function getFriendsOfFriends(friendsGraph, friendsNodes) {
     var result = [];
     friendsNodes.forEach(function (friend) {
-        var a = friend.friends.sort();
-        a.forEach(function (b) {
-            result.push(getInformationByName(friendsGraph, b));
-        });
+        if (friend.hasOwnProperty('friends')) {
+            var a = friend.friends.sort();
+            a.forEach(function (b) {
+                result.push(getInformationByName(friendsGraph, b));
+            });
+        }
     });
 
     return result;
@@ -92,6 +94,9 @@ function getFriends(friends, maxLevel) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
     this.filteredFriends = getFriends(friends, maxLevel).filter(filter.abc);
 }
 
