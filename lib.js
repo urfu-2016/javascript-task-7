@@ -16,19 +16,18 @@ function getAppropriateFriends(friends, filter) {
         return result;
     }, {});
     var queue = friends.filter(function (friend) {
-        if (friend.best) {
-            friend.level = 0;
-        }
-
         return friend.best;
     });
+    queue.forEach(function (friend) {
+        friend.level = 0;
+    });
 
-    function isAppropriate(friend) {
+    function isFriendAndNotVisited(friend) {
         return this.friends.indexOf(friend.name) !== -1 && // eslint-disable-line no-invalid-this
             !visited[friend.name];
     }
     for (var person = queue.shift(); person; person = queue.shift()) {
-        var personFriends = friends.filter(isAppropriate, person);
+        var personFriends = friends.filter(isFriendAndNotVisited, person);
         for (var i = 0; i < personFriends.length; i++) {
             var personFriend = personFriends[i];
             visited[personFriend.name] = true;
