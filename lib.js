@@ -8,11 +8,21 @@
  * @returns {Object|undefined}
  */
 function getObjectFriend(friends, name) {
-    for (var index = 0; index < friends.length; index++) {
-        if (friends[index].name === name) {
-            return friends[index];
-        }
+
+    function isHasFriend(element) {
+        return element.name === name;
     }
+
+    return friends.find(isHasFriend);
+}
+
+/**
+ * Проверяем, что друг не undefined
+ * @param {Object} friend
+ * @returns {Boolean}
+ */
+function isNotUndefined(friend) {
+    return friend !== undefined;
 }
 
 /**
@@ -69,10 +79,11 @@ function getInvitedFriends(friends, filter, maxLevel) {
     while (currentFriends.length && currentLevel > 0) {
         currentLevel--;
         invitedFriends = invitedFriends.concat(currentFriends);
-        var newLevel = getLevel(currentFriends).map(function (name) {
+        var nextLevel = getLevel(currentFriends).map(function (name) {
             return getObjectFriend(friends, name);
         });
-        currentFriends = newLevel.filter(isUsed).sort(compareFriends);
+        currentFriends = nextLevel.filter(isNotUndefined).filter(isUsed)
+                                .sort(compareFriends);
     }
 
     return invitedFriends.filter(filter.isChoose);
@@ -87,7 +98,7 @@ function getInvitedFriends(friends, filter, maxLevel) {
 function Iterator(friends, filter) {
     console.info(friends, filter);
     if (!(filter instanceof Filter)) {
-        throw new TypeError('Объект не принадлежит классу Filter');
+        throw new TypeError('Object does not belong to Filter');
     }
     this.invitedFriends = getInvitedFriends(friends, filter);
     this.pointer = 0;
@@ -112,7 +123,7 @@ Iterator.prototype.next = function () {
 function LimitedIterator(friends, filter, maxLevel) {
     console.info(friends, filter, maxLevel);
     if (!(filter instanceof Filter)) {
-        throw new TypeError('Объект не принадлежит классу Filter');
+        throw new TypeError('Object does not belong to Filter');
     }
 
     this.invitedFriends = getInvitedFriends(friends, filter, maxLevel);
