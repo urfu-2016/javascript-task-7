@@ -84,12 +84,7 @@ function compareByName(a, b) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError('filter must be instance of Filter');
-    }
-
-    this.curIndex = 0;
-
+    Iterator.call(this, [], filter);
     this.buildCollection(friends, filter, maxLevel);
 }
 
