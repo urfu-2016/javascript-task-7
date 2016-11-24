@@ -38,7 +38,7 @@ function fillingLevels(invited, nextLevel, maxLevel, objectForFriends) {
 }
 
 function distributeByLevels(friends, filter, maxLevel) {
-    if (!maxLevel || maxLevel < 1) {
+    if (isNaN(maxLevel) || maxLevel < 1) {
         return [];
     }
     var invited = [];
