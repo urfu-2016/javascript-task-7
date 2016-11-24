@@ -36,10 +36,11 @@ function Iterator(friends, filter) {
         });
 
         /* Запоминаем, что уже брали их */
-        var viewedFriends = Object.create(null);
-        queueForAdding.forEach(function (friend) {
-            viewedFriends[friend.name] = true;
-        });
+        var viewedFriends = queueForAdding.reduce(function (viewed, friend) {
+            viewed[friend.name] = true;
+
+            return viewed;
+        }, Object.create(null));
 
         var numberOfFriendsInNextLevel;
         while ((numberOfFriendsInNextLevel = queueForAdding.length)) {
@@ -57,10 +58,11 @@ function Iterator(friends, filter) {
     }
 
     function createFriendByNameGetter() {
-        var friendByName = Object.create(null);
-        friends.forEach(function (friend) {
-            friendByName[friend.name] = friend;
-        });
+        var friendByName = friends.reduce(function (dict, friend) {
+            dict[friend.name] = friend;
+
+            return dict;
+        }, Object.create(null));
 
         return function (name) {
             return friendByName[name];
@@ -130,7 +132,7 @@ LimitedIterator.prototype.constructor = LimitedIterator;
  * @constructor
  */
 function Filter() {
-    this.genderPattern = /[\s\S]*/;
+    this.genderPattern = /.*/;
 }
 Filter.prototype.filterFriends = function (friends) {
     return friends.filter(function (friend) {
