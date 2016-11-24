@@ -7,16 +7,12 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    if (!filter || !Filter.prototype.isPrototypeOf(filter)) {
+    if (!(filter instanceof Filter)) {
         throw new TypeError('filter must be instance of Filter');
     }
 
     this.collection = [];
     this.curIndex = 0;
-
-    if (!friends) {
-        return;
-    }
 
     this.buildCollection(friends, filter, Infinity);
 }
@@ -26,33 +22,43 @@ Iterator.prototype.done = function () {
 };
 
 Iterator.prototype.next = function () {
-    return this.curIndex === this.collection.length ? null : this.collection[this.curIndex++];
+    return this.done() ? null : this.collection[this.curIndex++];
 };
 
 Iterator.prototype.buildCollection = function (friends, filter, maxLevel) {
+    if (!maxLevel || maxLevel < 1) {
+        return;
+    }
+
     var lastLevel = friends.filter(isBestFriend).sort(compareByName);
     this.collection = lastLevel.filter(filter.apply);
 
-    var visited = lastLevel;
+    var visited = {};
+    lastLevel.forEach(function (friend) {
+        visited[friend.name] = true;
+    });
+
+    var friendsByName = {};
+    friends.forEach(function (friend) {
+        friendsByName[friend.name] = friend;
+    });
 
     for (var level = 2; level <= maxLevel && lastLevel.length !== 0; level++) {
-        lastLevel = this.getNextLevel(lastLevel, friends, visited);
+        lastLevel = this.getNextLevel(lastLevel, friends, friendsByName, visited);
         this.collection = this.collection.concat(lastLevel.filter(filter.apply));
     }
 };
 
-Iterator.prototype.getNextLevel = function (lastLevel, friends, visited) {
+Iterator.prototype.getNextLevel = function (lastLevel, friends, friendsByName, visited) {
     var curLevel = [];
 
     lastLevel.forEach(function (lastLevelFriend) {
         lastLevelFriend.friends.forEach(function (friendName) {
-            var curFriend = friends.find(function (friend) {
-                return friend.name === friendName;
-            });
+            var curFriend = friendsByName[friendName];
 
-            if (visited.indexOf(curFriend) === -1) {
+            if (!visited[curFriend.name]) {
                 curLevel.push(curFriend);
-                visited.push(curFriend);
+                visited[curFriend.name] = true;
             }
         });
     });
@@ -77,16 +83,12 @@ function compareByName(a, b) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    if (!filter || !Filter.prototype.isPrototypeOf(filter)) {
+    if (!(filter instanceof Filter)) {
         throw new TypeError('filter must be instance of Filter');
     }
 
     this.collection = [];
     this.curIndex = 0;
-
-    if (!friends || !maxLevel || maxLevel < 1) {
-        return;
-    }
 
     this.buildCollection(friends, filter, maxLevel);
 }
