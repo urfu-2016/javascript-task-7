@@ -8,21 +8,9 @@
  * @returns {Object|undefined}
  */
 function getObjectFriend(friends, name) {
-
-    function isHasFriend(element) {
-        return element.name === name;
-    }
-
-    return friends.find(isHasFriend);
-}
-
-/**
- * Проверяем, что друг не undefined
- * @param {Object} friend
- * @returns {Boolean}
- */
-function isNotUndefined(friend) {
-    return friend !== undefined && friend !== null;
+    return friends.find(function (friend) {
+        return friend.name === name;
+    });
 }
 
 /**
@@ -82,8 +70,10 @@ function getInvitedFriends(friends, filter, maxLevel) {
         var nextLevel = getLevel(currentFriends).map(function (name) {
             return getObjectFriend(friends, name);
         });
-        currentFriends = nextLevel.filter(isNotUndefined).filter(isUsed)
-                                .sort(compareFriends);
+        currentFriends = nextLevel
+            .filter(Boolean)
+            .filter(isUsed)
+            .sort(compareFriends);
     }
 
     return invitedFriends.filter(filter.isChoose);
