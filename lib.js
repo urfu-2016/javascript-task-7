@@ -56,9 +56,6 @@ function distributeByLevels(friends, filter, maxLevel) {
         }
     });
     maxLevel--;
-    if (invited.length === 0) {
-        nextLevel = friends;
-    }
     invited = fillingLevels(invited, nextLevel, maxLevel, objectForFriends);
 
     return invited;
