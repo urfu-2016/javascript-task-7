@@ -11,7 +11,6 @@ function Iterator(friends, filter) {
         throw new TypeError('filter must be instance of Filter');
     }
 
-    this.collection = [];
     this.curIndex = 0;
 
     this.buildCollection(friends, filter, Infinity);
@@ -26,6 +25,8 @@ Iterator.prototype.next = function () {
 };
 
 Iterator.prototype.buildCollection = function (friends, filter, maxLevel) {
+    this.collection = [];
+
     if (!maxLevel || maxLevel < 1) {
         return;
     }
@@ -87,7 +88,6 @@ function LimitedIterator(friends, filter, maxLevel) {
         throw new TypeError('filter must be instance of Filter');
     }
 
-    this.collection = [];
     this.curIndex = 0;
 
     this.buildCollection(friends, filter, maxLevel);
