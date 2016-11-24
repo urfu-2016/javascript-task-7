@@ -11,8 +11,9 @@ function Iterator(friends, filter) {
         throw new TypeError();
     }
     this.filteredFriends = getFriends(friends, Infinity).filter(filter.isAccepted);
-    this.nextIndex = 0;
 }
+
+Iterator.prototype.nextIndex = 0;
 
 Iterator.prototype.next = function () {
     return this.done() ? null : this.filteredFriends[this.nextIndex++];
@@ -69,15 +70,11 @@ function friendsComparer(first, second) {
 }
 
 function getFriendsOfNextLevel(queue, allFriends, visited) {
-    var result = [];
-    for (var i = 0; i < queue.length; i++) {
-        var all = getFriendsOfFriend(queue[i], allFriends);
-        for (var j = 0; j < all.length; j++) {
-            result.push(all[j]);
-        }
-    }
+    var friends = queue.reduce(function (result, friend) {
+        return result.concat(getFriendsOfFriend(friend, allFriends));
+    }, []);
 
-    return result
+    return friends
         .filter(function (friend) {
             return !visited.contains(friend);
         })
@@ -90,7 +87,7 @@ function getFriends(friends, maxLevel) {
     }
     var visited = new HashSet();
     visited.addRange(getBestFriends(friends));
-    var queue = getBestFriends(friends);
+    var queue = visited.getPersons();
     for (var i = 2; i <= maxLevel; i++) {
         queue = getFriendsOfNextLevel(queue, friends, visited);
         if (!queue.length) {
@@ -115,7 +112,6 @@ function LimitedIterator(friends, filter, maxLevel) {
         throw new TypeError();
     }
     this.filteredFriends = getFriends(friends, maxLevel).filter(filter.isAccepted);
-    this.nextIndex = 0;
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
