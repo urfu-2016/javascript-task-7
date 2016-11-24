@@ -83,7 +83,6 @@ function validateFilter(filter) {
  */
 function Iterator(friends, filter) {
     validateFilter(filter);
-
     this.index = 0;
     this.friends = collectFriends(friends, filter, Infinity);
 }
@@ -105,7 +104,8 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter);
+    validateFilter(filter);
+    this.index = 0;
     this.friends = collectFriends(friends, filter, maxLevel);
 }
 
