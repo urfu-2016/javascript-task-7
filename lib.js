@@ -45,7 +45,7 @@ function distributeByLevels(friends, filter, maxLevel) {
     var nextLevel = [];
     var objectForFriends = convertArrayToObject(friends);
     friends.forEach(function (person) {
-        if (person.best === true) {
+        if (person.best) {
             invited.push(person);
             person.friends.forEach(function (friend) {
                 if (!(nextLevel.indexOf(objectForFriends[friend]) !== -1 ||
@@ -124,7 +124,7 @@ function Filter() {
 }
 
 Filter.prototype.getPeopleSameGender = function (person) {
-    return person.gender === this.gender;
+    return person.gender === this.gender || this.gender === 'nothing';
 };
 
 /**
