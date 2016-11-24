@@ -24,6 +24,17 @@ function getBestFriendsNames(friends) {
         });
 }
 
+function getFilteredFriendsObjects(friends, visitedFriends, filter) {
+    return visitedFriends
+        // Получим по именам объекты друзей
+        .reduce(function (visitedFriendsObjects, visitedFriend) {
+            visitedFriendsObjects.push(getFriend(friends, visitedFriend));
+
+            return visitedFriendsObjects;
+        }, [])
+        .filter(filter.filter);
+}
+
 function collectFriends(friends, filter, maxLevel) {
     var visitedFriends = [];
     maxLevel = maxLevel > 0 ? maxLevel : 0;
@@ -31,16 +42,22 @@ function collectFriends(friends, filter, maxLevel) {
 
     while (currentLevelFriends.length > 0 && maxLevel > 0) {
         currentLevelFriends = currentLevelFriends
+            // Сортируем текущий уровень по имени
             .sort(sortByName)
+            // У каждого человека с этого уровня собираем его друзей
             .reduce(function (nextLevelFriends, friendName, index, arr) {
                 var currentFriend = getFriend(friends, friendName);
-                visitedFriends.push(currentFriend);
+                visitedFriends.push(friendName);
+
+                var arraysToCheckFriend = [visitedFriends, nextLevelFriends, arr];
                 var filteredFriends = currentFriend.friends
+                    // Получим друзей, которых не было на предыдущем уровне, нет на этом
+                    // и мы не добавили их в следующий уровень
                     .filter(function (friend) {
-                        return (
-                            visitedFriends.indexOf(getFriend(friends, friend)) === -1 &&
-                            nextLevelFriends.indexOf(friend) === -1 &&
-                            arr.indexOf(friend) === -1);
+                        return arraysToCheckFriend
+                            .every(function (array) {
+                                return array.indexOf(friend) === -1;
+                            });
                     });
 
                 return nextLevelFriends.concat(filteredFriends);
@@ -48,7 +65,7 @@ function collectFriends(friends, filter, maxLevel) {
         maxLevel--;
     }
 
-    return visitedFriends.filter(filter.filter);
+    return getFilteredFriendsObjects(friends, visitedFriends, filter);
 }
 
 /**
