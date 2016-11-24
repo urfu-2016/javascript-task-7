@@ -24,15 +24,14 @@ function getBestFriendsNames(friends) {
         });
 }
 
-function getFilteredFriendsObjects(friends, visitedFriends, filter) {
+function getFriendsObjects(friends, visitedFriends) {
     return visitedFriends
         // Получим по именам объекты друзей
         .reduce(function (visitedFriendsObjects, visitedFriend) {
             visitedFriendsObjects.push(getFriend(friends, visitedFriend));
 
             return visitedFriendsObjects;
-        }, [])
-        .filter(filter.filter);
+        }, []);
 }
 
 function collectFriends(friends, filter, maxLevel) {
@@ -65,7 +64,14 @@ function collectFriends(friends, filter, maxLevel) {
         maxLevel--;
     }
 
-    return getFilteredFriendsObjects(friends, visitedFriends, filter);
+    return getFriendsObjects(friends, visitedFriends)
+        .filter(filter.filterFunction);
+}
+
+function validateFilter(filter) {
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('Wrong filter argument');
+    }
 }
 
 /**
@@ -76,9 +82,7 @@ function collectFriends(friends, filter, maxLevel) {
  * @param {Number} maxLevel
  */
 function Iterator(friends, filter) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError('Wrong filter argument');
-    }
+    validateFilter(filter);
 
     this.index = 0;
     this.friends = collectFriends(friends, filter, Infinity);
@@ -113,10 +117,12 @@ LimitedIterator.prototype.constructor = LimitedIterator;
  * @constructor
  */
 function Filter() {
-    this.filter = function () {
-        return true;
-    };
+    // Filter constructor
 }
+
+Filter.prototype.filterFunction = function () {
+    return true;
+};
 
 /**
  * Фильтр друзей
@@ -124,13 +130,14 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.filter = function (friend) {
-        return friend.gender === 'male';
-    };
+    // MaleFilter constructor
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
 MaleFilter.prototype.constructor = MaleFilter;
+MaleFilter.prototype.filterFunction = function (friend) {
+    return friend.gender === 'male';
+};
 
 /**
  * Фильтр друзей-девушек
@@ -138,13 +145,14 @@ MaleFilter.prototype.constructor = MaleFilter;
  * @constructor
  */
 function FemaleFilter() {
-    this.filter = function (friend) {
-        return friend.gender === 'female';
-    };
+    // FemaleFilter constructor
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
 FemaleFilter.prototype.constructor = FemaleFilter;
+FemaleFilter.prototype.filterFunction = function (friend) {
+    return friend.gender === 'female';
+};
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
