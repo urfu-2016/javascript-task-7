@@ -21,7 +21,7 @@ function Iterator(friends, filter) {
 
 Iterator.prototype._init = function (friends) {
     var uninvitedFriends = this._uninvitedFriends;
-    this._currentFriends = friends.reduce(function (currentLevel, friend) {
+    this._currentLevel = friends.reduce(function (currentLevel, friend) {
         if (friend.best) {
             currentLevel.persons.push(friend);
             currentLevel.friends = currentLevel.friends.concat(friend.friends);
@@ -34,9 +34,9 @@ Iterator.prototype._init = function (friends) {
 };
 
 Iterator.prototype._inviteFriends = function () {
-    while (this._currentFriends.persons.length > 0) {
-        this._addInvited(this._currentFriends.persons);
-        this._currentFriends = this._getFriendsFriends(this._currentFriends.friends);
+    while (this._currentLevel.persons.length > 0) {
+        this._addInvited(this._currentLevel.persons);
+        this._currentLevel = this._getFriendsFriends(this._currentLevel.friends);
     }
 };
 
@@ -92,9 +92,9 @@ function LimitedIterator(friends, filter, maxLevel) {
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype._inviteFriends = function () {
-    while (this._currentFriends.persons.length > 0 && this._maxLevel-- > 0) {
-        this._addInvited(this._currentFriends.persons);
-        this._currentFriends = this._getFriendsFriends(this._currentFriends.friends);
+    while (this._currentLevel.persons.length > 0 && this._maxLevel-- > 0) {
+        this._addInvited(this._currentLevel.persons);
+        this._currentLevel = this._getFriendsFriends(this._currentLevel.friends);
     }
 };
 LimitedIterator.prototype.constructor = LimitedIterator;
@@ -104,13 +104,11 @@ LimitedIterator.prototype.constructor = LimitedIterator;
  * @constructor
  */
 function Filter() {
-    this._rule = function () {
-        return true;
-    };
+    this._value = true;
 }
 
-Filter.prototype.check = function (friends) {
-    return this._rule.call(null, friends);
+Filter.prototype.check = function () {
+    return this._value;
 };
 
 /**
@@ -119,12 +117,13 @@ Filter.prototype.check = function (friends) {
  * @constructor
  */
 function MaleFilter() {
-    this._rule = function (friend) {
-        return friend.gender === 'male';
-    };
+    this._value = 'male';
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.check = function (friend) {
+    return friend.gender === this._value;
+};
 MaleFilter.prototype.constructor = MaleFilter;
 
 /**
@@ -133,12 +132,10 @@ MaleFilter.prototype.constructor = MaleFilter;
  * @constructor
  */
 function FemaleFilter() {
-    this._rule = function (friend) {
-        return friend.gender === 'female';
-    };
+    this._value = 'female';
 }
 
-FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype = Object.create(MaleFilter.prototype);
 FemaleFilter.prototype.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
