@@ -1,59 +1,78 @@
 'use strict';
 
-function findNote(friends, name) {
-    var newFriend;
-    friends.forEach(function (friend) {
-        if (friend.name === name) {
-            newFriend = friend;
-        }
+/**
+ * Ищет запись с именем name во friends
+ * @param {Object[]} friends
+ * @param {String} name
+ * @returns {Object} friend
+ */
+function findFriend(friends, name) {
+    return friends.find(function (friend) {
+        return friend.name === name;
     });
-
-    return newFriend;
 }
 
-function makeIterationArray(friendsCircles, filter, maxLevel) {
-    var iterationArray = [];
+/**
+ * Из массива с кругами создает массив для итерации, фильтруя не подходящие записи
+ * @param {Array} friendsCircles
+ * @param {Filter} filter
+ * @returns {Array} iterationArray
+ */
+function makeIterationArray(friendsCircles, filter) {
+    return friendsCircles.reduce(function (iterationArray, currentCircle) {
+        return iterationArray.concat(currentCircle.filter(function (friend) {
+            return filter.isFilter(friend);
+        }));
+    }, []);
+}
 
-    friendsCircles.slice(0, Math.max(maxLevel, 0)).forEach(function (circle) {
-        circle.forEach(function (friend) {
-            if (filter.choose(friend)) {
-                iterationArray.push(friend);
+/**
+ * Возвращает круг под номером circleNumber, записывает данные в usedFriends
+ * @param {Integer} circleNumber
+ * @param {Array} usedFriends
+ * @param {Array} friendsCircles
+ * @param {Object[]} friends
+ * @returns {Array} circle
+ */
+function makeCircle(circleNumber, usedFriends, friendsCircles, friends) {
+    var circle = [];
+    friendsCircles[circleNumber - 1].forEach(function (friend) {
+        friend.friends.forEach(function (name) {
+            if (usedFriends.indexOf(name) === -1) {
+                usedFriends.push(name);
+                circle.push(findFriend(friends, name));
             }
         });
     });
 
-    return iterationArray;
+    return circle;
 }
 
-function makeFriendsCircles(friends) {
+/**
+ * Возвращает массив кругов с максимальным уровнем maxLevel
+ * @param {Object[]} friends
+ * @param {Integer} maxLevel
+ * @returns {Array} friendsCircles
+ */
+function makeFriendsCircles(friends, maxLevel) {
     var friendsCircles = [[]];
     var usedFriends = [];
-
-    function makeNewCircle(i) {
-        var newCircle = [];
-        friendsCircles[i].forEach(function (friend) {
-            friend.friends.forEach(function (name) {
-                if (usedFriends.indexOf(name) === -1) {
-                    usedFriends.push(name);
-                    newCircle.push(findNote(friends, name));
-                }
-            });
+    if (maxLevel > 0) {
+        friends.forEach(function (friend) {
+            if (friend.best === true) {
+                friendsCircles[0].push(friend);
+                usedFriends.push(friend.name);
+            }
         });
 
-        if (newCircle.length !== 0) {
+        var circleNumber = 1;
+        var newCircle = makeCircle(circleNumber, usedFriends, friendsCircles, friends);
+
+        while (newCircle.length && circleNumber < maxLevel) {
             friendsCircles.push(newCircle);
+            circleNumber++;
+            newCircle = makeCircle(circleNumber, usedFriends, friendsCircles, friends);
         }
-    }
-
-    friends.forEach(function (friend) {
-        if (friend.best === true) {
-            friendsCircles[0].push(friend);
-            usedFriends.push(friend.name);
-        }
-    });
-
-    for (var i = 0; i < friendsCircles.length; i++) {
-        makeNewCircle(i);
     }
 
     friendsCircles.forEach(function (circle) {
@@ -75,26 +94,25 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('filter is not instance of Filter');
     }
-
-    this.friendsCircles = makeFriendsCircles(friends);
-    this.maxLevel = this.friendsCircles.length;
-    this.iterationArray = makeIterationArray(this.friendsCircles, filter, this.maxLevel);
-    this.numberOfCalls = 0;
-
-    this.done = function () {
-        return this.numberOfCalls === this.iterationArray.length;
-    };
-
-    this.next = function () {
-        if (this.done()) {
-            return null;
-        }
-
-        this.numberOfCalls++;
-
-        return this.iterationArray[this.numberOfCalls - 1];
-    };
+    this.friendsCircles = makeFriendsCircles(friends, Infinity);
+    this.iterationArray = makeIterationArray(this.friendsCircles, filter);
 }
+
+Iterator.prototype.numberOfCalls = 0;
+
+Iterator.prototype.done = function () {
+    return this.numberOfCalls === this.iterationArray.length;
+};
+
+Iterator.prototype.next = function () {
+    if (this.done()) {
+        return null;
+    }
+
+    this.numberOfCalls++;
+
+    return this.iterationArray[this.numberOfCalls - 1];
+};
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -105,8 +123,11 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter);
-    this.iterationArray = makeIterationArray(this.friendsCircles, filter, maxLevel);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('filter is not instance of Filter');
+    }
+    this.friendsCircles = makeFriendsCircles(friends, maxLevel);
+    this.iterationArray = makeIterationArray(this.friendsCircles, filter);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
@@ -117,7 +138,7 @@ LimitedIterator.prototype.constructor = LimitedIterator;
  * @constructor
  */
 function Filter() {
-    this.choose = function () {
+    this.isFilter = function () {
         return true;
     };
 }
@@ -128,7 +149,7 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.choose = function (friend) {
+    this.isFilter = function (friend) {
         return friend.gender === 'male';
     };
 }
@@ -142,7 +163,7 @@ MaleFilter.prototype.constructor = MaleFilter;
  * @constructor
  */
 function FemaleFilter() {
-    this.choose = function (friend) {
+    this.isFilter = function (friend) {
         return friend.gender === 'female';
     };
 }
