@@ -1,26 +1,26 @@
 'use strict';
 
 function byLevelThenByNameDescending(a, b) {
-    return (b.level - a.level) * 10 + (b.name < a.name ? -1 : Number(b.name > a.name));
+    return b.level - a.level || (b.name < a.name ? -1 : (b.name > a.name ? 1 : 0)) // eslint-disable-line
 }
 
-function setPrototype(clazz, proto) {
-    clazz.prototype = Object.create(proto);
-    clazz.prototype.constructor = clazz;
-}
-
-function defineProperty(object, propertyName, value) {
-    object[propertyName] = value;
-
-    return object;
+function setPrototype(fn, proto) {
+    fn.prototype = Object.create(proto);
+    fn.prototype.constructor = fn;
 }
 
 function getAppropriateFriends(friends, filter) {
     var visited = friends.reduce(function (result, friend) {
-        return defineProperty(result, friend.name, friend.best);
+        result[friend.name] = friend.best;
+
+        return result;
     }, {});
     var queue = friends.filter(function (friend) {
-        return friend.best && defineProperty(friend, 'level', 0);
+        if (friend.best) {
+            friend.level = 0;
+        }
+
+        return friend.best;
     });
 
     function isAppropriate(friend) {
@@ -38,16 +38,19 @@ function getAppropriateFriends(friends, filter) {
     }
 
     return friends
-        .filter(filter.allow, filter)
+        .filter(filter.match, filter)
         .sort(byLevelThenByNameDescending)
         .map(function (friend) {
-            return delete friend.level && friend;
+            delete friend.level;
+
+            return friend;
         });
 }
 
 function checkIsFilter(filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError('`filter` must be an instance of Filter');
+        throw new TypeError('`filter` must be an instance of Filter, but was' +
+            filter.constructor.name);
     }
 }
 
@@ -89,52 +92,57 @@ setPrototype(LimitedIterator, Iterator.prototype);
  * Фильтр друзей
  * @constructor
  */
-function Filter() {
-    this.allow = function () {
-        return true;
-    };
+function Filter() { // eslint-disable-line no-empty-function
 }
+
+Filter.prototype.match = function () {
+    return true;
+};
 
 function CompositeFilter(filters) {
     this.filters = filters;
 }
 
-CompositeFilter.prototype.allow = function (person) {
+CompositeFilter.prototype.match = function (person) {
     return this.filters.every(function (filter) {
-        return filter.allow(person);
+        return filter.match(person);
     });
 };
 
 function LevelFilter(maxLevel) {
-    this.allow = function (person) {
-        return person.hasOwnProperty('level') && person.level < maxLevel;
-    };
+    this.maxLevel = maxLevel > 0 ? maxLevel : Infinity;
 }
 setPrototype(LevelFilter, Filter.prototype);
+
+LevelFilter.prototype.match = function (person) {
+    return person.hasOwnProperty('level') && person.level < this.maxLevel;
+};
 
 /**
  * Фильтр друзей
  * @extends Filter
  * @constructor
  */
-function MaleFilter() {
-    this.allow = function (person) {
-        return person.gender === 'male';
-    };
+function MaleFilter() { // eslint-disable-line no-empty-function
 }
 setPrototype(MaleFilter, Filter.prototype);
+
+MaleFilter.prototype.match = function (person) {
+    return person.gender === 'male';
+};
 
 /**
  * Фильтр друзей-девушек
  * @extends Filter
  * @constructor
  */
-function FemaleFilter() {
-    this.allow = function (person) {
-        return person.gender === 'female';
-    };
+function FemaleFilter() { // eslint-disable-line no-empty-function
 }
 setPrototype(FemaleFilter, Filter.prototype);
+
+FemaleFilter.prototype.match = function (person) {
+    return person.gender === 'female';
+};
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
