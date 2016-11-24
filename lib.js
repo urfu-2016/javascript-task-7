@@ -29,13 +29,17 @@ function Iterator(friends, filter) {
             return friend.best;
         });
 
+        function isNotVisited(friend) {
+            return !contains(visited, friend);
+        }
+
         while (maxLevel-- > 0 && friendsToVisit.length !== 0) {
             friendsToVisit.sort(sortByName);
             visited = visited.concat(friendsToVisit);
             friendsToVisit = friendsToVisit.reduce(function (acc, friendToVisit) {
                 var notVisited = getFriendsOf(friendToVisit)
                     .filter(function (friend) {
-                        return !contains(visited, friend) && !contains(acc, friend);
+                        return isNotVisited(friend) && !contains(acc, friend);
                     });
 
                 return acc.concat(notVisited);
