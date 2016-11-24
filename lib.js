@@ -22,7 +22,7 @@ function getObjectFriend(friends, name) {
  * @returns {Boolean}
  */
 function isNotUndefined(friend) {
-    return friend !== undefined;
+    return friend !== undefined && friend !== null;
 }
 
 /**
