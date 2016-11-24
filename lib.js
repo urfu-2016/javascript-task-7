@@ -13,7 +13,8 @@ function Iterator(friends, filter) {
 
     var getFriendByName = createFriendByNameGetter();
     this.friendshipLevels = divideIntoFriendshipLevels().map(function (level) {
-        return filter.filter(level)
+        return filter
+            .filterFriends(level)
             .sort(function (friend1, friend2) {
                 return friend2.name < friend1.name;
             });
@@ -95,10 +96,8 @@ Iterator.prototype.done = function () {
 
     this.nextIndex = 0;
     this.levelIndex++;
-    while (
-    this.levelIndex < this.friendshipLevels.length &&
-    this.friendshipLevels[this.levelIndex].length === 0
-        ) {
+    while (this.levelIndex < this.friendshipLevels.length &&
+        this.friendshipLevels[this.levelIndex].length === 0) {
         this.levelIndex++;
     }
 
@@ -106,7 +105,7 @@ Iterator.prototype.done = function () {
 };
 
 Iterator.prototype.next = function () {
-    return !this.done() ? this.friendshipLevels[this.levelIndex][this.nextIndex++] : null;
+    return this.done() ? null : this.friendshipLevels[this.levelIndex][this.nextIndex++];
 };
 
 /**
@@ -133,7 +132,7 @@ LimitedIterator.prototype.constructor = LimitedIterator;
 function Filter() {
     this.genderPattern = /[\s\S]*/;
 }
-Filter.prototype.filter = function (friends) {
+Filter.prototype.filterFriends = function (friends) {
     return friends.filter(function (friend) {
         return this.genderPattern.test(friend.gender);
     }, this);
