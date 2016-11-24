@@ -11,7 +11,6 @@ function Iterator(friends, filter) {
         throw new TypeError('\'filter\' not a Filter()');
     }
 
-    this._maxLevel = isNaN(arguments[2]) ? Infinity : arguments[2];
     this._invitedFriends = [];
     this._uninvitedFriends = {};
 
@@ -22,20 +21,20 @@ function Iterator(friends, filter) {
 
 Iterator.prototype._init = function (friends) {
     var uninvitedFriends = this._uninvitedFriends;
-    this._currentFriends = friends.reduce(function (newFriends, friend) {
+    this._currentFriends = friends.reduce(function (currentLevel, friend) {
         if (friend.best) {
-            newFriends.persons.push(friend);
-            newFriends.friends = newFriends.friends.concat(friend.friends);
+            currentLevel.persons.push(friend);
+            currentLevel.friends = currentLevel.friends.concat(friend.friends);
         } else {
             uninvitedFriends[friend.name] = friend;
         }
 
-        return newFriends;
+        return currentLevel;
     }, { persons: [], friends: [] });
 };
 
 Iterator.prototype._inviteFriends = function () {
-    while (this._currentFriends.persons.length > 0 && this._maxLevel-- > 0) {
+    while (this._currentFriends.persons.length > 0) {
         this._addInvited(this._currentFriends.persons);
         this._currentFriends = this._getFriendsFriends(this._currentFriends.friends);
     }
@@ -52,21 +51,21 @@ Iterator.prototype._addInvited = function (friends) {
 Iterator.prototype._getFriendsFriends = function (friends) {
     var uninvitedFriends = this._uninvitedFriends;
 
-    return friends.reduce(function (newFriends, name) {
+    return friends.reduce(function (currentLevel, name) {
         var friend = uninvitedFriends[name];
         if (friend) {
-            newFriends.persons.push(friend);
-            newFriends.friends = newFriends.friends.concat(friend.friends);
+            currentLevel.persons.push(friend);
+            currentLevel.friends = currentLevel.friends.concat(friend.friends);
             delete uninvitedFriends[name];
         }
 
-        return newFriends;
+        return currentLevel;
     }, { persons: [], friends: [] });
 };
 
 Iterator.prototype._filtered = function (filter) {
     this._invitedFriends = this._invitedFriends.filter(function (friend) {
-        return filter.call(friend);
+        return filter.check(friend);
     });
 };
 
@@ -87,15 +86,22 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter, maxLevel);
+    this._maxLevel = maxLevel;
+    Iterator.call(this, friends, filter);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype._inviteFriends = function () {
+    while (this._currentFriends.persons.length > 0 && this._maxLevel-- > 0) {
+        this._addInvited(this._currentFriends.persons);
+        this._currentFriends = this._getFriendsFriends(this._currentFriends.friends);
+    }
+};
 LimitedIterator.prototype.constructor = LimitedIterator;
 
 /**
  * Фильтр друзей
- * @constructor4
+ * @constructor
  */
 function Filter() {
     this._rule = function () {
@@ -103,7 +109,7 @@ function Filter() {
     };
 }
 
-Filter.prototype.call = function (friends) {
+Filter.prototype.check = function (friends) {
     return this._rule.call(null, friends);
 };
 
