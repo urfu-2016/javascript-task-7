@@ -18,11 +18,11 @@ function fillingLevels(invited, nextLevel, maxLevel, objectForFriends) {
     nextLevel = [];
     var fillingLevel = function (person) {
         invited.push(person);
+        delete objectForFriends[person.name];
         person.friends.forEach(function (friend) {
-            if (!(nextLevel.indexOf(objectForFriends[friend]) !== -1 ||
-                currentLevel.indexOf(objectForFriends[friend]) !== -1 ||
-                invited.indexOf(objectForFriends[friend]) !== -1)) {
+            if (friend in objectForFriends) {
                 nextLevel.push(objectForFriends[friend]);
+                delete objectForFriends[friend];
             }
         });
     };
@@ -47,10 +47,11 @@ function distributeByLevels(friends, filter, maxLevel) {
     friends.forEach(function (person) {
         if (person.best) {
             invited.push(person);
+            delete objectForFriends[person.name];
             person.friends.forEach(function (friend) {
-                if (!(nextLevel.indexOf(objectForFriends[friend]) !== -1 ||
-                    invited.indexOf(objectForFriends[friend]) !== -1)) {
+                if (friend in objectForFriends) {
                     nextLevel.push(objectForFriends[friend]);
+                    delete objectForFriends[friend];
                 }
             });
         }
