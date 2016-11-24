@@ -109,7 +109,7 @@ CompositeFilter.prototype.match = function (person) {
 };
 
 function LevelFilter(maxLevel) {
-    this.maxLevel = maxLevel > 0 ? maxLevel : Infinity;
+    this.maxLevel = maxLevel;
 }
 setPrototype(LevelFilter, Filter.prototype);
 
