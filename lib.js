@@ -67,7 +67,7 @@ function sortByName(a, b) {
 function getUniqueFriends(collection) {
     var result = [];
     collection.forEach(function (element) {
-        var newFriends = element.friendsCollection;
+        var newFriends = element.friends;
         newFriends.forEach(function (friend) {
             if (result.indexOf(friend) === -1) {
                 result.push(friend);
