@@ -10,19 +10,6 @@ function Set() {
     };
 }
 
-function compareBy(propertyName) {
-    return function (first, second) {
-        if (first[propertyName] < second[propertyName]) {
-            return -1;
-        }
-        if (first[propertyName] > second[propertyName]) {
-            return 1;
-        }
-
-        return 0;
-    };
-}
-
 function convertToMapBy(propertyName, objectArray) {
     return objectArray.reduce(function (currentMap, object) {
         currentMap[object[propertyName]] = object;
@@ -33,33 +20,41 @@ function convertToMapBy(propertyName, objectArray) {
 
 function IteratorByCircle(friends) {
     this.nameToFriend = convertToMapBy('name', friends);
-    this.namesOfInvited = new Set();
+    this.visited = new Set();
     this.currentCircle = [];
     this.nextCircle = [];
 
     var bestFriends = friends.filter(function (friend) {
         return friend.best;
-    }).sort(compareBy('name'));
-    bestFriends.forEach(this.pushNextIfPossible, this);
+    });
+
+    this.pushNextIfPossible(bestFriends);
+    this.currentFriend = this.getNextFriend();
 }
 
-IteratorByCircle.prototype.pushNextIfPossible = function (friend) {
-    if (!this.namesOfInvited.contains(friend.name)) {
-        this.namesOfInvited.add(friend.name);
-        this.nextCircle.push(friend);
-    }
+IteratorByCircle.prototype.pushNextIfPossible = function (friends) {
+    friends.forEach(function (friend) {
+        if (typeof friend === 'string') {
+            friend = this.nameToFriend[friend];
+        }
+
+        if (!this.visited.contains(friend.name)) {
+            this.visited.add(friend.name);
+            this.nextCircle.push(friend);
+        }
+
+    }, this);
 };
 
 IteratorByCircle.prototype.moveToNextCircle = function () {
-    this.currentCircle = this.nextCircle.sort(compareBy('name'));
+    this.currentCircle = this.nextCircle.sort(function (first, second) {
+        return first.name.localeCompare(second.name);
+    });
     this.nextCircle = [];
 };
 
-IteratorByCircle.prototype.next = function () {
+IteratorByCircle.prototype.getNextFriend = function () {
     if (this.currentCircle.length === 0 && this.nextCircle.length === 0) {
-        return null;
-    }
-    if (this.done()) {
         return null;
     }
 
@@ -68,17 +63,28 @@ IteratorByCircle.prototype.next = function () {
     }
 
     var nextFriend = this.currentCircle.shift();
-    nextFriend.friends.map(function (name) {
-        return this.nameToFriend[name];
-    }, this)
-    .forEach(this.pushNextIfPossible, this);
+    this.pushNextIfPossible(nextFriend.friends);
 
     return nextFriend;
 };
 
+/**
+ * Отдаёт текущего друга и меняет текущего на следующего
+ * @returns {Object} текущий друг
+ */
+IteratorByCircle.prototype.next = function () {
+    if (this.done()) {
+        return null;
+    }
+
+    var friendForReturn = this.currentFriend;
+    this.currentFriend = this.getNextFriend();
+
+    return friendForReturn;
+};
+
 IteratorByCircle.prototype.done = function () {
-    return this.currentCircle.length === 0 &&
-           this.nextCircle.length === 0;
+    return this.currentFriend === null;
 };
 
 /**
@@ -92,35 +98,19 @@ function Iterator(friends, filter) {
         throw new TypeError('Argument "filter" should be instance of Filter');
     }
 
-    IteratorByCircle.call(this, friends);
     this.filter = filter;
-    this.current = undefined;
-    this.next();
+    IteratorByCircle.call(this, friends);
 }
 Iterator.prototype = Object.create(IteratorByCircle.prototype);
 
-Iterator.prototype.next = function () {
-    if (this.done()) {
-        this.current = null;
-
-        return null;
-    }
-
+Iterator.prototype.getNextFriend = function () {
     for (;;) {
-        var next = IteratorByCircle.prototype.next.call(this);
-        if (next === null || this.filter.isAccept(next)) {
-            var lastCurrent = this.current;
-            this.current = next;
-
-            return lastCurrent;
+        var friend = IteratorByCircle.prototype.getNextFriend.call(this);
+        if (friend === null || this.filter.isAccept(friend)) {
+            return friend;
         }
     }
 };
-
-Iterator.prototype.done = function () {
-    return IteratorByCircle.prototype.done.call(this) && this.current === null;
-};
-
 
 /**
  * Итератор по друзям с ограничением по кругу
@@ -131,24 +121,21 @@ Iterator.prototype.done = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter);
-    this.currentLevel = 0;
     this.maxLevel = maxLevel;
+    this.currentLevel = 0;
+
+    Iterator.call(this, friends, filter);
 }
-
 LimitedIterator.prototype = Object.create(Iterator.prototype);
-
-LimitedIterator.prototype.done = function () {
-    return Iterator.prototype.done.call(this) ||
-    this.currentLevel >= this.maxLevel ||
-    this.maxLevel <= 0;
-};
 
 LimitedIterator.prototype.moveToNextCircle = function () {
     Iterator.prototype.moveToNextCircle.call(this);
     this.currentLevel++;
 };
 
+LimitedIterator.prototype.done = function () {
+    return Iterator.prototype.done.call(this) || this.currentLevel > this.maxLevel;
+};
 
 /**
  * Фильтр друзей
