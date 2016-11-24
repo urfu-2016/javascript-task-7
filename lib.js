@@ -17,14 +17,15 @@ function fillingLevels(invited, nextLevel, maxLevel, objectForFriends) {
     var currentLevel = nextLevel;
     nextLevel = [];
     var fillingLevel = function (person) {
-        invited.push(person);
-        delete objectForFriends[person.name];
-        person.friends.forEach(function (friend) {
-            if (friend in objectForFriends) {
-                nextLevel.push(objectForFriends[friend]);
-                delete objectForFriends[friend];
-            }
-        });
+        if (person.name in objectForFriends) {
+            invited.push(person);
+            delete objectForFriends[person.name];
+            person.friends.forEach(function (friend) {
+                if (friend in objectForFriends) {
+                    nextLevel.push(objectForFriends[friend]);
+                }
+            });
+        }
     };
     while (currentLevel.length !== 0 && maxLevel !== 0) {
         currentLevel.sort(compareNames);
@@ -51,7 +52,6 @@ function distributeByLevels(friends, filter, maxLevel) {
             person.friends.forEach(function (friend) {
                 if (friend in objectForFriends) {
                     nextLevel.push(objectForFriends[friend]);
-                    delete objectForFriends[friend];
                 }
             });
         }
