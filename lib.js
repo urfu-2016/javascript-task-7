@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint no-empty-function: ["error", { "allow": ["functions"] }]*/
+
 function sortByName(firstName, secondName) {
     if (firstName === secondName) {
         return 0;
@@ -27,11 +29,9 @@ function getBestFriendsNames(friends) {
 function getFriendsObjects(friends, visitedFriends) {
     return visitedFriends
         // Получим по именам объекты друзей
-        .reduce(function (visitedFriendsObjects, visitedFriend) {
-            visitedFriendsObjects.push(getFriend(friends, visitedFriend));
-
-            return visitedFriendsObjects;
-        }, []);
+        .map(function (visitedFriend) {
+            return getFriend(friends, visitedFriend);
+        });
 }
 
 function collectFriends(friends, filter, maxLevel) {
@@ -81,10 +81,11 @@ function validateFilter(filter) {
  * @param {Filter} filter
  * @param {Number} maxLevel
  */
-function Iterator(friends, filter) {
+function Iterator(friends, filter, maxLevel) {
     validateFilter(filter);
     this.index = 0;
-    this.friends = collectFriends(friends, filter, Infinity);
+    maxLevel = maxLevel || Infinity;
+    this.friends = collectFriends(friends, filter, maxLevel);
 }
 
 Iterator.prototype.done = function () {
@@ -104,9 +105,7 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    validateFilter(filter);
-    this.index = 0;
-    this.friends = collectFriends(friends, filter, maxLevel);
+    Iterator.call(this, friends, filter, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
@@ -116,9 +115,7 @@ LimitedIterator.prototype.constructor = LimitedIterator;
  * Фильтр друзей
  * @constructor
  */
-function Filter() {
-    // Filter constructor
-}
+function Filter() {}
 
 Filter.prototype.filterFunction = function () {
     return true;
@@ -129,9 +126,7 @@ Filter.prototype.filterFunction = function () {
  * @extends Filter
  * @constructor
  */
-function MaleFilter() {
-    // MaleFilter constructor
-}
+function MaleFilter() {}
 
 MaleFilter.prototype = Object.create(Filter.prototype);
 MaleFilter.prototype.constructor = MaleFilter;
@@ -144,9 +139,7 @@ MaleFilter.prototype.filterFunction = function (friend) {
  * @extends Filter
  * @constructor
  */
-function FemaleFilter() {
-    // FemaleFilter constructor
-}
+function FemaleFilter() {}
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
 FemaleFilter.prototype.constructor = FemaleFilter;
