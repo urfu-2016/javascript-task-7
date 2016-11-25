@@ -9,6 +9,9 @@
  */
 function Iterator(friends, filter, maxLevel) {
     var p = new P(friends, filter, maxLevel);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    };
     this.next = function () {
         return (p.current < p.last) ? p.filteredFriends[p.current++] : null;
     };
