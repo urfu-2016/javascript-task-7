@@ -138,7 +138,6 @@ function applyFilter(friends, filter) {
 
     return filteredFriends;
 }
-
 /**
  * Фильтр друзей
  * @extends Filter
