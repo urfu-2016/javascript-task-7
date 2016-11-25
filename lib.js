@@ -120,10 +120,7 @@ function copyArrays(oldArray, newArray) {
  * @constructor
  */
 function Filter() {
-
-    return {
-        type: 'none'
-    };
+    this.type = 'none';
 }
 
 function applyFilter(friends, filter) {
@@ -143,10 +140,7 @@ function applyFilter(friends, filter) {
  * @constructor
  */
 function MaleFilter() {
-
-    return {
-        type: 'male'
-    };
+    this.type = 'male';
 }
 MaleFilter.prototype = Object.create(Filter.prototype);
 
@@ -156,10 +150,7 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-
-    return {
-        type: 'female'
-    };
+    this.type = 'female';
 }
 FemaleFilter.prototype = Object.create(Filter.prototype);
 
