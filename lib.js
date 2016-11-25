@@ -21,7 +21,6 @@ function Iterator(friends, filter) {
         }
     };
 }
-
 /**
  * Итератор по друзям с ограничением по кругу
  * @extends Iterator
