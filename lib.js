@@ -33,7 +33,7 @@ function P(friends, filter, maxLevel) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-	Iterator.call(this, friends, filter, maxLevel);
+    Iterator.call(this, friends, filter, maxLevel);
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
