@@ -48,12 +48,12 @@ function getWaves(friends) {
  * @param {Filter} filter - фильтр друзей
  */
 function FilteredIterator(friends, filter) {
-    this.friends = friends;
+    this.stack = friends.reverse();
     this.filter = filter;
     this.next = function () {
-        var friend = this.friends.shift();
+        var friend = this.stack.pop();
         while (friend !== undefined && !this.filter.test(friend)) {
-            friend = this.friends.shift();
+            friend = this.stack.pop();
         }
 
         return friend ? friend : null;
@@ -61,7 +61,7 @@ function FilteredIterator(friends, filter) {
     this.done = function () {
         var friend = this.next();
         if (friend) {
-            this.friends.unshift(friend);
+            this.stack.push(friend);
         }
 
         return friend === null;
