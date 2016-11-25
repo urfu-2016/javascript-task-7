@@ -48,12 +48,12 @@ function getWaves(friends) {
  * @param {Filter} filter - фильтр друзей
  */
 function FilteredIterator(friends, filter) {
-    this.stack = friends.reverse();
+    this.friends = friends;
     this.filter = filter;
     this.next = function () {
-        var friend = this.stack.pop();
+        var friend = this.friends.shift();
         while (friend !== undefined && !this.filter.test(friend)) {
-            friend = this.stack.pop();
+            friend = this.friends.shift();
         }
 
         return friend ? friend : null;
@@ -61,7 +61,7 @@ function FilteredIterator(friends, filter) {
     this.done = function () {
         var friend = this.next();
         if (friend) {
-            this.stack.push(friend);
+            this.friends.unshift(friend);
         }
 
         return friend === null;
@@ -118,7 +118,7 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, maxLevel ? friends : [], filter);
+    Iterator.call(this, maxLevel > 0 && maxLevel ? friends : [], filter);
     this.waves = this.waves.slice(0, maxLevel);
 }
 
