@@ -80,12 +80,7 @@ function getFirstLevelFriends(resultArray, _friends) {
     resultArray.push(firstLevelFriends);
 }
 
-function setPriority(friends, n) {
-    var _friends = [];
-    copyArrays(friends, _friends);
-    var resultArray = [];
-    getFirstLevelFriends(resultArray, _friends);
-    var j = 0;
+function GetFriendsLevels(_friends, n, j, resultArray) {
     while (_friends.length !== 0) {
         var start = _friends.length;
         var NlevelFriends = [];
@@ -94,13 +89,22 @@ function setPriority(friends, n) {
         }
         resultArray.push(NlevelFriends);
         j++;
-        if (_frends.length - start === 0) {
+        if (_friends.length - start === 0) {
             break;
         }
         if (n !== 'undefined' && n <= j + 1) {
             break;
         }
     }
+}
+
+function setPriority(friends, n) {
+    var _friends = [];
+    copyArrays(friends, _friends);
+    var resultArray = [];
+    getFirstLevelFriends(resultArray, _friends);
+    var j = 0;
+    GetFriendsLevels(_friends, n, j, resultArray);
 
     return resultArray;
 }
