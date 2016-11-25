@@ -80,7 +80,7 @@ function getFirstLevelFriends(resultArray, _friends) {
     resultArray.push(firstLevelFriends);
 }
 
-function GetFriendsLevels(_friends, n, j, resultArray) {
+function getFriendsLevels(_friends, n, j, resultArray) {
     while (_friends.length !== 0) {
         var start = _friends.length;
         var NlevelFriends = [];
@@ -104,7 +104,7 @@ function setPriority(friends, n) {
     var resultArray = [];
     getFirstLevelFriends(resultArray, _friends);
     var j = 0;
-    GetFriendsLevels(_friends, n, j, resultArray);
+    getFriendsLevels(_friends, n, j, resultArray);
 
     return resultArray;
 }
