@@ -33,14 +33,9 @@ function P(friends, filter, maxLevel) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    var p = new P(friends, filter, maxLevel);
-    this.next = function () {
-        return (p.current < p.last) ? p.filteredFriends[p.current++] : null;
-    };
-    this.done = function () {
-        return !(p.current < p.last);
-    };
+	Iterator.call(this, friends, filter, maxLevel);
 }
+LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 function getSortedByNameAndPriorityFriends(friends, maxLevel) {
     var priorityGroups = setPriority(friends, maxLevel);
