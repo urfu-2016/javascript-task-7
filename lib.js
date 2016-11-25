@@ -6,20 +6,20 @@
  * @param {Object[]} friends
  * @param {Filter} filter
  */
-function Iterator(friends, filter) {
-    var result = getSortedByNameAndPriorityFriends(friends);
-    var filteredFriends = applyFilter(result, filter);
-    var current = 0;
-    var last = filteredFriends.length;
-
-    return {
-        next: function () {
-            return (current < last) ? filteredFriends[current++] : null;
-        },
-        done: function () {
-            return !(current < last);
-        }
+function Iterator(friends, filter, maxLevel) {
+    var p = new P(friends, filter, maxLevel);
+    this.next = function () {
+        return (p.current < p.last) ? p.filteredFriends[p.current++] : null;
     };
+    this.done = function () {
+        return !(p.current < p.last);
+    };
+}
+
+function P (friends, filter, maxLevel) {
+    this.filteredFriends = applyFilter(getSortedByNameAndPriorityFriends(friends, maxLevel), filter);
+    this.current = 0;
+    this.last = this.filteredFriends.length;
 }
 
 /**
@@ -30,21 +30,8 @@ function Iterator(friends, filter) {
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
  */
-
 function LimitedIterator(friends, filter, maxLevel) {
-    var result = getSortedByNameAndPriorityFriends(friends, maxLevel);
-    var filteredFriends = applyFilter(result, filter);
-    var current = 0;
-    var last = filteredFriends.length;
-
-    return {
-        next: function () {
-            return (current < last) ? filteredFriends[current++] : null;
-        },
-        done: function () {
-            return !(current < last);
-        }
-    };
+	Iterator.call(this, friends, filter, maxLevel);
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
