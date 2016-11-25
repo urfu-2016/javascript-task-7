@@ -21,7 +21,7 @@ function findFriend(friends, name) {
 function makeIterationArray(friendsCircles, filter) {
     return friendsCircles.reduce(function (iterationArray, currentCircle) {
         return iterationArray.concat(currentCircle.filter(function (friend) {
-            return filter.isFilter(friend);
+            return filter.isFitting(friend);
         }));
     }, []);
 }
@@ -138,7 +138,7 @@ LimitedIterator.prototype.constructor = LimitedIterator;
  * @constructor
  */
 function Filter() {
-    this.isFilter = function () {
+    this.isFitting = function () {
         return true;
     };
 }
@@ -149,7 +149,7 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.isFilter = function (friend) {
+    this.isFitting = function (friend) {
         return friend.gender === 'male';
     };
 }
@@ -163,7 +163,7 @@ MaleFilter.prototype.constructor = MaleFilter;
  * @constructor
  */
 function FemaleFilter() {
-    this.isFilter = function (friend) {
+    this.isFitting = function (friend) {
         return friend.gender === 'female';
     };
 }
