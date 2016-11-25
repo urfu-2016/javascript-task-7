@@ -6,10 +6,12 @@ function isFriendInArrayWithLevels(friendsWithLevels, friend) {
     }).indexOf(friend) !== -1;
 }
 
-function getNextLevel(friends, currentResult, names) {
-    return friends.filter(function (friend) {
-        return names.indexOf(friend.name) !== -1 &&
-            !isFriendInArrayWithLevels(currentResult, friend);
+function getNextLevel(friendFromName, currentResult, names) {
+    return names.filter(function (name) {
+        return !isFriendInArrayWithLevels(currentResult, friendFromName[name]);
+    })
+    .map(function (name) {
+        return friendFromName[name];
     });
 }
 
@@ -18,6 +20,11 @@ function onlyUnique(value, index, self) {
 }
 
 function getFriendsWithLevels(friends) {
+    var friendFromName = {};
+    friends.forEach(function (friend) {
+        friendFromName[friend.name] = friend;
+    });
+
     var result = [];
     var currentLevel = friends.filter(function (friend) {
         return friend.best;
@@ -27,29 +34,31 @@ function getFriendsWithLevels(friends) {
     while (currentLevel.length !== 0) {
         var nextLevelNames = [];
         for (var i = 0; i < currentLevel.length; i++) {
-            result.push(
-                {
-                    'friend': currentLevel[i],
-                    'level': currentLevelIndex
-                });
+            result.push({
+                'friend': currentLevel[i],
+                'level': currentLevelIndex
+            });
             nextLevelNames = nextLevelNames.concat(currentLevel[i].friends);
         }
         currentLevelIndex++;
-        currentLevel = getNextLevel(friends, result, nextLevelNames.filter(onlyUnique));
+        currentLevel = getNextLevel(friendFromName, result, nextLevelNames.filter(onlyUnique));
     }
 
     return result;
 }
 
-function FriendComparer(friendWithLevel, otherFriendWithLevel) {
-    if (friendWithLevel.level > otherFriendWithLevel.level) {
-        return 1;
-    }
-    if (friendWithLevel.level < otherFriendWithLevel.level) {
-        return -1;
+function friendComparer(friendWithLevel, otherFriendWithLevel) {
+    if (friendWithLevel.level !== otherFriendWithLevel.level) {
+        return Math.sign(friendWithLevel.level - otherFriendWithLevel.level);
     }
 
-    return friendWithLevel.friend.name > otherFriendWithLevel.friend.name ? 1 : -1;
+    return friendWithLevel.friend.name.localeCompare(otherFriendWithLevel.friend.name);
+}
+
+function applyFilter(friendsWithLevels, filter) {
+    return friendsWithLevels.filter(function (friendWithLevel) {
+        return filter.isFit(friendWithLevel);
+    });
 }
 
 /**
@@ -60,13 +69,13 @@ function FriendComparer(friendWithLevel, otherFriendWithLevel) {
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('Вторым аргументом ожидался фильтр');
     }
-    this.friendsWithLevels = getFriendsWithLevels(friends).filter(function (friendWithLevel) {
-        return filter.isFit(friendWithLevel.friend);
-    })
-    .sort(FriendComparer);
+
     this.currentIndex = 0;
+
+    this.friendsWithLevels = applyFilter(getFriendsWithLevels(friends), filter)
+        .sort(friendComparer);
 }
 
 Iterator.prototype.next = function () {
@@ -91,9 +100,9 @@ Iterator.prototype.done = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
-    this.friendsWithLevels = this.friendsWithLevels.filter(function (friendWithLevel) {
-        return maxLevel >= friendWithLevel.level;
-    });
+    var limitFilter = new LimitFilter(maxLevel);
+
+    this.friendsWithLevels = applyFilter(this.friendsWithLevels, limitFilter);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
@@ -114,8 +123,8 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.isFit = function (friend) {
-        return friend.gender === 'male';
+    this.isFit = function (friendWithLevel) {
+        return friendWithLevel.friend.gender === 'male';
     };
 }
 
@@ -127,12 +136,22 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this.isFit = function (friend) {
-        return friend.gender === 'female';
+    this.isFit = function (friendWithLevel) {
+        return friendWithLevel.friend.gender === 'female';
     };
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
+
+function LimitFilter(maxLevel) {
+    this.maxLevel = maxLevel;
+
+    this.isFit = function (friendWithLevel) {
+        return friendWithLevel.level <= this.maxLevel;
+    };
+}
+
+LimitFilter.prototype = Object.create(Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
