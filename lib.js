@@ -93,7 +93,7 @@ function setPriority(friends, n) {
         }
         resultArray.push(NlevelFriends);
         j++;
-        if (n !== undefined && n <= j + 1) {
+        if (n !== 'undefined' && n <= j + 1) {
             break;
         }
     }
