@@ -80,13 +80,13 @@ Iterator.prototype.done = function () {
         return friend.circle !== undefined;
     });
 
-    return (!(this.friends.length !== 0));
+    return (this.friends.length === 0);
 };
 Iterator.prototype.next = function () {
     this.friends = this.friends.filter(function (friend) {
         return friend.circle !== undefined;
     });
-    if (!(this.friends.length !== 0)) {
+    if (this.friends.length === 0) {
         return null;
     }
     delete this.friends[0].circle;
