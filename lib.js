@@ -87,12 +87,16 @@ function setPriority(friends, n) {
     getFirstLevelFriends(resultArray, _friends);
     var j = 0;
     while (_friends.length !== 0) {
+        var start = _friends.length;
         var NlevelFriends = [];
         for (var q = 0; q < resultArray[j].length; q++) {
             getNlevelFriends(resultArray[j][q], _friends, NlevelFriends);
         }
         resultArray.push(NlevelFriends);
         j++;
+        if (_frends.length - start === 0) {
+            break;
+        }
         if (n !== 'undefined' && n <= j + 1) {
             break;
         }
