@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Сортировка по алфавиту, с учетом кругов
+ * Сортировка по алфавиту, с учетом круга знакомства
  * @param {Object} personA - первый друг
  * @param {Object} personB - второй друг
  * @returns {Boolean}
@@ -22,13 +22,12 @@ function compareCircle(personA, personB) {
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('filter is not instance of Filter');
     }
 
-    var friendsList = friends.slice();
     var friendWithCircleBefore = 0;
     var friendWithCircleAfter = 0;
-    friendsList.forEach(function (friend) {
+    friends.forEach(function (friend) {
         if (friend.best === true) {
             friend.circle = 1;
             friendWithCircleBefore++;
@@ -37,11 +36,11 @@ function Iterator(friends, filter) {
     var circle = 1;
     while (friendWithCircleBefore !== friendWithCircleAfter) {
         friendWithCircleBefore = friendWithCircleAfter;
-        friendWithCircleAfter = setAndCheckCircle(friendsList, circle);
+        friendWithCircleAfter = setAndCheckCircle(friends, circle);
         circle++;
     }
 
-    this.friends = friendsList.filter(function (friend) {
+    this.friends = friends.filter(function (friend) {
         return filter.rightGender(friend.gender);
     }).filter(function (friend) {
         return friend.circle !== undefined;
@@ -64,9 +63,9 @@ function setAndCheckCircle(friendsList, circle) {
         }
         if (friend.circle === circle) {
             friend.friends.forEach(function (name) {
-                friendsList.forEach(function (friend1) {
-                    if (friend1.name === name && friend1.circle === undefined) {
-                        friend1.circle = circle + 1;
+                friendsList.forEach(function (someFriend) {
+                    if (someFriend.name === name && someFriend.circle === undefined) {
+                        someFriend.circle = circle + 1;
                     }
                 });
             });
@@ -81,13 +80,13 @@ Iterator.prototype.done = function () {
         return friend.circle !== undefined;
     });
 
-    return (checkDone(this.friends));
+    return (!(this.friends.length !== 0));
 };
 Iterator.prototype.next = function () {
     this.friends = this.friends.filter(function (friend) {
         return friend.circle !== undefined;
     });
-    if (checkDone(this.friends)) {
+    if (!(this.friends.length !== 0)) {
         return null;
     }
     delete this.friends[0].circle;
@@ -95,11 +94,6 @@ Iterator.prototype.next = function () {
     return this.friends[0];
 };
 
-function checkDone(friends) {
-    var count = friends.length;
-
-    return !(count !== 0);
-}
 
 /**
  * Итератор по друзям с ограничением по кругу
