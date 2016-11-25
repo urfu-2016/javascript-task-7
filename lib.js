@@ -30,6 +30,7 @@ function Iterator(friends, filter) {
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
  */
+
 function LimitedIterator(friends, filter, maxLevel) {
     var result = getSortedByNameAndPriorityFriends(friends, maxLevel);
     var filteredFriends = applyFilter(result, filter);
