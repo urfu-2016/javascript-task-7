@@ -21,6 +21,7 @@ function Iterator(friends, filter) {
         }
     };
 }
+
 /**
  * Итератор по друзям с ограничением по кругу
  * @extends Iterator
@@ -138,6 +139,7 @@ function applyFilter(friends, filter) {
 
     return filteredFriends;
 }
+
 /**
  * Фильтр друзей
  * @extends Filter
