@@ -21,6 +21,27 @@ function onlyConnectedFriends(allFriends) {
     return allFriendsFriends;
 }
 
+function findBestFriends(arg, friends) {
+    var item = arg[0];
+    var friendsFriendsOnLevel = arg[1];
+    var nameChoiceFriends = arg[2];
+    var namesAllPeople = arg[3];
+    var noInviteFriends = arg[4];
+    if (item.best) {
+        choiceFriend(item, friendsFriendsOnLevel, nameChoiceFriends);
+        nameChoiceFriends.push(item.name);
+        friends.push(item);
+
+        return true;
+    }
+    if (namesAllPeople.indexOf(item.name) !== -1) {
+        friends.push(item);
+        noInviteFriends.push(item);
+    }
+
+    return false;
+}
+
 function choiceFriendsOnLevel(allFriends) {
     var friendsBest = Object.create(levels);
     var sortFriends = [];
@@ -34,20 +55,14 @@ function choiceFriendsOnLevel(allFriends) {
     levelWithName.level = 0;
     var friendsFriendsOnLevel = [];
     friendsBest.friends = allFriends.filter(function (item) {
-        if (item.best) {
+        var argument = [item,
+        friendsFriendsOnLevel,
+        nameChoiceFriends,
+        namesAllPeople,
+        noInviteFriends
+        ];
 
-            choiceFriend(item, friendsFriendsOnLevel, nameChoiceFriends);
-            nameChoiceFriends.push(item.name);
-            friends.push(item);
-
-            return true;
-        }
-        if (namesAllPeople.indexOf(item.name) !== -1) {
-            friends.push(item);
-            noInviteFriends.push(item);
-        }
-
-        return false;
+        return findBestFriends(argument, friends);
     }).sort(functionCompareByName);
     levelWithName.friends = friendsFriendsOnLevel;
     namesPeopleChoiceFriends.push(levelWithName);
@@ -90,7 +105,8 @@ function inspection(arg, iteration) {
     var levelWithName = Object.create(levels);
     levelWithName.level = iteration;
     for (var i = 0; i < noInviteFriends.length; i++) {
-        var indexNamePeople = namesPeopleChoiceFriends[iteration-1].friends.indexOf(noInviteFriends[i].name);
+        var namesFriendLevel = namesPeopleChoiceFriends[iteration - 1].friends;
+        var indexNamePeople = namesFriendLevel.indexOf(noInviteFriends[i].name);
         if (nameChoiceFriends.indexOf(noInviteFriends[i].name) === -1 && indexNamePeople !== -1) {
             choiceFriends.push(noInviteFriends[i]);
             nameChoiceFriends.push(noInviteFriends[i].name);
