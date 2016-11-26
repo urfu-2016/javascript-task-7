@@ -22,18 +22,19 @@ function Iterator(friends, filter) {
             continue;
         }
 
-        if (friends[i].hasOwnProperty('best') && friends[i].best === true) {
+        if (friends[i].best) {
             this.currentFriends.push(friends[i]);
         } else {
             this.otherFriends.push(friends[i]);
         }
     }
 
-    this.currentFriends.sort(compare);
+    this.currentFriends.sort(compareByName);
+    this.friendIndex = 0;
     this.nextFriend = this.getNext();
 }
 
-function compare(a, b) {
+function compareByName(a, b) {
     if (a.name > b.name) {
         return 1;
     }
@@ -45,31 +46,27 @@ function compare(a, b) {
     return 0;
 }
 
-Iterator.prototype.getNext = (function () {
-    var friendIndex = 0;
+Iterator.prototype.getNext = function () {
+    while (this.currentFriends.length) {
+        var friend = this.currentFriends[this.friendIndex];
+        this.friendIndex++;
 
-    return function () {
-        while (this.currentFriends.length) {
-            var friend = this.currentFriends[friendIndex];
-            friendIndex++;
-
-            if (friendIndex === this.currentFriends.length) {
-                this.currentFriends = getNextLevel(this.otherFriends, this.currentFriends);
-                friendIndex = 0;
-            }
-
-            if (this.filter.isSuitable(friend)) {
-                return friend;
-            }
+        if (this.friendIndex === this.currentFriends.length) {
+            this.currentFriends = getNextLevel(this.currentFriends, this.otherFriends);
+            this.friendIndex = 0;
         }
 
-        return null;
-    };
-}());
+        if (this.filter.isSuitable(friend)) {
+            return friend;
+        }
+    }
+
+    return null;
+};
 
 Iterator.prototype.next = function () {
     if (this.done()) {
-        return null;
+        return this.nextFriend;
     }
 
     var oldFriend = this.nextFriend;
@@ -92,7 +89,7 @@ function findIndex(collection, callback) {
     return -1;
 }
 
-function getNextLevel(otherFriends, level) {
+function getNextLevel(level, otherFriends) {
     var nextLevel = [];
 
     for (var i = 0; i < level.length; i++) {
@@ -109,7 +106,7 @@ function getNextLevel(otherFriends, level) {
         });
     }
 
-    nextLevel.sort(compare);
+    nextLevel.sort(compareByName);
 
     return nextLevel;
 }
@@ -124,40 +121,36 @@ function getNextLevel(otherFriends, level) {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     this.maxLevel = (typeof maxLevel === 'number' && !isNaN(maxLevel)) ? maxLevel : 0;
+    this.currentLevel = 1;
     Iterator.call(this, friends, filter);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = LimitedIterator;
 
-LimitedIterator.prototype.getNext = (function () {
-    var friendIndex = 0;
-    var currentLevel = 1;
+LimitedIterator.prototype.getNext = function () {
+    while (this.currentFriends.length && this.currentLevel <= this.maxLevel) {
+        var friend = this.currentFriends[this.friendIndex];
+        this.friendIndex++;
 
-    return function () {
-        while (this.currentFriends.length && currentLevel <= this.maxLevel) {
-            var friend = this.currentFriends[friendIndex];
-            friendIndex++;
+        var finish = this.friendIndex === this.currentFriends.length;
 
-            var finish = friendIndex === this.currentFriends.length;
-
-            if (finish && currentLevel < this.maxLevel) {
-                this.currentFriends = getNextLevel(this.otherFriends, this.currentFriends);
-            }
-
-            if (finish) {
-                friendIndex = 0;
-                currentLevel++;
-            }
-
-            if (this.filter.isSuitable(friend)) {
-                return friend;
-            }
+        if (finish && this.currentLevel < this.maxLevel) {
+            this.currentFriends = getNextLevel(this.currentFriends, this.otherFriends);
         }
 
-        return null;
-    };
-}());
+        if (finish) {
+            this.friendIndex = 0;
+            this.currentLevel++;
+        }
+
+        if (this.filter.isSuitable(friend)) {
+            return friend;
+        }
+    }
+
+    return null;
+};
 
 
 /**
@@ -172,7 +165,6 @@ Filter.prototype.isSuitable = function () {
     return true;
 };
 
-
 /**
  * Фильтр друзей
  * @extends Filter
@@ -186,7 +178,7 @@ MaleFilter.prototype = Object.create(Filter.prototype);
 MaleFilter.prototype.constructor = MaleFilter;
 
 MaleFilter.prototype.isSuitable = function (item) {
-    return item.hasOwnProperty('gender') && item.gender === this.gender;
+    return item.gender === this.gender;
 };
 
 /**
@@ -202,7 +194,7 @@ FemaleFilter.prototype = Object.create(Filter.prototype);
 FemaleFilter.prototype.constructor = FemaleFilter;
 
 FemaleFilter.prototype.isSuitable = function (item) {
-    return item.hasOwnProperty('gender') && item.gender === this.gender;
+    return item.gender === this.gender;
 };
 
 exports.Iterator = Iterator;
