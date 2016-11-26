@@ -11,19 +11,15 @@ function alphabeticalOrder(firstFriend, secondFriend) {
     return firstFriend.name.localeCompare(secondFriend.name);
 }
 
-function isBestFriend(friend) {
-    return friend.best === true;
-}
-
 function getFriend(friends, name) {
     return friends.filter(function (friend) {
         return friend.name === name;
     })[0];
 }
 
-function invitedGuests(friends, filter, maxLevel) {
+function invitedGuests(friends, GenderFilter, maxLevel) {
     var guests = friends.filter(function (friend) {
-        return isBestFriend(friend);
+        return friend.best;
     });
     var invitedFriends = [];
     while (maxLevel > 0 && guests.length !== 0) {
@@ -42,7 +38,7 @@ function invitedGuests(friends, filter, maxLevel) {
     }
 
     return invitedFriends.filter(function (friend) {
-        return filter.suitableGender(friend);
+        return GenderFilter.suitableGender(friend);
     });
 }
 
