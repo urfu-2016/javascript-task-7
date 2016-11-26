@@ -13,23 +13,27 @@ function convertArrayToObject(friends) {
     return objectForFriends;
 }
 
+function fillingLevel(invited, person, objectForFriends, nextLevel) {
+    invited.push(person);
+    delete objectForFriends[person.name];
+    person.friends.forEach(function (friend) {
+        if (friend in objectForFriends) {
+            nextLevel.push(objectForFriends[friend]);
+        }
+    });
+}
+
 function fillingLevels(invited, nextLevel, maxLevel, objectForFriends) {
     var currentLevel = nextLevel;
     nextLevel = [];
-    var fillingLevel = function (person) {
+    var fillingFriends = function (person) {
         if (person.name in objectForFriends) {
-            invited.push(person);
-            delete objectForFriends[person.name];
-            person.friends.forEach(function (friend) {
-                if (friend in objectForFriends) {
-                    nextLevel.push(objectForFriends[friend]);
-                }
-            });
+            fillingLevel(invited, person, objectForFriends, nextLevel);
         }
     };
     while (currentLevel.length !== 0 && maxLevel !== 0) {
         currentLevel.sort(compareNames);
-        currentLevel.forEach(fillingLevel);
+        currentLevel.forEach(fillingFriends);
         currentLevel = nextLevel;
         nextLevel = [];
         maxLevel--;
@@ -39,21 +43,15 @@ function fillingLevels(invited, nextLevel, maxLevel, objectForFriends) {
 }
 
 function distributeByLevels(friends, filter, maxLevel) {
-    if (!friends || isNaN(maxLevel) || maxLevel < 1) {
+    if (!friends || !maxLevel || maxLevel < 1) {
         return [];
     }
     var invited = [];
     var nextLevel = [];
     var objectForFriends = convertArrayToObject(friends);
-    friends.forEach(function (person) {
+    friends.sort(compareNames).forEach(function (person) {
         if (person.best) {
-            invited.push(person);
-            delete objectForFriends[person.name];
-            person.friends.forEach(function (friend) {
-                if (friend in objectForFriends) {
-                    nextLevel.push(objectForFriends[friend]);
-                }
-            });
+            fillingLevel(invited, person, objectForFriends, nextLevel);
         }
     });
     maxLevel--;
@@ -72,23 +70,23 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('filter не является объектом конструктора Filter');
     }
-    this.friends = distributeByLevels(friends.sort(compareNames), filter, Infinity)
+    this.friends = distributeByLevels(friends, filter, Infinity)
     .filter(function (person) {
         return filter.isPeopleWithSameGender(person);
     });
-    this.indexEnumeration = -1;
+    this.indexCurrentFriend = -1;
 }
 
 Iterator.prototype.done = function () {
-    return this.indexEnumeration === this.friends.length - 1;
+    return this.indexCurrentFriend === this.friends.length - 1;
 };
 Iterator.prototype.next = function () {
     if (this.done()) {
         return null;
     }
-    this.indexEnumeration++;
+    this.indexCurrentFriend++;
 
-    return this.friends[this.indexEnumeration];
+    return this.friends[this.indexCurrentFriend];
 };
 
 
@@ -101,14 +99,11 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError('filter не является объектом конструктора Filter');
-    }
-    this.friends = distributeByLevels(friends.sort(compareNames), filter, maxLevel)
+    Iterator.call(this, friends, filter);
+    this.friends = distributeByLevels(friends, filter, maxLevel)
     .filter(function (person) {
         return filter.isPeopleWithSameGender(person);
     });
-    this.indexEnumeration = -1;
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
