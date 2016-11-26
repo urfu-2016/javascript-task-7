@@ -21,12 +21,11 @@ function onlyConnectedFriends(allFriends) {
     return allFriendsFriends;
 }
 
-function findBestFriends(arg, friends) {
+function findBestFriends(arg, friends, noInviteFriends) {
     var item = arg[0];
     var friendsFriendsOnLevel = arg[1];
     var nameChoiceFriends = arg[2];
     var namesAllPeople = arg[3];
-    var noInviteFriends = arg[4];
     if (item.best) {
         choiceFriend(item, friendsFriendsOnLevel, nameChoiceFriends);
         nameChoiceFriends.push(item.name);
@@ -58,19 +57,16 @@ function choiceFriendsOnLevel(allFriends) {
         var argument = [item,
         friendsFriendsOnLevel,
         nameChoiceFriends,
-        namesAllPeople,
-        noInviteFriends
-        ];
+        namesAllPeople];
 
-        return findBestFriends(argument, friends);
+        return findBestFriends(argument, friends, noInviteFriends);
     }).sort(functionCompareByName);
     levelWithName.friends = friendsFriendsOnLevel;
     namesPeopleChoiceFriends.push(levelWithName);
     sortFriends.push(friendsBest);
     var argument = [noInviteFriends,
         namesPeopleChoiceFriends,
-        nameChoiceFriends
-    ];
+        nameChoiceFriends];
     findFriends(argument, friends, sortFriends);
 
     return sortFriends;
@@ -87,20 +83,18 @@ function findFriends(arg, friends, sortFriends) {
         var choiceFriends = [];
         var argument = [noInviteFriends,
             namesPeopleChoiceFriends,
-            nameChoiceFriends,
-            choiceFriends];
-        inspection(argument, iteration);
+            nameChoiceFriends];
+        inspection(argument, iteration, choiceFriends);
         friendsLevel.friends = choiceFriends.sort(functionCompareByName);
         sortFriends.push(friendsLevel);
         iteration++;
     }
 }
 
-function inspection(arg, iteration) {
+function inspection(arg, iteration, choiceFriends) {
     var noInviteFriends = arg[0];
     var namesPeopleChoiceFriends = arg[1];
     var nameChoiceFriends = arg[2];
-    var choiceFriends = arg[3];
     var name = [];
     var levelWithName = Object.create(levels);
     levelWithName.level = iteration;
