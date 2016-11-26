@@ -9,7 +9,7 @@ function getFriendByName(friends, name) {
 function friendsLevel(friends) {
 
     var bestFriends = friends.filter(function (friend) {
-        return friend.hasOwnProperty('best');
+        return friend.hasOwnProperty('best') && friend.best;
     });
 
     var namesOfFriends = [];
@@ -82,7 +82,7 @@ Iterator.prototype.next = function () {
 };
 
 Iterator.prototype.done = function () {
-    return this.currentFriend >= this.friendsWithLevel.length;
+    return this.currentFriend === this.friendsWithLevel.length;
 };
 
 /**
