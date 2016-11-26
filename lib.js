@@ -83,10 +83,7 @@ Iterator.prototype.next = function () {
         return null;
     }
 
-    var friend = this._friends[this._pointer];
-    this._pointer++;
-
-    return friend;
+    return this._friends[this._pointer++];
 };
 
 /**
