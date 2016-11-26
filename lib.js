@@ -25,9 +25,11 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
     var nameChoiceFriends = arg[0];
     var namesAllPeople = arg[1];
     var friendsBest = arg[2];
-    var levelWithName = arg[3];
+    var namesPeopleChoiceFriends = arg[3];
     var friends = [];
     var friendsFriendsOnLevel = [];
+    var levelWithName = Object.create(levels);
+    levelWithName.level = 0;
     friendsBest.friends = allFriends.filter(function (item) {
         if (item.best) {
             choiceFriend(item, friendsFriendsOnLevel, nameChoiceFriends);
@@ -45,6 +47,7 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
 
     }).sort(functionCompareByName);
     levelWithName.friends = friendsFriendsOnLevel;
+    namesPeopleChoiceFriends.push(levelWithName);
 
     return friends;
 }
@@ -57,15 +60,11 @@ function choiceFriendsOnLevel(allFriends) {
     var nameChoiceFriends = [];
     friendsBest.level = 0;
     var namesAllPeople = onlyConnectedFriends(allFriends);
-    var levelWithName = Object.create(levels);
-    levelWithName.level = 0;
-    var argument1 = [
-    nameChoiceFriends,
-    namesAllPeople,
-    friendsBest,
-    levelWithName];
+    var argument1 = [nameChoiceFriends,
+        namesAllPeople,
+        friendsBest,
+        namesPeopleChoiceFriends];
     var friends = findBestFriends(argument1, allFriends, noInviteFriends);
-    namesPeopleChoiceFriends.push(levelWithName);
     sortFriends.push(friendsBest);
     var argument2 = [noInviteFriends,
         namesPeopleChoiceFriends,
