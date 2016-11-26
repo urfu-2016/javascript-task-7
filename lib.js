@@ -5,11 +5,11 @@ function contains(array, item) {
 }
 
 function sortByName(one, other) {
-    if (one.name < other.name) {
-        return -1;
+    if (one.name === other.name) {
+        return 0;
     }
 
-    return one.name > other.name;
+    return one.name > other.name ? 1 : -1;
 }
 
 /**
@@ -20,45 +20,42 @@ function sortByName(one, other) {
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError('filter should be instance of Filter');
+        throw new TypeError('filterPerson should be instance of Filter');
     }
 
     this._getInvitees = function (maxLevel) {
-        var visited = [];
+        var visitedFriends = [];
         var friendsToVisit = friends.filter(function (friend) {
             return friend.best;
         });
 
         function isNotVisited(friend) {
-            return !contains(visited, friend);
+            return !contains(visitedFriends, friend);
         }
 
         while (maxLevel-- > 0 && friendsToVisit.length !== 0) {
             friendsToVisit.sort(sortByName);
-            visited = visited.concat(friendsToVisit);
-            friendsToVisit = friendsToVisit.reduce(function (acc, friendToVisit) {
-                var notVisited = getFriendsOf(friendToVisit)
-                    .filter(function (friend) {
-                        return isNotVisited(friend) && !contains(acc, friend);
-                    });
+            visitedFriends = visitedFriends.concat(friendsToVisit);
+            friendsToVisit = friendsToVisit.reduce(function (acc, currentFriend) {
+                var notVisited = getFriendsOf(currentFriend).filter(function (friend) {
+                    return isNotVisited(friend) && !contains(acc, friend);
+                });
 
                 return acc.concat(notVisited);
             }, []);
         }
 
-        return visited.filter(function (visitedFriend) {
-            return filter.filter(visitedFriend);
-        });
+        return visitedFriends.filter(filter.filterPerson.bind(filter));
     };
 
     function getFriendsOf(friend) {
         return friend.friends
             .map(function (friendName) {
-                return getFriendWithName(friendName, friends);
+                return getFriendByName(friendName, friends);
             });
     }
 
-    function getFriendWithName(name) {
+    function getFriendByName(name) {
         for (var i = 0; i < friends.length; i++) {
             var friend = friends[i];
             if (friend.name === name) {
@@ -67,8 +64,10 @@ function Iterator(friends, filter) {
         }
     }
 
-    this._invitedFriends = this._getInvitees(Infinity);
     this._currentFriendCount = 0;
+    if (!(Object.getPrototypeOf(this) instanceof Iterator)) {
+        this._invitedFriends = this._getInvitees(Infinity);
+    }
 
     this.done = function () {
         return this._currentFriendCount === this._invitedFriends.length;
@@ -88,7 +87,7 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter, maxLevel);
+    Iterator.call(this, friends, filter);
     this._invitedFriends = this._getInvitees(maxLevel);
 }
 
@@ -104,7 +103,7 @@ function Filter() {
         return true;
     };
 
-    this.filter = function (person) {
+    this.filterPerson = function (person) {
         return this.isSuitable(person);
     };
 }
