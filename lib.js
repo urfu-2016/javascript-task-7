@@ -7,87 +7,81 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    this.filter = filter;
-    this.index = 0;
-    this.addedFriends = [];
-    this.addedNameFriends = [];
-
-    this.filterRepeat = function (nameCurrentFriends) {
-        return nameCurrentFriends.filter(function (nameCurrentFriend) {
-            return this.addedNameFriends.indexOf(nameCurrentFriend) === -1;
-        }, this);
-    };
-
-    this.addFindedFriends = function (findedFriends) {
-        findedFriends.forEach(function (findedFriend) {
-            if (this.isNotInvitedFriend(findedFriend)) {
-                this.addedFriends.push(findedFriend);
-                this.addedNameFriends.push(findedFriend.name);
-            }
-        }, this);
-    };
-
-    this.isNotInvitedFriend = function (friend) {
-        return this.addedNameFriends.indexOf(friend.name) === -1;
-    };
-
-    this.roundFriend = function (friendsWithoutRounds, maxLevel) {
-        var indCurentFriend = 0;
-        var countRound = 1;
-        var nameCurrentFriends = [];
-        var findedFriends = [];
-        while (countRound !== maxLevel && indCurentFriend < this.addedFriends.length) {
-            while (indCurentFriend !== this.addedFriends.length) {
-                nameCurrentFriends = this.addedFriends[indCurentFriend].friends;
-                nameCurrentFriends = this.filterRepeat(nameCurrentFriends);
-                nameCurrentFriends.forEach(function (nameCurrentFriend) {
-                    friendsWithoutRounds.forEach(function (friend) {
-                        if (friend.name === nameCurrentFriend) {
-                            findedFriends.push(friend);
-                        }
-                    });
-                });
-                indCurentFriend++;
-            }
-            this.addFindedFriends(sortCollection(findedFriends));
-            countRound++;
-        }
-        this.addedFriends = this.filter.filterFunction(this.addedFriends);
-        this.addedNameFriends = this.getNameFrends(this.addedFriends);
-
-        return maxLevel !== 0 ? this.filter.filterFunction(this.addedFriends) : [];
-    };
-
-    this.getNameFrends = function getNameFrends() {
-        return this.addedFriends.map(function (addedFriend) {
-            return addedFriend.name;
-        });
-    };
-
-    this.addBestFriends = function () {
-        this.addedFriends = sortCollection(friends.filter(function (friend) {
-            return Boolean(friend.best);
-        }));
-        this.addedNameFriends = this.getNameFrends(this.addedFriends);
-    };
-
-
     if (!(filter instanceof Filter)) {
         throw new TypeError('Неверный тип фильтра');
     }
+    this.filter = filter;
+    this.currentFriendIndex = 0;
+    this.addedFriends = [];
+    this.addedNameFriends = [];
     this.addBestFriends(friends);
-    this.all = this.roundFriend(friends, this.maxLevel !== undefined
-        ? this.maxLevel : Number.POSITIVE_INFINITY
+    this.all = this.bypassFriend(friends, this.maxLevel !== undefined
+        ? this.maxLevel : Infinity
     );
 }
 
+Iterator.prototype.filterRepeat = function (friendsNames) {
+    return friendsNames.filter(function (friendsName) {
+        return this.addedNameFriends.indexOf(friendsName) === -1;
+    }, this);
+};
+
+Iterator.prototype.addFoundedFriends = function (foundedFriends) {
+    foundedFriends.forEach(function (foundedFriend) {
+        if (this.addedNameFriends.indexOf(foundedFriend.name) === -1) {
+            this.addedFriends.push(foundedFriend);
+            this.addedNameFriends.push(foundedFriend.name);
+        }
+    }, this);
+};
+
+Iterator.prototype.bypassFriend = function (friends, maxLevel) {
+    var countProcessed = 0;
+    var countLevel = 1;
+    var friendsNames = [];
+    var foundedFriends = [];
+    while (countLevel !== maxLevel && countProcessed < this.addedFriends.length) {
+        while (countProcessed !== this.addedFriends.length) {
+            friendsNames = this.addedFriends[countProcessed].friends;
+            friendsNames = this.filterRepeat(friendsNames);
+            friendsNames.forEach(function (nameCurrentFriend) {
+                friends.forEach(function (friend) {
+                    if (friend.name === nameCurrentFriend) {
+                        foundedFriends.push(friend);
+                    }
+                });
+            });
+            countProcessed++;
+        }
+        this.addFoundedFriends(sortCollection(foundedFriends));
+        countLevel++;
+    }
+    this.addedFriends = this.filter.filterOnGender(this.addedFriends);
+    this.addedNameFriends = this.getNameFrends(this.addedFriends);
+
+    return maxLevel !== 0 ? this.filter.filterOnGender(this.addedFriends) : [];
+};
+
+Iterator.prototype.getNameFrends = function getNameFrends() {
+    return this.addedFriends.map(function (addedFriend) {
+        return addedFriend.name;
+    });
+};
+
+Iterator.prototype.addBestFriends = function (friends) {
+    this.addedFriends = sortCollection(friends.filter(function (friend) {
+        return friend.best;
+    }));
+    this.addedNameFriends = this.getNameFrends(this.addedFriends);
+};
+
 Iterator.prototype.done = function () {
-    return this.all.length <= this.index;
+    return this.all.length <= this.currentFriendIndex;
 };
 
 Iterator.prototype.next = function () {
-    var nextFriend = this.all[this.index];
-    this.index++;
+    var nextFriend = this.all[this.currentFriendIndex];
+    this.currentFriendIndex++;
 
     return nextFriend ? nextFriend : null;
 };
@@ -101,11 +95,7 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    if (maxLevel === undefined || maxLevel < 1) {
-        this.maxLevel = 0;
-    } else {
-        this.maxLevel = maxLevel;
-    }
+    this.maxLevel = !maxLevel || maxLevel < 0 ? 0 : maxLevel;
     Iterator.call(this, friends, filter);
 }
 
@@ -125,11 +115,7 @@ function Filter() {
     this.propertyFilter = '';
 }
 
-Filter.prototype.filter = function (friend) {
-    return friend.gender === this.propertyFilter || this.propertyFilter === '';
-};
-
-Filter.prototype.filterFunction = function (friends) {
+Filter.prototype.filterOnGender = function (friends) {
     return friends.filter(function (friend) {
         return friend.gender === this.propertyFilter || this.propertyFilter === '';
     }, this);
