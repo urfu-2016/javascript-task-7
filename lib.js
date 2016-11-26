@@ -13,24 +13,25 @@ function Iterator(friends, filter) {
     this.filter = filter;
     this.currentFriendIndex = 0;
     this.addedFriends = [];
-    this.addedNameFriends = [];
+    this.addedFriendsNames = [];
     this.addBestFriends(friends);
-    this.all = this.bypassFriend(friends, this.maxLevel !== undefined
+    this.filteredAndSortedFriend = this.bypassFriend(friends,
+        this.maxLevel !== undefined
         ? this.maxLevel : Infinity
     );
 }
 
 Iterator.prototype.filterRepeat = function (friendsNames) {
     return friendsNames.filter(function (friendsName) {
-        return this.addedNameFriends.indexOf(friendsName) === -1;
+        return this.addedFriendsNames.indexOf(friendsName) === -1;
     }, this);
 };
 
 Iterator.prototype.addFoundedFriends = function (foundedFriends) {
     foundedFriends.forEach(function (foundedFriend) {
-        if (this.addedNameFriends.indexOf(foundedFriend.name) === -1) {
+        if (this.addedFriendsNames.indexOf(foundedFriend.name) === -1) {
             this.addedFriends.push(foundedFriend);
-            this.addedNameFriends.push(foundedFriend.name);
+            this.addedFriendsNames.push(foundedFriend.name);
         }
     }, this);
 };
@@ -57,7 +58,7 @@ Iterator.prototype.bypassFriend = function (friends, maxLevel) {
         countLevel++;
     }
     this.addedFriends = this.filter.filterOnGender(this.addedFriends);
-    this.addedNameFriends = this.getNameFrends(this.addedFriends);
+    this.addedFriendsNames = this.getNameFrends(this.addedFriends);
 
     return maxLevel !== 0 ? this.filter.filterOnGender(this.addedFriends) : [];
 };
@@ -72,15 +73,15 @@ Iterator.prototype.addBestFriends = function (friends) {
     this.addedFriends = sortCollection(friends.filter(function (friend) {
         return friend.best;
     }));
-    this.addedNameFriends = this.getNameFrends(this.addedFriends);
+    this.addedFriendsNames = this.getNameFrends(this.addedFriends);
 };
 
 Iterator.prototype.done = function () {
-    return this.all.length <= this.currentFriendIndex;
+    return this.filteredAndSortedFriend.length <= this.currentFriendIndex;
 };
 
 Iterator.prototype.next = function () {
-    var nextFriend = this.all[this.currentFriendIndex];
+    var nextFriend = this.filteredAndSortedFriend[this.currentFriendIndex];
     this.currentFriendIndex++;
 
     return nextFriend ? nextFriend : null;
