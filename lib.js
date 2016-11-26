@@ -16,8 +16,7 @@ function Iterator(friends, filter) {
     this.addedFriendsNames = [];
     this.addBestFriends(friends);
     this.filteredAndSortedFriend = this.bypassFriend(friends,
-        this.maxLevel !== undefined
-        ? this.maxLevel : Infinity
+        this.maxLevel ? this.maxLevel : Infinity
     );
 }
 
