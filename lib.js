@@ -55,7 +55,10 @@ function distributeByLevels(friends, filter, maxLevel) {
         }
     });
     maxLevel--;
-    invited = fillingLevels(invited, nextLevel, maxLevel, objectForFriends);
+    invited = fillingLevels(invited, nextLevel, maxLevel, objectForFriends)
+    .filter(function (person) {
+        return filter.isPeopleWithSameGender(person);
+    });
 
     return invited;
 }
@@ -70,10 +73,7 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('filter не является объектом конструктора Filter');
     }
-    this.friends = distributeByLevels(friends, filter, Infinity)
-    .filter(function (person) {
-        return filter.isPeopleWithSameGender(person);
-    });
+    this.friends = distributeByLevels(friends, filter, Infinity);
     this.indexCurrentFriend = -1;
 }
 
@@ -100,10 +100,7 @@ Iterator.prototype.next = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
-    this.friends = distributeByLevels(friends, filter, maxLevel)
-    .filter(function (person) {
-        return filter.isPeopleWithSameGender(person);
-    });
+    this.friends = distributeByLevels(friends, filter, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
