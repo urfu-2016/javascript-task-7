@@ -13,7 +13,7 @@ function findFriend(friends, name) {
 }
 
 /**
- * Из массива с кругами создает массив для итерации, фильтруя не подходящие записи
+ * Из массива с кругами создает массив для итерации, фильтруя неподходящие записи
  * @param {Array} friendsCircles
  * @param {Filter} filter
  * @returns {Array} iterationArray
@@ -96,9 +96,8 @@ function Iterator(friends, filter) {
     }
     this.friendsCircles = makeFriendsCircles(friends, Infinity);
     this.iterationArray = makeIterationArray(this.friendsCircles, filter);
+    this.numberOfCalls = 0;
 }
-
-Iterator.prototype.numberOfCalls = 0;
 
 Iterator.prototype.done = function () {
     return this.numberOfCalls === this.iterationArray.length;
@@ -128,6 +127,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     }
     this.friendsCircles = makeFriendsCircles(friends, maxLevel);
     this.iterationArray = makeIterationArray(this.friendsCircles, filter);
+    this.numberOfCalls = 0;
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
