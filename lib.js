@@ -117,9 +117,13 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Filter не является прототипом filter');
     }
+    this.friendsSort = function () {
+
+        return choiceFriendsOnLevel(friends);
+    };
     this.inviteFriends = function () {
 
-        return filterFriendsByGender(choiceFriendsOnLevel(friends), filter, Infinity);
+        return filterFriendsByGender(this.friendsSort(), filter, Infinity);
     };
     this.indexFriend = 0;
 }
@@ -164,9 +168,11 @@ Iterator.prototype.next = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     console.info(friends, filter, maxLevel);
+    Iterator.call(this, friends, filter);
     this.inviteFriends = function () {
 
-        return filterFriendsByGender(choiceFriendsOnLevel(friends), filter, maxLevel);
+       // return filterFriendsByGender(choiceFriendsOnLevel(friends), filter, maxLevel);
+        return filterFriendsByGender(this.friendsSort(), filter, maxLevel);
     };
     this.indexFriend = 0;
 }
