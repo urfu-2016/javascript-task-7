@@ -74,7 +74,7 @@ function Iterator(friends, filter) {
     }
     this.friends = distributeByLevels(friends.sort(compareNames), filter, Infinity)
     .filter(function (person) {
-        return filter.getPeopleSameGender(person);
+        return filter.isPeopleWithSameGender(person);
     });
     this.indexEnumeration = -1;
 }
@@ -106,7 +106,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     }
     this.friends = distributeByLevels(friends.sort(compareNames), filter, maxLevel)
     .filter(function (person) {
-        return filter.getPeopleSameGender(person);
+        return filter.isPeopleWithSameGender(person);
     });
     this.indexEnumeration = -1;
 }
@@ -121,7 +121,7 @@ function Filter() {
     this.gender = 'nothing';
 }
 
-Filter.prototype.getPeopleSameGender = function (person) {
+Filter.prototype.isPeopleWithSameGender = function (person) {
     return person.gender === this.gender || this.gender === 'nothing';
 };
 
