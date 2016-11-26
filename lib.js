@@ -13,24 +13,22 @@ function Iterator(friends, filter) {
     this.filter = filter;
     this.currentFriendIndex = 0;
     this.addedFriends = [];
-    this.addedFriendsNames = [];
     this.addBestFriends(friends);
     this.filteredAndSortedFriend = this.bypassFriend(friends,
-        this.maxLevel ? this.maxLevel : Infinity
+        this.maxLevel !== undefined ? this.maxLevel : Infinity
     );
 }
 
-Iterator.prototype.filterRepeat = function (friendsNames) {
-    return friendsNames.filter(function (friendsName) {
-        return this.addedFriendsNames.indexOf(friendsName) === -1;
-    }, this);
+Iterator.prototype.isNotAdded = function (friendsName, collection) {
+    return collection.every(function (friend) {
+        return friend.name !== friendsName;
+    });
 };
 
 Iterator.prototype.addFoundedFriends = function (foundedFriends) {
     foundedFriends.forEach(function (foundedFriend) {
-        if (this.addedFriendsNames.indexOf(foundedFriend.name) === -1) {
+        if (this.isNotAdded(foundedFriend.name, this.addedFriends)) {
             this.addedFriends.push(foundedFriend);
-            this.addedFriendsNames.push(foundedFriend.name);
         }
     }, this);
 };
@@ -43,10 +41,9 @@ Iterator.prototype.bypassFriend = function (friends, maxLevel) {
     while (countLevel !== maxLevel && countProcessed < this.addedFriends.length) {
         while (countProcessed !== this.addedFriends.length) {
             friendsNames = this.addedFriends[countProcessed].friends;
-            friendsNames = this.filterRepeat(friendsNames);
-            friendsNames.forEach(function (nameCurrentFriend) {
+            friendsNames.forEach(function (friendsName) {
                 friends.forEach(function (friend) {
-                    if (friend.name === nameCurrentFriend) {
+                    if (friend.name === friendsName) {
                         foundedFriends.push(friend);
                     }
                 });
@@ -57,22 +54,14 @@ Iterator.prototype.bypassFriend = function (friends, maxLevel) {
         countLevel++;
     }
     this.addedFriends = this.filter.filterOnGender(this.addedFriends);
-    this.addedFriendsNames = this.getNameFrends(this.addedFriends);
 
     return maxLevel !== 0 ? this.filter.filterOnGender(this.addedFriends) : [];
-};
-
-Iterator.prototype.getNameFrends = function getNameFrends() {
-    return this.addedFriends.map(function (addedFriend) {
-        return addedFriend.name;
-    });
 };
 
 Iterator.prototype.addBestFriends = function (friends) {
     this.addedFriends = sortCollection(friends.filter(function (friend) {
         return friend.best;
     }));
-    this.addedFriendsNames = this.getNameFrends(this.addedFriends);
 };
 
 Iterator.prototype.done = function () {
