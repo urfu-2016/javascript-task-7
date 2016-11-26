@@ -10,15 +10,33 @@ function functionCompareByName(friend, friendNext) {
     return friend.name > friendNext.name ? 1 : -1;
 }
 
-function choiceFriendsOnLevel(friends) {
+function onlyConnectedFriends(allFriends) {
+    var allFriendsFriends = [];
+    allFriends.forEach(function (item) {
+        item.friends.forEach(function (friendItem) {
+            allFriendsFriends.push(friendItem);
+        });
+    });
+
+    return allFriends.filter(function (item) {
+        if (!item.best) {
+
+            return allFriendsFriends.indexOf(item.name) !== -1;
+        }
+
+        return true;
+    });
+}
+
+function choiceFriendsOnLevel(allFriends) {
     var friendsBest = Object.create(levels);
     var sortFriends = [];
     var namesPeopleChoiceFriends = [];
     var noInviteFriends = [];
     var nameChoiceFriends = [];
     friendsBest.level = 0;
-    friendsBest.friends = friends.filter(function (item) {
-        if (item.best !== undefined) {
+    friendsBest.friends = allFriends.filter(function (item) {
+        if (item.best) {
             choiceFriend(item, namesPeopleChoiceFriends);
             nameChoiceFriends.push(item.name);
 
@@ -28,6 +46,7 @@ function choiceFriendsOnLevel(friends) {
 
         return false;
     }).sort(functionCompareByName);
+    var friends = onlyConnectedFriends(allFriends);
     sortFriends.push(friendsBest);
     var argument = [noInviteFriends,
         namesPeopleChoiceFriends,
