@@ -55,10 +55,8 @@ function distributeByLevels(friends, filter, maxLevel) {
         }
     });
     maxLevel--;
-    invited = fillingLevels(invited, nextLevel, maxLevel, objectForFriends)
-    .filter(function (person) {
-        return filter.isPeopleWithSameGender(person);
-    });
+    invited = filter.getPeopleWithSameGender(
+        fillingLevels(invited, nextLevel, maxLevel, objectForFriends));
 
     return invited;
 }
@@ -113,8 +111,12 @@ function Filter() {
     this.gender = 'nothing';
 }
 
-Filter.prototype.isPeopleWithSameGender = function (person) {
-    return person.gender === this.gender || this.gender === 'nothing';
+Filter.prototype.getPeopleWithSameGender = function (people) {
+    var _this = this;
+
+    return people.filter(function (person) {
+        return person.gender === _this.gender || _this.gender === 'nothing';
+    });
 };
 
 /**
