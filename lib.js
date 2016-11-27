@@ -22,11 +22,13 @@ function isBestFriend(friend) {
     return friend.best;
 }
 
-function getFriendsOfFriends(filteredFriends, namesOfFriends, friend) {
-    return namesOfFriends.concat(friend.friends.filter(function (name) {
+function getNamesOfFriends(filteredFriends, namesOfFriends, friend) {
+    var friendsOfFriends = friend.friends.filter(function (name) {
         return namesOfFriends.indexOf(name) < 0 &&
             !hasInFilteredFriends(filteredFriends, name);
-    }));
+    });
+
+    return namesOfFriends.concat(friendsOfFriends);
 }
 
 function getFilteredFriends(friends, filter, maxLevel) {
@@ -41,7 +43,7 @@ function getFilteredFriends(friends, filter, maxLevel) {
     while (level && friendsOfCurrentLevel.length) {
         filteredFriends = filteredFriends.concat(friendsOfCurrentLevel);
         friendsOfCurrentLevel = friendsOfCurrentLevel
-            .reduce(getFriendsOfFriends.bind(null, filteredFriends), [])
+            .reduce(getNamesOfFriends.bind(null, filteredFriends), [])
             .map(getObjectOfFriend.bind(null, friends))
             .sort(compareFriendsByName);
         level--;
