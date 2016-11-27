@@ -67,7 +67,8 @@ describe('Итераторы', function () {
         while (!femaleIterator.done()) {
             invitedFriends.push(femaleIterator.next());
         }
-
+        // console.info(friends);
+        // console.info(invitedFriends);
         assert.deepStrictEqual(invitedFriends, [
             [friend('Sam'), friend('Sally')],
             [friend('Brad'), friend('Emily')],
