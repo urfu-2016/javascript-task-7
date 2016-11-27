@@ -74,14 +74,6 @@ function validateFilter(filter) {
     }
 }
 
-function getMaxLevel(maxLevel) {
-    if (maxLevel === undefined || maxLevel === null) {
-        return Infinity;
-    }
-
-    return maxLevel.value;
-}
-
 /**
  * Итератор по друзьям
  * @constructor
@@ -91,7 +83,7 @@ function getMaxLevel(maxLevel) {
  */
 function Iterator(friends, filter, maxLevel) {
     validateFilter(filter);
-    maxLevel = getMaxLevel(maxLevel);
+    maxLevel = maxLevel === undefined ? Infinity : maxLevel.value;
     this.index = 0;
     this.friends = collectFriends(friends, filter, maxLevel);
 }
