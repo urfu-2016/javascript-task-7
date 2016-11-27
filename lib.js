@@ -1,47 +1,27 @@
 'use strict';
 
-function getNextCircle(oldCircle, friends) {
-    return oldCircle.reduce(function (nextCircle, friend) {
-        return nextCircle.concat(friend.friends);
-    }, [])
-    .map(function (name) {
-        return getFriendByName(name, friends);
+function removeFriendsNamesMatches(friendNamesAndLevels, potentiallyFriendsNames) {
+    return potentiallyFriendsNames.filter(function (potentiallyFriendName) {
+        return !friendNamesAndLevels.some(function (friendNameAndLevel) {
+            return friendNameAndLevel.name === potentiallyFriendName;
+        });
     });
 }
-function getFriendByName(friendName, friends) {
-    var foundFriends = friends.filter(function (friend) {
-        return friend.name === friendName;
-    });
 
-    return foundFriends[0];
+function getNextFriendsCircleNames(friends, oldCircleNames) {
+    return oldCircleNames.reduce(function (acc, oldCircleFriendName) {
+        var nextCicleNames = friends.find(function (friend) {
+            return friend.name === oldCircleFriendName;
+        }).friends;
+
+        return acc.concat(nextCicleNames);
+    }, []);
 }
 
-function getCandidate(friends) {
-    var currentFriendsCircle = friends.filter(function (friend) {
-        return friend.best;
+function getFriendByName(name, friends) {
+    return friends.find(function (friend) {
+        return friend.name === name;
     });
-    var candidates = [];
-    var currentLevel = 1;
-    while (currentFriendsCircle.length !== 0) {
-        currentFriendsCircle = currentFriendsCircle.sort(function (a, b) {
-            return a.name.localeCompare(b.name);
-        });
-        for (var i = 0; i < currentFriendsCircle.length; i++) {
-            candidates.push({
-                friend: currentFriendsCircle[i],
-                level: currentLevel
-            });
-        }
-        currentFriendsCircle = getNextCircle(currentFriendsCircle, friends)
-        .filter(function (currentFriend) {
-            return !candidates.some(function (candidate) {
-                return candidate.friend === currentFriend;
-            });
-        });
-        currentLevel++;
-    }
-
-    return candidates;
 }
 
  /**
@@ -54,24 +34,51 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
-    this.invitedFriends = getCandidate(friends).filter(function (candidate) {
-        return filter.isRight(candidate.friend);
+
+    var currentFriendsCircle = friends.filter(function (friend) {
+        return friend.best;
+    })
+    .map(function (friend) {
+        return friend.name;
     });
-    this.currentIndex = 0;
+    var result = [];
+    var currentLevel = 1;
+    while (currentFriendsCircle.length !== 0) {
+        currentFriendsCircle = removeFriendsNamesMatches(result, currentFriendsCircle)
+        .sort(function (a, b) {
+            return a.localeCompare(b);
+        });
+        for (var i = 0; i < currentFriendsCircle.length; i++) {
+            result.push({
+                level: currentLevel,
+                name: currentFriendsCircle[i]
+            });
+        }
+        currentFriendsCircle = getNextFriendsCircleNames(friends, currentFriendsCircle);
+        currentLevel++;
+    }
+
+    this.invitedFriends = result.map(function (nameAndLevel) {
+        return {
+            friend: getFriendByName(nameAndLevel.name, friends),
+            level: nameAndLevel.level
+        };
+    })
+    .filter(function (item) {
+        return filter.test(item.friend);
+    });
 }
 
 Iterator.prototype.done = function () {
-    return this.invitedFriends.length === this.currentIndex;
+    return !this.invitedFriends.length;
 };
 
 Iterator.prototype.next = function () {
     if (this.done()) {
         return null;
     }
-    // var friendAndLevel = this.invitedFriends.shift();
-    // return friendAndLevel.friend;
 
-    return this.invitedFriends[this.currentIndex++].friend;
+    return this.invitedFriends.shift().friend;
 };
 
 /**
@@ -84,8 +91,9 @@ Iterator.prototype.next = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     Iterator.call(this, friends, filter);
-    this.invitedFriends = this.invitedFriends.filter(function (friend) {
-        return friend.level <= maxLevel;
+
+    this.invitedFriends = this.invitedFriends.filter(function (item) {
+        return item.level <= maxLevel;
     });
 }
 
@@ -96,7 +104,7 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
  * @constructor
  */
 function Filter() {
-    this.isRight = function () {
+    this.test = function () {
         return true;
     };
 }
@@ -107,8 +115,8 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.isRight = function (human) {
-        return human.gender === 'male';
+    this.test = function (item) {
+        return item.gender === 'male';
     };
 }
 MaleFilter.prototype = Object.create(Filter.prototype);
@@ -119,8 +127,8 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this.isRight = function (human) {
-        return human.gender === 'female';
+    this.test = function (item) {
+        return item.gender === 'female';
     };
 }
 FemaleFilter.prototype = Object.create(Filter.prototype);
