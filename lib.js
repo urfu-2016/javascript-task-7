@@ -8,7 +8,7 @@
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('Фильтр не является инстансом функции-конструктора Filter');
     }
     this.collected = 0;
     this.guests = getCorrectFriends(friends, filter, Infinity);
@@ -18,8 +18,7 @@ Iterator.prototype.next = function () {
     if (this.done()) {
         return null;
     }
-    var index = this.collected;
-    this.collected++;
+    var index = this.collected++;
 
     return this.guests[index];
 };
@@ -39,7 +38,7 @@ Iterator.prototype.done = function () {
 function LimitedIterator(friends, filter, maxLevel) {
 
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('Фильтр не является инстансом функции-конструктора Filter');
     }
     this.collected = 0;
     this.guests = getCorrectFriends(friends, filter, maxLevel);
@@ -92,7 +91,7 @@ function getCorrectFriends(friends, filter, limit) {
     var wave = friends.filter(function (friend) {
         return friend.best;
     });
-    var deleteVisited = function (friend) {
+    var filterVisited = function (friend) {
         return guests.indexOf(friend) === -1;
     };
     while (limit > 0 && wave.length !== 0) {
@@ -101,7 +100,7 @@ function getCorrectFriends(friends, filter, limit) {
         });
         guests = guests.concat(wave);
         var newWave = formNewWaveNames(wave, friends);
-        wave = newWave.filter(deleteVisited);
+        wave = newWave.filter(filterVisited);
         limit--;
     }
 
@@ -109,25 +108,23 @@ function getCorrectFriends(friends, filter, limit) {
 }
 
 function findObjectByName(friends, name) {
-    var aim;
-    friends.forEach(function (friend) {
-        if (friend.name === name) {
-            aim = friend;
-        }
-    });
+    for (var i = 0; i < friends.length; i++) {
+        if (friends[i].name === name) {
 
-    return aim;
+            return friends[i];
+        }
+    }
 }
 
 function formNewWaveNames(previousWave, friends) {
-    var guestNames = getAllFriends(previousWave);
+    var guestNames = getAllFriendsFromWave(previousWave);
 
     return guestNames.map(function (name) {
         return findObjectByName(friends, name);
     });
 }
 
-function getAllFriends(wave) {
+function getAllFriendsFromWave(wave) {
     var allFriends = [];
     wave.forEach(function (friend) {
         friend.friends.forEach(function (name) {
