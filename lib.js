@@ -1,28 +1,9 @@
 'use strict';
 
-// function removeFriendsNamesMatches(friendNamesAndLevels, potentiallyFriendsNames) {
-//     return potentiallyFriendsNames.filter(function (potentiallyFriendName) {
-//         return !friendNamesAndLevels.some(function (friendNameAndLevel) {
-//             return friendNameAndLevel.name === potentiallyFriendName;
-//         });
-//     });
-// }
-
-// function getNextFriendsCircleNames(friends, friendsNames, oldFriendsCircle) {
-    // return oldFriendsCircle.reduce(function (acc, friendName) {
-    //     var nextCicleNames = getFriendByName(friendName,
-    // friends).friends.filter(function (friend) {
-    //         return friendsNames.indexOf(friend) === -1;
-    //     });
-    //
-    //     return acc.concat(nextCicleNames);
-    // }, []);
-// }
-
 function getFriendByName(name, friends) {
-    return friends.find(function (friend) {
+    return friends.filter(function (friend) {
         return friend.name === name;
-    });
+    })[0];
 }
 
 function getInvitedFriends(friends) {
@@ -72,10 +53,12 @@ function Iterator(friends, filter) {
     .filter(function (item) {
         return filter.test(item.friend);
     });
+
+    this.index = 0;
 }
 
 Iterator.prototype.done = function () {
-    return !this.invitedFriends.length;
+    return this.invitedFriends.length <= this.index;
 };
 
 Iterator.prototype.next = function () {
@@ -83,7 +66,7 @@ Iterator.prototype.next = function () {
         return null;
     }
 
-    return this.invitedFriends.shift().friend;
+    return this.invitedFriends[this.index++].friend;
 };
 
 /**
