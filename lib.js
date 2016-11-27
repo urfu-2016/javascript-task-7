@@ -8,23 +8,54 @@
 //     });
 // }
 
-function getNextFriendsCircleNames(friends, friendsNames, oldFriendsCircle) {
-    return oldFriendsCircle.reduce(function (acc, friendName) {
-        var nextCicleNames = getFriendByName(friendName, friends).friends.filter(function (friend) {
-            return friendsNames.indexOf(friend) === -1;
-        });
-        // var nextCicleNames = friends.find(function (friend) {
-        //     return friend.name === oldCircleFriendName;
-        // }).friends;
-
-        return acc.concat(nextCicleNames);
-    }, []);
-}
+// function getNextFriendsCircleNames(friends, friendsNames, oldFriendsCircle) {
+    // return oldFriendsCircle.reduce(function (acc, friendName) {
+    //     var nextCicleNames = getFriendByName(friendName,
+    // friends).friends.filter(function (friend) {
+    //         return friendsNames.indexOf(friend) === -1;
+    //     });
+    //
+    //     return acc.concat(nextCicleNames);
+    // }, []);
+// }
 
 function getFriendByName(name, friends) {
     return friends.find(function (friend) {
         return friend.name === name;
     });
+}
+
+function getInvitedFriends(friends) {
+    var currentFriendsCircle = friends.filter(function (friend) {
+        return friend.best;
+    })
+    .map(function (friend) {
+        return friend.name;
+    });
+    var result = [];
+    var currentLevel = 1;
+    var friendsNames = [];
+    while (currentFriendsCircle.length !== 0) {
+        var nextLevelNames = [];
+        currentFriendsCircle = currentFriendsCircle.sort(function (a, b) {
+            return a.localeCompare(b);
+        });
+        for (var i = 0; i < currentFriendsCircle.length; i++) {
+            var friendName = currentFriendsCircle[i];
+            result.push({
+                level: currentLevel,
+                name: friendName
+            });
+            friendsNames.push(friendName);
+            nextLevelNames = nextLevelNames.concat(getFriendByName(friendName, friends).friends);
+        }
+        currentFriendsCircle = nextLevelNames.filter(function (name) {
+            return friendsNames.indexOf(name) === -1;
+        });
+        currentLevel++;
+    }
+
+    return result;
 }
 
  /**
@@ -37,36 +68,7 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
-
-    var currentFriendsCircle = friends.filter(function (friend) {
-        return friend.best;
-    })
-    .map(function (friend) {
-        return friend.name;
-    });
-    var result = [];
-    var currentLevel = 1;
-    var friendsNames = [];
-    while (currentFriendsCircle.length !== 0) {
-        // currentFriendsCircle = removeFriendsNamesMatches(result, currentFriendsCircle)
-        currentFriendsCircle = currentFriendsCircle.sort(function (a, b) {
-            return a.localeCompare(b);
-        });
-
-        for (var i = 0; i < currentFriendsCircle.length; i++) {
-            var friendName = currentFriendsCircle[i];
-            result.push({
-                level: currentLevel,
-                name: friendName
-            });
-            friendsNames.push(friendName);
-        }
-        currentFriendsCircle = getNextFriendsCircleNames(friends, friendsNames,
-            currentFriendsCircle);
-        currentLevel++;
-    }
-
-    this.invitedFriends = result.map(function (nameAndLevel) {
+    this.invitedFriends = getInvitedFriends(friends).map(function (nameAndLevel) {
         return {
             friend: getFriendByName(nameAndLevel.name, friends),
             level: nameAndLevel.level
