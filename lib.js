@@ -46,9 +46,9 @@ function getInvitedFriends(friends) {
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    if (!(filter instanceof Filter)) {
-        throw new TypeError();
-    }
+    // if (!(filter instanceof Filter)) {
+    //     throw new TypeError();
+    // }
     this.invitedFriends = getInvitedFriends(friends)
     .filter(function (item) {
         return filter.test(item.friend);
