@@ -1,18 +1,21 @@
 'use strict';
 
-function removeFriendsNamesMatches(friendNamesAndLevels, potentiallyFriendsNames) {
-    return potentiallyFriendsNames.filter(function (potentiallyFriendName) {
-        return !friendNamesAndLevels.some(function (friendNameAndLevel) {
-            return friendNameAndLevel.name === potentiallyFriendName;
-        });
-    });
-}
+// function removeFriendsNamesMatches(friendNamesAndLevels, potentiallyFriendsNames) {
+//     return potentiallyFriendsNames.filter(function (potentiallyFriendName) {
+//         return !friendNamesAndLevels.some(function (friendNameAndLevel) {
+//             return friendNameAndLevel.name === potentiallyFriendName;
+//         });
+//     });
+// }
 
-function getNextFriendsCircleNames(friends, oldCircleNames) {
-    return oldCircleNames.reduce(function (acc, oldCircleFriendName) {
-        var nextCicleNames = friends.find(function (friend) {
-            return friend.name === oldCircleFriendName;
-        }).friends;
+function getNextFriendsCircleNames(friends, friendsNames, oldFriendsCircle) {
+    return oldFriendsCircle.reduce(function (acc, friendName) {
+        var nextCicleNames = getFriendByName(friendName, friends).friends.filter(function (friend) {
+            return friendsNames.indexOf(friend) === -1;
+        });
+        // var nextCicleNames = friends.find(function (friend) {
+        //     return friend.name === oldCircleFriendName;
+        // }).friends;
 
         return acc.concat(nextCicleNames);
     }, []);
@@ -43,18 +46,23 @@ function Iterator(friends, filter) {
     });
     var result = [];
     var currentLevel = 1;
+    var friendsNames = [];
     while (currentFriendsCircle.length !== 0) {
-        currentFriendsCircle = removeFriendsNamesMatches(result, currentFriendsCircle)
-        .sort(function (a, b) {
+        // currentFriendsCircle = removeFriendsNamesMatches(result, currentFriendsCircle)
+        currentFriendsCircle = currentFriendsCircle.sort(function (a, b) {
             return a.localeCompare(b);
         });
+
         for (var i = 0; i < currentFriendsCircle.length; i++) {
+            var friendName = currentFriendsCircle[i];
             result.push({
                 level: currentLevel,
-                name: currentFriendsCircle[i]
+                name: friendName
             });
+            friendsNames.push(friendName);
         }
-        currentFriendsCircle = getNextFriendsCircleNames(friends, currentFriendsCircle);
+        currentFriendsCircle = getNextFriendsCircleNames(friends, friendsNames,
+            currentFriendsCircle);
         currentLevel++;
     }
 
