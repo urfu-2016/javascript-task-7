@@ -76,10 +76,10 @@ function validateFilter(filter) {
 
 function getMaxLevel(maxLevel) {
     if (maxLevel === undefined || maxLevel === null) {
-        maxLevel = {};
+        return Infinity;
     }
 
-    return maxLevel.value || Infinity;
+    return maxLevel.value;
 }
 
 /**
