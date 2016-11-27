@@ -2,70 +2,73 @@
 
 /* eslint no-empty-function: ["error", { "allow": ["functions"] }]*/
 
-function sortByName(firstName, secondName) {
-    if (firstName === secondName) {
+function sortByName(firstPerson, secondPerson) {
+    if (firstPerson.name === secondPerson.name) {
         return 0;
     }
 
-    return firstName > secondName ? 1 : -1;
+    return firstPerson.name > secondPerson.name ? 1 : -1;
 }
 
-function getFriend(friends, name) {
-    return friends.filter(function (friend) {
-        return friend.name === name;
-    })[0];
-}
-
-function getBestFriendsNames(friends) {
+function getBestFriends(friends) {
     return friends
         .filter(function (friend) {
             return friend.best;
-        })
-        .map(function (friend) {
-            return friend.name;
         });
 }
 
-function getFriendsObjects(friends, visitedFriends) {
-    return visitedFriends
-        // Получим по именам объекты друзей
-        .map(function (visitedFriend) {
-            return getFriend(friends, visitedFriend);
-        });
+function getFriendsDict(friends) {
+    return friends.reduce(function (friendsDict, friend) {
+        friendsDict[friend.name] = friend;
+
+        return friendsDict;
+    }, {});
 }
 
 function collectFriends(friends, filter, maxLevel) {
     var visitedFriends = [];
     maxLevel = maxLevel > 0 ? maxLevel : 0;
-    var currentLevelFriends = getBestFriendsNames(friends);
+    var currentLevelFriends = getBestFriends(friends);
+
+    // Получим словарь исходных друзей для получения доступа к ним за O(1)
+    var friendsDict = getFriendsDict(friends);
 
     while (currentLevelFriends.length > 0 && maxLevel > 0) {
         currentLevelFriends = currentLevelFriends
             // Сортируем текущий уровень по имени
             .sort(sortByName)
             // У каждого человека с этого уровня собираем его друзей
-            .reduce(function (nextLevelFriends, friendName, index, arr) {
-                var currentFriend = getFriend(friends, friendName);
-                visitedFriends.push(friendName);
+            .reduce(function (nextLevelFriends, currentLevelFriend, index, arr) {
+                visitedFriends.push(currentLevelFriend);
 
                 var arraysToCheckFriend = [visitedFriends, nextLevelFriends, arr];
-                var filteredFriends = currentFriend.friends
-                    // Получим друзей, которых не было на предыдущем уровне, нет на этом
-                    // и мы не добавили их в следующий уровень
-                    .filter(function (friend) {
-                        return arraysToCheckFriend
-                            .every(function (array) {
-                                return array.indexOf(friend) === -1;
-                            });
-                    });
+                var notVisitedFriends = getNotVisitedFriends(
+                    friendsDict,
+                    currentLevelFriend,
+                    arraysToCheckFriend
+                );
 
-                return nextLevelFriends.concat(filteredFriends);
+                return nextLevelFriends.concat(notVisitedFriends);
             }, []);
         maxLevel--;
     }
 
-    return getFriendsObjects(friends, visitedFriends)
-        .filter(filter.filterFunction);
+    return visitedFriends.filter(filter.filterFunction);
+}
+
+function getNotVisitedFriends(friendsDict, currentLevelFriend, arraysToCheckFriend) {
+    return currentLevelFriend.friends
+        .map(function (friendOfFriendName) {
+            return friendsDict[friendOfFriendName];
+        })
+        // Получим друзей, которых не было на предыдущем уровне, нет на этом
+        // и мы не добавили их в следующий уровень
+        .filter(function (friendOfCurrentFriend) {
+            return arraysToCheckFriend
+                .every(function (array) {
+                    return array.indexOf(friendOfCurrentFriend) === -1;
+                });
+        });
 }
 
 function validateFilter(filter) {
