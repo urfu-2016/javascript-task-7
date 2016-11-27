@@ -74,6 +74,14 @@ function validateFilter(filter) {
     }
 }
 
+function getMaxLevel(maxLevel) {
+    if (maxLevel === undefined || maxLevel === null) {
+        maxLevel = {};
+    }
+
+    return maxLevel.value || Infinity;
+}
+
 /**
  * Итератор по друзьям
  * @constructor
@@ -81,10 +89,11 @@ function validateFilter(filter) {
  * @param {Filter} filter
  * @param {Number} maxLevel
  */
-function Iterator(friends, filter) {
+function Iterator(friends, filter, maxLevel) {
     validateFilter(filter);
+    maxLevel = getMaxLevel(maxLevel);
     this.index = 0;
-    this.friends = collectFriends(friends, filter, Infinity);
+    this.friends = collectFriends(friends, filter, maxLevel);
 }
 
 Iterator.prototype.done = function () {
@@ -104,9 +113,9 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    validateFilter(filter);
-    this.index = 0;
-    this.friends = collectFriends(friends, filter, maxLevel);
+    Iterator.call(this, friends, filter, {
+        value: maxLevel
+    });
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
