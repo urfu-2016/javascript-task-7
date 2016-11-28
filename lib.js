@@ -1,26 +1,26 @@
 'use strict';
 
-function isFriendInArrayWithLevels(friendsWithLevels, friend) {
-    return friendsWithLevels.map(function (friendWithLevel) {
-        return friendWithLevel.friend;
-    }).indexOf(friend) !== -1;
-}
-
-function getNextLevel(friendFromName, currentResult, names) {
-    return names.filter(function (name) {
-        return !isFriendInArrayWithLevels(currentResult, friendFromName[name]);
-    })
-    .map(function (name) {
+function getNextLevel(friendFromName, names) {
+    return names.map(function (name) {
         return friendFromName[name];
     });
 }
 
-function onlyUnique(value, index, self) {
-    return self.indexOf(value) === index;
+function getElementAppender(cache) {
+    return function (value) {
+        cache[value] = true;
+    };
+}
+
+function getElementChecker(cache) {
+    return function (value) {
+        return !cache[value];
+    };
 }
 
 function getFriendsWithLevels(friends) {
     var friendFromName = {};
+    var cache = {};
     friends.forEach(function (friend) {
         friendFromName[friend.name] = friend;
     });
@@ -29,19 +29,23 @@ function getFriendsWithLevels(friends) {
     var currentLevel = friends.filter(function (friend) {
         return friend.best;
     });
-    var currentLevelIndex = 1;
+    currentLevel.map(function (friend) {
+        return friend.name;
+    }).forEach(getElementAppender(cache));
 
-    while (currentLevel.length !== 0) {
+    for (var currentLevelIndex = 1; currentLevel.length !== 0; currentLevelIndex++) {
         var nextLevelNames = [];
         for (var i = 0; i < currentLevel.length; i++) {
             result.push({
                 'friend': currentLevel[i],
                 'level': currentLevelIndex
             });
-            nextLevelNames = nextLevelNames.concat(currentLevel[i].friends);
+
+            nextLevelNames = nextLevelNames
+                .concat(currentLevel[i].friends.filter(getElementChecker(cache)));
+            currentLevel[i].friends.forEach(getElementAppender(cache));
         }
-        currentLevelIndex++;
-        currentLevel = getNextLevel(friendFromName, result, nextLevelNames.filter(onlyUnique));
+        currentLevel = getNextLevel(friendFromName, nextLevelNames);
     }
 
     return result;
