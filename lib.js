@@ -1,86 +1,103 @@
 'use strict';
 
-function checkNeighbors(queue, visited, friendNameToFriendObj) {
-    var node = queue[0];
-    queue = queue.slice(1);
+function checkNeighbors(queueOfFriends, visitedFriends, friendNameToFriendObj) {
+    var node = queueOfFriends[0];
+    queueOfFriends = queueOfFriends.slice(1);
     var neighbors = node.friends;
     for (var i = 0; i < neighbors.length; i++) {
-        if (neighbors[i] in visited) {
+        if (neighbors[i] in visitedFriends) {
             continue;
         }
-        visited[neighbors[i]] = visited[node.name] + 1;
-        queue.push(friendNameToFriendObj[neighbors[i]]);
+        visitedFriends[neighbors[i]] = visitedFriends[node.name] + 1;
+        queueOfFriends.push(friendNameToFriendObj[neighbors[i]]);
     }
 
-    return queue;
+    return { 'queueOfFriends': queueOfFriends, 'visitedFriends': visitedFriends };
 }
 
-function bfs(queue, visited, friendNameToFriendObj) {
-    while (queue.length > 0) {
-        queue = checkNeighbors(queue, visited, friendNameToFriendObj);
+function bfs(queueOfFriends, visitedFriends, friendNameToFriendObj) {
+    while (queueOfFriends.length > 0) {
+        var resultOfCheck = checkNeighbors(queueOfFriends, visitedFriends, friendNameToFriendObj);
+        queueOfFriends = resultOfCheck.queueOfFriends;
+        visitedFriends = resultOfCheck.visitedFriends;
     }
 
-    return visited;
+    return visitedFriends;
 }
 
 function searchWaves(friends) {
-    var visited = {};
-    var queue = friends.filter(function (friend) {
+    var visitedFriends = {};
+    var queueOfFriends = friends.filter(function (friend) {
         return friend.hasOwnProperty('best') && friend.best;
     });
-    if (queue.length === 0) {
+    if (queueOfFriends.length === 0) {
         return {};
     }
     var friendNameToFriendObj = {};
     friends.forEach(function (friendObj) {
         friendNameToFriendObj[friendObj.name] = friendObj;
     });
-    queue.forEach(function (friend) {
-        visited[friend.name] = 1;
+    queueOfFriends.forEach(function (friend) {
+        visitedFriends[friend.name] = 1;
     });
 
-    return bfs(queue, visited, friendNameToFriendObj);
+    return bfs(queueOfFriends, visitedFriends, friendNameToFriendObj);
 }
 
-function getWavesFriends(friends, filter, wavesLimit) {
-    var visited = searchWaves(friends);
-    if (!Object.keys(visited).length) {
-        return [];
-    }
-    var visitedSort = {};
-    Object.keys(visited).forEach(function (friend) {
-        if (visitedSort.hasOwnProperty(visited[friend])) {
-            visitedSort[visited[friend]].push(friend);
+function swapKeyWithValue(objectKeyToValue) {
+    var objectValueToKey = {};
+    Object.keys(objectKeyToValue).forEach(function (friend) {
+        if (objectValueToKey.hasOwnProperty(objectKeyToValue[friend])) {
+            objectValueToKey[objectKeyToValue[friend]].push(friend);
         } else {
-            visitedSort[visited[friend]] = [friend];
+            objectValueToKey[objectKeyToValue[friend]] = [friend];
         }
     });
-    var filteredFriends = [];
-    Object.keys(visitedSort).forEach(function (numberWave) {
-        filteredFriends = filteredFriends.concat(visitedSort[numberWave].sort());
-    });
 
-    var friendObj;
+    return objectValueToKey;
+}
+
+function getFilteredFriends(visitedFriendsSwapped, filter, friends, visitedFriends) {
+    var filteredFriends = [];
+    Object.keys(visitedFriendsSwapped).forEach(function (numberWave) {
+        filteredFriends = filteredFriends.concat(visitedFriendsSwapped[numberWave].sort());
+    });
     filteredFriends = filteredFriends.map(function (friendName) {
+        var friendObj;
         friends.forEach(function (friend) {
             if (friend.name === friendName) {
-                friendObj = [friend, visited[friendName]];
+                friendObj = { 'friend': friend, 'numberWave': visitedFriends[friendName] };
             }
         });
 
         return friendObj;
     }).filter(filter.filter);
+
+    return filteredFriends;
+}
+
+function getWavesFriends(friends, filter, wavesLimit) {
+    var visitedFriends = searchWaves(friends);
+    if (!Object.keys(visitedFriends).length) {
+        return [];
+    }
+
+    //  это надо, чтобы в каждой волне отсортировать друзей по имени
+    var visitedFriendsSwapped = swapKeyWithValue(visitedFriends);
+    var filteredFriends = getFilteredFriends(visitedFriendsSwapped, filter,
+                                             friends, visitedFriends);
+
     var limitedFriends = [];
     if (typeof wavesLimit === 'undefined') {
-        wavesLimit = filteredFriends[filteredFriends.length - 1][1];
+        wavesLimit = filteredFriends[filteredFriends.length - 1].numberWave;
     } else {
         wavesLimit = wavesLimit > 0 ? wavesLimit : 0;
     }
 
     //  console.info(filteredFriends);
-    filteredFriends.forEach(function (friend) {
-        if (friend[1] <= wavesLimit) {
-            limitedFriends.push(friend[0]);
+    filteredFriends.forEach(function (friendObj) {
+        if (friendObj.numberWave <= wavesLimit) {
+            limitedFriends.push(friendObj.friend);
         }
     });
 
@@ -151,8 +168,8 @@ function Filter() {
 function MaleFilter() {
     console.info('MaleFilter');
 
-    this.filter = function (friend) {
-        return friend[0].gender === 'male';
+    this.filter = function (friendObj) {
+        return friendObj.friend.gender === 'male';
     };
 }
 
@@ -167,8 +184,8 @@ MaleFilter.prototype.constructor = MaleFilter;
 function FemaleFilter() {
     console.info('FemaleFilter');
 
-    this.filter = function (friend) {
-        return friend[0].gender === 'female';
+    this.filter = function (friendObj) {
+        return friendObj.friend.gender === 'female';
     };
 }
 
