@@ -12,7 +12,7 @@ function checkNeighbors(queueOfFriends, visitedFriends, friendNameToFriendObj) {
         queueOfFriends.push(friendNameToFriendObj[neighbors[i]]);
     }
 
-    return { 'queueOfFriends': queueOfFriends, 'visitedFriends': visitedFriends };
+    return { queueOfFriends: queueOfFriends, visitedFriends: visitedFriends };
 }
 
 function bfs(queueOfFriends, visitedFriends, friendNameToFriendObj) {
@@ -66,7 +66,7 @@ function getFilteredFriends(visitedFriendsSwapped, filter, friends, visitedFrien
         var friendObj;
         friends.forEach(function (friend) {
             if (friend.name === friendName) {
-                friendObj = { 'friend': friend, 'numberWave': visitedFriends[friendName] };
+                friendObj = { friend: friend, numberWave: visitedFriends[friendName] };
             }
         });
 
