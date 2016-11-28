@@ -58,10 +58,10 @@ function swapKeyWithValue(objectKeyToValue) {
 }
 
 function getFilteredFriends(visitedFriendsSwapped, filter, friends, visitedFriends) {
-    var filteredFriends = [];
-    Object.keys(visitedFriendsSwapped).forEach(function (numberWave) {
-        filteredFriends = filteredFriends.concat(visitedFriendsSwapped[numberWave].sort());
-    });
+    var filteredFriends = Object.keys(
+        visitedFriendsSwapped).reduce(function (joinedArray, curentKey) {
+            return joinedArray.concat(visitedFriendsSwapped[curentKey].sort());
+        }, []);
     filteredFriends = filteredFriends.map(function (friendName) {
         var friendObj;
         friends.forEach(function (friend) {
@@ -71,7 +71,7 @@ function getFilteredFriends(visitedFriendsSwapped, filter, friends, visitedFrien
         });
 
         return friendObj;
-    }).filter(filter.filter);
+    }).filter(filter.condition);
 
     return filteredFriends;
 }
@@ -155,7 +155,7 @@ LimitedIterator.prototype.constructor = LimitedIterator;
 function Filter() {
     console.info('Filter');
 
-    this.filter = function () {
+    this.condition = function () {
         return true;
     };
 }
@@ -168,7 +168,7 @@ function Filter() {
 function MaleFilter() {
     console.info('MaleFilter');
 
-    this.filter = function (friendObj) {
+    this.condition = function (friendObj) {
         return friendObj.friend.gender === 'male';
     };
 }
@@ -184,7 +184,7 @@ MaleFilter.prototype.constructor = MaleFilter;
 function FemaleFilter() {
     console.info('FemaleFilter');
 
-    this.filter = function (friendObj) {
+    this.condition = function (friendObj) {
         return friendObj.friend.gender === 'female';
     };
 }
