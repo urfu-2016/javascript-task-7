@@ -25,32 +25,44 @@ Iterator.prototype.isNotAdded = function (friendsName, collection) {
     });
 };
 
-Iterator.prototype.addFoundedFriends = function (foundedFriends) {
-    foundedFriends.forEach(function (foundedFriend) {
-        if (this.isNotAdded(foundedFriend.name, this.addedFriends)) {
-            this.addedFriends.push(foundedFriend);
+Iterator.prototype.addFoundFriends = function (foundFriends) {
+    foundFriends.forEach(function (foundFriend) {
+        if (this.isNotAdded(foundFriend.name, this.addedFriends)) {
+            this.addedFriends.push(foundFriend);
         }
     }, this);
 };
+
+function makeMap(friends) {
+    var map = {};
+    friends.forEach(function (friend) {
+        map[friend.name] = friend;
+    });
+
+    return map;
+}
 
 Iterator.prototype.bypassFriend = function (friends, maxLevel) {
     var countProcessed = 0;
     var countLevel = 1;
     var friendsNames = [];
-    var foundedFriends = [];
+    var foundFriends = [];
+    var friendsMap = makeMap(friends);
+    var iterFriendNames = function (names) {
+        names.forEach(function (friendsName) {
+            if (friendsName in friendsMap) {
+                foundFriends.push(friendsMap[friendsName]);
+                delete friendsMap[friendsName];
+            }
+        });
+    };
     while (countLevel !== maxLevel && countProcessed < this.addedFriends.length) {
         while (countProcessed !== this.addedFriends.length) {
             friendsNames = this.addedFriends[countProcessed].friends;
-            friendsNames.forEach(function (friendsName) {
-                friends.forEach(function (friend) {
-                    if (friend.name === friendsName) {
-                        foundedFriends.push(friend);
-                    }
-                });
-            });
+            iterFriendNames(friendsNames);
             countProcessed++;
         }
-        this.addFoundedFriends(sortCollection(foundedFriends));
+        this.addFoundFriends(sortCollection(foundFriends));
         countLevel++;
     }
     this.addedFriends = this.filter.filterOnGender(this.addedFriends);
@@ -101,12 +113,12 @@ function sortCollection(collection) {
  * @constructor
  */
 function Filter() {
-    this.propertyFilter = '';
+    this.genderFilter = '';
 }
 
 Filter.prototype.filterOnGender = function (friends) {
-    return friends.filter(function (friend) {
-        return friend.gender === this.propertyFilter || this.propertyFilter === '';
+    return !this.genderFilter ? friends : friends.filter(function (friend) {
+        return friend.gender === this.genderFilter;
     }, this);
 };
 
@@ -116,7 +128,7 @@ Filter.prototype.filterOnGender = function (friends) {
  * @constructor
  */
 function MaleFilter() {
-    this.propertyFilter = 'male';
+    this.genderFilter = 'male';
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
@@ -127,7 +139,7 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this.propertyFilter = 'female';
+    this.genderFilter = 'female';
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
