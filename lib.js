@@ -87,7 +87,7 @@ function inspection(arg, iteration, choiceFriends) {
     var friendsLevel = arg[2];
     var namesFriends = [];
     for (var i = 0; i < noInviteFriends.length; i++) {
-        var indexNamePeople = sortFriends[iteration-1].names.indexOf(noInviteFriends[i].name;
+        var indexNamePeople = sortFriends[iteration-1].names.indexOf(noInviteFriends[i].name);
         if (indexNamePeople !== -1) {
             choiceFriends.push(noInviteFriends[i]);
             choiceFriend(noInviteFriends[i], namesFriends);
