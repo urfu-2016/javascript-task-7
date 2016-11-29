@@ -1,10 +1,10 @@
 'use strict';
 
 function compareNames(a, b) {
-    return a.name > b.name ? 1 : -1;
+    return a.name - b.name ? 1 : -1;
 }
 
-function convertArrayToObject(friends) {
+function makeFriendsByName(friends) {
     var objectForFriends = {};
     friends.forEach(function (person) {
         objectForFriends[person.name] = person;
@@ -48,7 +48,7 @@ function distributeByLevels(friends, filter, maxLevel) {
     }
     var invited = [];
     var nextLevel = [];
-    var objectForFriends = convertArrayToObject(friends);
+    var objectForFriends = makeFriendsByName(friends);
     friends.sort(compareNames).forEach(function (person) {
         if (person.best) {
             fillingLevel(invited, person, objectForFriends, nextLevel);
@@ -72,19 +72,18 @@ function Iterator(friends, filter) {
         throw new TypeError('filter не является объектом конструктора Filter');
     }
     this.friends = distributeByLevels(friends, filter, Infinity);
-    this.indexCurrentFriend = -1;
+    this.indexCurrentFriend = 0;
 }
 
 Iterator.prototype.done = function () {
-    return this.indexCurrentFriend === this.friends.length - 1;
+    return this.indexCurrentFriend === this.friends.length;
 };
 Iterator.prototype.next = function () {
     if (this.done()) {
         return null;
     }
-    this.indexCurrentFriend++;
 
-    return this.friends[this.indexCurrentFriend];
+    return this.friends[this.indexCurrentFriend++];
 };
 
 
@@ -112,11 +111,9 @@ function Filter() {
 }
 
 Filter.prototype.getPeopleWithSameGender = function (people) {
-    var _this = this;
-
     return people.filter(function (person) {
-        return person.gender === _this.gender || _this.gender === 'nothing';
-    });
+        return person.gender === this.gender || this.gender === 'nothing';
+    }, this);
 };
 
 /**
