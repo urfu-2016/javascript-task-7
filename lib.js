@@ -58,7 +58,7 @@ function divideFriendsOnLevels(bestFriends, friends) {
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw TypeError('filter не является экземпляром Filter');
+        throw new TypeError('filter не является экземпляром Filter');
     }
     this.sortedFriends = [];
     var bestFriends = getBestFriends(friends);
@@ -107,7 +107,9 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
  * Фильтр друзей
  * @constructor
  */
-function Filter() {}
+function Filter() {
+    this.fieldValues = [];
+}
 
 Filter.prototype.filter = function (array) {
     return array.filter(function (item) {
