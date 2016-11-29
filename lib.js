@@ -7,10 +7,10 @@ function getBestFriends(friends) {
 }
 
 function getNextLevelFriends(lastLevelFriends, friendsWithoutLevel) {
-    var arrays = lastLevelFriends.map(function (item) {
+    var friendsOfFriendsArrays = lastLevelFriends.map(function (item) {
         return item.friends;
     });
-    var nextLevelFriendsNames = arrays.length > 1 ? [].concat.apply([], arrays) : arrays[0];
+    var nextLevelFriendsNames = [].concat.apply([], friendsOfFriendsArrays);
 
     return friendsWithoutLevel.filter(function (item) {
         return nextLevelFriendsNames.indexOf(item.name) !== -1;
@@ -23,18 +23,13 @@ function createFriendsWithLevel(friends, level) {
     });
 }
 
-function subtractArrays(arr1, arr2, keyFn) {
-    if (!keyFn) {
-        keyFn = function (item) {
-            return item;
-        };
-    }
-    var arrKeys = arr2.map(function (item) {
-        return keyFn(item);
+function subtractArrays(minuend, subtrahend) {
+    var arrKeys = subtrahend.map(function (item) {
+        return item.name || item.friend.name;
     });
 
-    return arr1.filter(function (item) {
-        return arrKeys.indexOf(keyFn(item)) === -1;
+    return minuend.filter(function (item) {
+        return arrKeys.indexOf(item.name) === -1;
     });
 }
 
@@ -43,17 +38,13 @@ function divideFriendsOnLevels(bestFriends, friends) {
     var dividedFriends = createFriendsWithLevel(bestFriends, levelsCount);
     var friendsOnLastLevel = bestFriends;
 
-    var getName = function (item) {
-        return item.name || item.friend.name;
-    };
-
-    var friendsWithoutLevel = subtractArrays(friends, dividedFriends, getName);
+    var friendsWithoutLevel = subtractArrays(friends, dividedFriends);
     while (friendsWithoutLevel.length > 0 && friendsOnLastLevel.length > 0) {
         levelsCount++;
         friendsOnLastLevel = getNextLevelFriends(friendsOnLastLevel, friendsWithoutLevel);
         dividedFriends = [].concat(dividedFriends, createFriendsWithLevel(friendsOnLastLevel,
             levelsCount));
-        friendsWithoutLevel = subtractArrays(friendsWithoutLevel, friendsOnLastLevel, getName);
+        friendsWithoutLevel = subtractArrays(friendsWithoutLevel, friendsOnLastLevel);
     }
 
     return dividedFriends;
@@ -67,7 +58,7 @@ function divideFriendsOnLevels(bestFriends, friends) {
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw TypeError;
+        throw TypeError('filter не является экземпляром Filter');
     }
     this.sortedFriends = [];
     var bestFriends = getBestFriends(friends);
@@ -116,13 +107,11 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
  * Фильтр друзей
  * @constructor
  */
-function Filter() {
-    this.fieldValues = ['female', 'male'];
-}
+function Filter() {}
 
 Filter.prototype.filter = function (array) {
     return array.filter(function (item) {
-        return this.fieldValues.indexOf(item.friend.gender) !== -1;
+        return !this.fieldValues || this.fieldValues.indexOf(item.friend.gender) !== -1;
     }, this);
 };
 
