@@ -88,12 +88,11 @@ function getFriends(friends, maxLevel) {
     var visited = new HashSet();
     visited.addRange(getBestFriends(friends));
     var queue = visited.getPersons();
-    for (var i = 2; i <= maxLevel; i++) {
+    var currentLevel = 2;
+    while (currentLevel <= maxLevel && queue.length) {
         queue = getFriendsOfNextLevel(queue, friends, visited);
-        if (!queue.length) {
-            break;
-        }
         visited.addRange(queue);
+        currentLevel++;
     }
 
     return visited.getPersons();
