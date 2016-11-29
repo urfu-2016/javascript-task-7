@@ -108,7 +108,7 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
  * @constructor
  */
 function Filter() {
-    this.fieldValues = [];
+    this.fieldValues = null;
 }
 
 Filter.prototype.filter = function (array) {
