@@ -25,17 +25,14 @@ function onlyConnectedFriends(allFriends) {
 function findBestFriends(arg, allFriends, noInviteFriends) {
     var namesAllPeople = arg[0];
     var friendsOnLevel = arg[1];
-    var friends = [];
     var friendsFriendsOnLevel = [];
     friendsOnLevel.friends = allFriends.filter(function (item) {
         if (item.best) {
             choiceFriend(item, friendsFriendsOnLevel);
-            friends.push(item);
 
             return true;
         }
         if (namesAllPeople.indexOf(item.name) !== -1) {
-            friends.push(item);
             noInviteFriends.push(item);
         }
 
@@ -43,8 +40,6 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
 
     }).sort(functionCompareByName);
     friendsOnLevel.names = friendsFriendsOnLevel;
-
-    return friends;
 }
 
 function choiceFriendsOnLevel(allFriends, maxLevel) {
@@ -54,7 +49,7 @@ function choiceFriendsOnLevel(allFriends, maxLevel) {
     friendsOnLevel.level = 0;
     var namesAllPeople = onlyConnectedFriends(allFriends);
     var argument1 = [namesAllPeople, friendsOnLevel];
-    var friends = findBestFriends(argument1, allFriends, noInviteFriends);
+    findBestFriends(argument1, allFriends, noInviteFriends);
     sortFriends.push(friendsOnLevel);
     var argument2 = [noInviteFriends, sortFriends];
     findFriends(argument2, maxLevel);
@@ -87,7 +82,7 @@ function inspection(arg, iteration, choiceFriends) {
     var friendsLevel = arg[2];
     var namesFriends = [];
     for (var i = 0; i < noInviteFriends.length; i++) {
-        var indexNamePeople = sortFriends[iteration-1].names.indexOf(noInviteFriends[i].name);
+        var indexNamePeople = sortFriends[iteration - 1].names.indexOf(noInviteFriends[i].name);
         if (indexNamePeople !== -1) {
             choiceFriends.push(noInviteFriends[i]);
             choiceFriend(noInviteFriends[i], namesFriends);
