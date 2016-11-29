@@ -91,14 +91,14 @@ function FemaleFilter() {
 FemaleFilter.prototype = Object.create(Filter.prototype);
 
 function getFriend(friends, name) {
-    var guest = {};
+    var gettingFriend = {};
     friends.forEach(function (friend) {
         if (friend.name === name) {
-            guest = friend;
+            gettingFriend = friend;
         }
     });
 
-    return guest;
+    return gettingFriend;
 }
 
 var guestsNames = [];
@@ -109,7 +109,6 @@ function getGuests(friends, filter, limit) {
         return [];
     }
     var guests = [];
-    guestsNames = [];
     friends.forEach(function (friend) {
         if (friend.best) {
             guests.push(friend);
