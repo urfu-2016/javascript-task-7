@@ -6,32 +6,33 @@ function getNextLevel(friendFromName, names) {
     });
 }
 
-function getElementAppender(cache) {
-    return function (value) {
-        cache[value] = true;
-    };
-}
+function appendToNextLevelNames(cache, names, currentNextLevelNames) {
+    var result = currentNextLevelNames.concat(names.filter(function (name) {
+        return !cache[name];
+    }));
+    names.forEach(function (name) {
+        cache[name] = true;
+    });
 
-function getElementChecker(cache) {
-    return function (value) {
-        return !cache[value];
-    };
+    return result;
 }
 
 function getFriendsWithLevels(friends) {
-    var friendFromName = {};
     var cache = {};
-    friends.forEach(function (friend) {
-        friendFromName[friend.name] = friend;
-    });
+    var friendFromName = friends.reduce(function (acc, friend) {
+        acc[friend.name] = friend;
 
+        return acc;
+    }, {});
     var result = [];
     var currentLevel = friends.filter(function (friend) {
         return friend.best;
     });
     currentLevel.map(function (friend) {
+        cache[friend.name] = true;
+
         return friend.name;
-    }).forEach(getElementAppender(cache));
+    });
 
     for (var currentLevelIndex = 1; currentLevel.length !== 0; currentLevelIndex++) {
         var nextLevelNames = [];
@@ -41,9 +42,7 @@ function getFriendsWithLevels(friends) {
                 'level': currentLevelIndex
             });
 
-            nextLevelNames = nextLevelNames
-                .concat(currentLevel[i].friends.filter(getElementChecker(cache)));
-            currentLevel[i].friends.forEach(getElementAppender(cache));
+            nextLevelNames = appendToNextLevelNames(cache, currentLevel[i].friends, nextLevelNames);
         }
         currentLevel = getNextLevel(friendFromName, nextLevelNames);
     }
