@@ -1,7 +1,5 @@
 'use strict';
 
-/* eslint no-empty-function: ["off"] */
-
 function contains(array, item) {
     return array.indexOf(item) !== -1;
 }
@@ -15,10 +13,9 @@ function sortByName(one, other) {
 }
 
 function getFriendsOf(friend, friends) {
-    return friend.friends
-        .map(function (friendName) {
-            return getFriendByName(friendName, friends);
-        });
+    return friend.friends.map(function (friendName) {
+        return getFriendByName(friendName, friends);
+    });
 }
 
 function getFriendByName(name, friends) {
@@ -41,36 +38,44 @@ function Iterator(friends, filter) {
         throw new TypeError('filter should be instance of Filter');
     }
 
-    this._getInvitees = function (maxLevel) {
-        var visitedFriends = [];
-        var friendsToVisit = friends.filter(function (friend) {
-            return friend.best;
-        });
-
-        function isNotVisited(friend) {
-            return !contains(visitedFriends, friend);
-        }
-
-        while (maxLevel-- > 0 && friendsToVisit.length !== 0) {
-            friendsToVisit.sort(sortByName);
-            visitedFriends = visitedFriends.concat(friendsToVisit);
-            friendsToVisit = friendsToVisit.reduce(function (acc, currentFriend) {
-                var notVisited = getFriendsOf(currentFriend, friends).filter(function (friend) {
-                    return isNotVisited(friend) && !contains(acc, friend);
-                });
-
-                return acc.concat(notVisited);
-            }, []);
-        }
-
-        return visitedFriends.filter(filter.filterPerson);
-    };
-
     this._currentFriendCount = 0;
-    if (!(Object.getPrototypeOf(this) instanceof Iterator)) {
-        this._invitedFriends = this._getInvitees(Infinity);
+    if (this._maxLevel === undefined) {
+        this._maxLevel = Infinity;
     }
+    this._invitedFriends = this._getInvitees(friends, filter);
 }
+
+Iterator.prototype._getInvitees = function (friends, filter) {
+    var friendsDict = friends.reduce(function (acc, friend) {
+        acc[friend.name] = getFriendsOf(friend, friends);
+
+        return acc;
+    }, {});
+
+    var visitedFriends = [];
+    var friendsToVisit = friends.filter(function (friend) {
+        return friend.best;
+    });
+
+    function isNotVisited(friend) {
+        return !contains(visitedFriends, friend);
+    }
+
+    while (this._maxLevel-- > 0 && friendsToVisit.length !== 0) {
+        friendsToVisit.sort(sortByName);
+        visitedFriends = visitedFriends.concat(friendsToVisit);
+        friendsToVisit = friendsToVisit.reduce(function (acc, currentFriend) {
+            var notVisited = friendsDict[currentFriend.name].filter(function (friend) {
+                return isNotVisited(friend) && !contains(acc, friend);
+            });
+
+            return acc.concat(notVisited);
+        }, []);
+    }
+
+    return visitedFriends.filter(filter.filterPerson);
+};
+
 
 Iterator.prototype.done = function () {
     return this._currentFriendCount === this._invitedFriends.length;
@@ -89,8 +94,8 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
+    this._maxLevel = maxLevel;
     Iterator.call(this, friends, filter);
-    this._invitedFriends = this._getInvitees(maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
@@ -100,7 +105,9 @@ LimitedIterator.prototype.constructor = LimitedIterator;
  * Фильтр друзей
  * @constructor
  */
-function Filter() {}
+function Filter() {
+    // empty constructor
+}
 
 Filter.prototype.filterPerson = function () {
     return true;
@@ -111,7 +118,9 @@ Filter.prototype.filterPerson = function () {
  * @extends Filter
  * @constructor
  */
-function MaleFilter() {}
+function MaleFilter() {
+    // empty constructor
+}
 
 MaleFilter.prototype = Object.create(Filter.prototype);
 MaleFilter.prototype.constructor = MaleFilter;
@@ -124,7 +133,9 @@ MaleFilter.prototype.filterPerson = function (person) {
  * @extends Filter
  * @constructor
  */
-function FemaleFilter() {}
+function FemaleFilter() {
+    // empty constructor
+}
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
 FemaleFilter.prototype.constructor = FemaleFilter;
