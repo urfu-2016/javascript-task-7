@@ -127,6 +127,7 @@ function getGuests(friends, filter, limit) {
         });
         guests = guests.concat(newGuests);
     }
+    guestsNames = [];
 
     return guests.filter(filter.active);
 }
