@@ -28,7 +28,7 @@ function getFriendsWithLevels(friends) {
     var currentLevel = friends.filter(function (friend) {
         return friend.best;
     });
-    currentLevel.map(function (friend) {
+    currentLevel.forEach(function (friend) {
         cache[friend.name] = true;
 
         return friend.name;
