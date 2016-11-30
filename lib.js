@@ -44,7 +44,7 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
 
 function choiceFriendsOnLevel(allFriends, maxLevel, filter) {
     if (maxLevel === undefined || maxLevel === 0) {
-        if (filter.type === 'male') {
+        if (filter.type !== 'female') {
 
             return [];
         }
