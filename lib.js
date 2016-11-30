@@ -27,48 +27,33 @@ function getFriendsDict(friends) {
 
 function collectFriends(friends, filter, maxLevel) {
     var visitedFriends = [];
-    maxLevel = maxLevel > 0 ? maxLevel : 0;
-    var currentLevelFriends = getBestFriends(friends);
-
-    // Получим словарь исходных друзей для получения доступа к ним за O(1)
+    var friendsToVisit = getBestFriends(friends);
     var friendsDict = getFriendsDict(friends);
+    maxLevel = maxLevel === undefined ? Infinity : maxLevel;
+    maxLevel = maxLevel > 0 ? maxLevel : 0;
 
-    while (currentLevelFriends.length > 0 && maxLevel > 0) {
-        currentLevelFriends = currentLevelFriends
-            // Сортируем текущий уровень по имени
+    while (maxLevel > 0 && friendsToVisit.length > 0) {
+        var currentLevelLength = friendsToVisit.length;
+        friendsToVisit
             .sort(sortByName)
-            // У каждого человека с этого уровня собираем его друзей
-            .reduce(function (nextLevelFriends, currentLevelFriend, index, arr) {
+            .forEach(function (currentLevelFriend) {
                 visitedFriends.push(currentLevelFriend);
+                currentLevelFriend.friends
+                    .forEach(function (nextLevelFriend) {
+                        var nextLevelFriendObject = friendsDict[nextLevelFriend];
 
-                var arraysToCheckFriend = [visitedFriends, nextLevelFriends, arr];
-                var notVisitedFriends = getNotVisitedFriends(
-                    friendsDict,
-                    currentLevelFriend,
-                    arraysToCheckFriend
-                );
+                        if (visitedFriends.indexOf(nextLevelFriendObject) === -1 &&
+                            friendsToVisit.indexOf(nextLevelFriendObject) === -1) {
+                            friendsToVisit.push(nextLevelFriendObject);
+                        }
+                    });
+            });
 
-                return nextLevelFriends.concat(notVisitedFriends);
-            }, []);
+        friendsToVisit.splice(0, currentLevelLength);
         maxLevel--;
     }
 
     return visitedFriends.filter(filter.filterFunction);
-}
-
-function getNotVisitedFriends(friendsDict, currentLevelFriend, arraysToCheckFriend) {
-    return currentLevelFriend.friends
-        .map(function (friendOfFriendName) {
-            return friendsDict[friendOfFriendName];
-        })
-        // Получим друзей, которых не было на предыдущем уровне, нет на этом
-        // и мы не добавили их в следующий уровень
-        .filter(function (friendOfCurrentFriend) {
-            return arraysToCheckFriend
-                .every(function (array) {
-                    return array.indexOf(friendOfCurrentFriend) === -1;
-                });
-        });
 }
 
 function validateFilter(filter) {
@@ -82,13 +67,11 @@ function validateFilter(filter) {
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
- * @param {Number} maxLevel
  */
-function Iterator(friends, filter, maxLevel) {
+function Iterator(friends, filter) {
     validateFilter(filter);
-    maxLevel = maxLevel === undefined ? Infinity : maxLevel.value;
     this.index = 0;
-    this.friends = collectFriends(friends, filter, maxLevel);
+    this.friends = collectFriends.apply(null, arguments);
 }
 
 Iterator.prototype.done = function () {
@@ -108,9 +91,7 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter, {
-        value: maxLevel
-    });
+    Iterator.call(this, friends, filter, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
