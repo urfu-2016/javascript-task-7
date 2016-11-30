@@ -26,7 +26,7 @@ Iterator.prototype.compareFriends = function (person1, person2) {
 };
 
 Iterator.prototype.processCircleOfFriends = function () {
-    this.haveLevel = this.sortedCircleOfFriends.length > 0;
+    this.isNotEmptyLevel = this.sortedCircleOfFriends.length > 0;
     this.filteredFriends = this.sortedCircleOfFriends.filter(this.filterObject.customFilter());
     this.currentPersonIndex = 0;
     this.maxPersonIndex = this.filteredFriends.length;
@@ -57,14 +57,16 @@ Iterator.prototype.createNextFriendsCircle = function () {
 };
 
 Iterator.prototype.done = function () {
-    if (!this.haveLevel) {
+    if (!this.isNotEmptyLevel) {
         return true;
     }
-    while (this.currentPersonIndex >= this.maxPersonIndex && this.haveLevel) {
+    var isAllPersonLooked = this.currentPersonIndex >= this.maxPersonIndex;
+    while (isAllPersonLooked && this.isNotEmptyLevel) {
         this.createNextFriendsCircle();
+        isAllPersonLooked = this.currentPersonIndex >= this.maxPersonIndex;
     }
 
-    return !this.haveLevel;
+    return !this.isNotEmptyLevel;
 };
 
 Iterator.prototype.next = function () {
@@ -91,16 +93,19 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
 LimitedIterator.prototype.constructor = LimitedIterator;
 
 LimitedIterator.prototype.done = function () {
-    if (!this.haveLevel || this.currentLevel >= this.maxLevel) {
+    if (!this.isNotEmptyLevel || this.currentLevel >= this.maxLevel) {
         return true;
     }
-    while (this.currentLevel < this.maxLevel &&
-           this.currentPersonIndex >= this.maxPersonIndex && this.haveLevel) {
+    var isLevelInLimit = this.currentLevel < this.maxLevel;
+    var isAllPersonLooked = this.currentPersonIndex >= this.maxPersonIndex;
+    while (isLevelInLimit && isAllPersonLooked && this.isNotEmptyLevel) {
         this.createNextFriendsCircle();
         this.currentLevel++;
+        isLevelInLimit = this.currentLevel < this.maxLevel;
+        isAllPersonLooked = this.currentPersonIndex >= this.maxPersonIndex;
     }
 
-    return !(this.haveLevel && this.currentLevel < this.maxLevel);
+    return !(this.isNotEmptyLevel && this.currentLevel < this.maxLevel);
 };
 
 /**
@@ -129,11 +134,9 @@ function GenderFilter(gender) {
 GenderFilter.prototype = Object.create(Filter.prototype);
 GenderFilter.prototype.constructor = GenderFilter;
 GenderFilter.prototype.customFilter = function () {
-    var this_ = this;
-
     return function (person) {
-        return person.gender === this_.gender;
-    };
+        return person.gender === this.gender;
+    }.bind(this);
 };
 
 /**
