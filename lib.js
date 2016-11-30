@@ -1,21 +1,3 @@
-Skip to content
-This repository
-Search
-Pull requests
-Issues
-Gist
- @Albina-G
- Watch 0
-  Star 0
-  Fork 49 Albina-G/javascript-task-7
-forked from urfu-2016/javascript-task-7
- Code  Pull requests 0  Projects 0  Pulse  Graphs  Settings
-Tree: a1be98bd95 Find file Copy pathjavascript-task-7/lib.js
-a1be98b  7 days ago
-@Albina-G Albina-G синтаксис
-1 contributor
-RawBlameHistory     
-213 lines (178 sloc)  5.38 KB
 'use strict';
 
 var levels = {
@@ -219,14 +201,3 @@ function FemaleFilter() {
     console.info('FemaleFilter');
     this.field = allFilters.aFemaleFilter;
 }
-
-FemaleFilter.prototype = Object.create(Filter.prototype);
-
-exports.Iterator = Iterator;
-exports.LimitedIterator = LimitedIterator;
-
-exports.Filter = Filter;
-exports.MaleFilter = MaleFilter;
-exports.FemaleFilter = FemaleFilter;
-Contact GitHub API Training Shop Blog About
-© 2016 GitHub, Inc. Terms Privacy Security Status Help
