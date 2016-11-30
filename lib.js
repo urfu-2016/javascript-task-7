@@ -8,7 +8,7 @@
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError('Incorrect filter!');
+        throw new TypeError('Incorrect filter');
     }
     this.index = 0;
     this.guests = getGuests(friends, filter, Infinity);
@@ -41,7 +41,7 @@ Iterator.prototype.next = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError('Incorrect filter!');
+        throw new TypeError('Incorrect filter');
     }
     this.index = 0;
     this.guests = getGuests(friends, filter, maxLevel);
@@ -120,11 +120,11 @@ function getGuests(friends, filter, limit) {
         return guest1.name < guest2.name ? -1 : 1;
     });
     for (var circle = 1; circle < limit; circle++) {
-        if (guestsNames.length === friends.length) {
-            break;
-        }
         var newGuestsAndNames = getNewGuestsAndNames(guests, friends, guestsNames);
         var newGuests = newGuestsAndNames[0];
+        if (newGuests.length === 0) {
+            break;
+        }
         guestsNames = newGuestsAndNames[1];
         newGuests.sort(function (guest1, guest2) {
 
