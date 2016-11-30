@@ -5,12 +5,11 @@ function compareNames(a, b) {
 }
 
 function makeFriendsByName(friends) {
-    var objectForFriends = {};
-    friends.forEach(function (person) {
-        objectForFriends[person.name] = person;
-    });
+    return friends.reduce(function (object, currentFriend) {
+        object[currentFriend.name] = currentFriend;
 
-    return objectForFriends;
+        return object;
+    }, {});
 }
 
 function fillingLevel(invited, person, objectForFriends, nextLevel) {
