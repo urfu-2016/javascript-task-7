@@ -1,9 +1,26 @@
+Skip to content
+This repository
+Search
+Pull requests
+Issues
+Gist
+ @Albina-G
+ Watch 0
+  Star 0
+  Fork 49 Albina-G/javascript-task-7
+forked from urfu-2016/javascript-task-7
+ Code  Pull requests 0  Projects 0  Pulse  Graphs  Settings
+Tree: a1be98bd95 Find file Copy pathjavascript-task-7/lib.js
+a1be98b  7 days ago
+@Albina-G Albina-G синтаксис
+1 contributor
+RawBlameHistory     
+213 lines (178 sloc)  5.38 KB
 'use strict';
 
 var levels = {
     level: undefined,
-    friends: undefined,
-    names: undefined
+    friends: undefined
 };
 
 function functionCompareByName(friend, friendNext) {
@@ -11,100 +28,80 @@ function functionCompareByName(friend, friendNext) {
     return friend.name > friendNext.name ? 1 : -1;
 }
 
-function onlyConnectedFriends(allFriends) {
-    var allFriendsFriends = [];
-    allFriends.forEach(function (item) {
-        item.friends.forEach(function (friendItem) {
-            allFriendsFriends.push(friendItem);
-        });
-    });
-
-    return allFriendsFriends;
-}
-
-function findBestFriends(arg, allFriends, noInviteFriends) {
-    var namesAllPeople = arg[0];
-    var friendsOnLevel = arg[1];
-    var friendsFriendsOnLevel = [];
-    friendsOnLevel.friends = allFriends.filter(function (item) {
-        if (item.best) {
-            choiceFriend(item, friendsFriendsOnLevel);
+function choiceFriendsOnLevel(friends) {
+    var friendsBest = Object.create(levels);
+    var sortFriends = [];
+    var namesPeopleChoiceFriends = [];
+    var noInviteFriends = [];
+    var nameChoiceFriends = [];
+    friendsBest.level = 0;
+    friendsBest.friends = friends.filter(function (item) {
+        if (item.best !== undefined) {
+            choiceFriend(item, namesPeopleChoiceFriends);
+            nameChoiceFriends.push(item.name);
 
             return true;
         }
-        if (namesAllPeople.indexOf(item.name) !== -1) {
-            noInviteFriends.push(item);
-        }
+        noInviteFriends.push(item);
 
         return false;
-
     }).sort(functionCompareByName);
-    friendsOnLevel.names = friendsFriendsOnLevel;
-}
-
-function choiceFriendsOnLevel(allFriends, maxLevel, filter) {
-    if (maxLevel === undefined || maxLevel === 0) {
-        if (filter.type === 'male') {
-
-            return [];
-        }
-        maxLevel = Infinity;
-    }
-    var friendsOnLevel = Object.create(levels);
-    var sortFriends = [];
-    var noInviteFriends = [];
-    friendsOnLevel.level = 0;
-    var namesAllPeople = onlyConnectedFriends(allFriends);
-    var argument1 = [namesAllPeople, friendsOnLevel];
-    findBestFriends(argument1, allFriends, noInviteFriends);
-    sortFriends.push(friendsOnLevel);
-    var argument2 = [noInviteFriends, sortFriends];
-    findFriends(argument2, maxLevel);
+    sortFriends.push(friendsBest);
+    var argument = [noInviteFriends,
+        namesPeopleChoiceFriends,
+        nameChoiceFriends
+    ];
+    findFriends(argument, friends, sortFriends);
 
     return sortFriends;
 }
 
-function findFriends(arg, maxLevel) {
+function findFriends(arg, friends, sortFriends) {
     var noInviteFriends = arg[0];
-    var sortFriends = arg[1];
+    var namesPeopleChoiceFriends = arg[1];
+    var nameChoiceFriends = arg[2];
     var iteration = 1;
-    while (noInviteFriends.length !== 0) {
-        if (iteration === maxLevel) {
-            break;
-        }
+    while (nameChoiceFriends.length !== friends.length) {
         var friendsLevel = Object.create(levels);
         friendsLevel.level = iteration;
         var choiceFriends = [];
-        var argument = [noInviteFriends, sortFriends, friendsLevel];
-        inspection(argument, iteration, choiceFriends);
+        var name = [];
+        var argument = [noInviteFriends,
+            namesPeopleChoiceFriends,
+            nameChoiceFriends,
+            choiceFriends,
+            name];
+        inspection(argument);
         friendsLevel.friends = choiceFriends.sort(functionCompareByName);
         sortFriends.push(friendsLevel);
         iteration++;
     }
 }
 
-function inspection(arg, iteration, choiceFriends) {
+function inspection(arg) {
     var noInviteFriends = arg[0];
-    var sortFriends = arg[1];
-    var friendsLevel = arg[2];
-    var namesFriends = [];
+    var namesPeopleChoiceFriends = arg[1];
+    var nameChoiceFriends = arg[2];
+    var choiceFriends = arg[3];
+    var name = arg[4];
     for (var i = 0; i < noInviteFriends.length; i++) {
-        var indexNamePeople = sortFriends[iteration - 1].names.indexOf(noInviteFriends[i].name);
-        if (indexNamePeople !== -1) {
+        var indexNamePeople = namesPeopleChoiceFriends.indexOf(noInviteFriends[i].name);
+        if (nameChoiceFriends.indexOf(noInviteFriends[i].name) === -1 && indexNamePeople !== -1) {
             choiceFriends.push(noInviteFriends[i]);
-            choiceFriend(noInviteFriends[i], namesFriends);
-            noInviteFriends.splice(i, 1);
-            i--;
+            nameChoiceFriends.push(noInviteFriends[i].name);
+            noInviteFriends[i].friends.forEach(function (nameFriendItem) {
+                name.push(nameFriendItem);
+            });
         }
     }
-    friendsLevel.names = namesFriends;
+    name.forEach(function (item) {
+        namesPeopleChoiceFriends.push(item);
+    });
 }
 
-function choiceFriend(item, friendsFriendsOnLevel) {
+function choiceFriend(item, namesPeopleChoiceFriends) {
     item.friends.forEach(function (nameFriendItem) {
-        if (friendsFriendsOnLevel.indexOf(item.name) === -1) {
-            friendsFriendsOnLevel.push(nameFriendItem);
-        }
+        namesPeopleChoiceFriends.push(nameFriendItem);
     });
 }
 
@@ -115,20 +112,25 @@ function choiceFriend(item, friendsFriendsOnLevel) {
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
+    console.info(friends, filter);
     if (!(filter instanceof Filter)) {
         throw new TypeError('Filter не является прототипом filter');
     }
-    var workWithFriends = choiceFriendsOnLevel(friends, arguments[2], filter);
-    this.inviteFriends = filterFriendsByGender(workWithFriends, filter);
+    this.inviteFriends = function () {
+
+        return filterFriendsByGender(choiceFriendsOnLevel(friends), filter, Infinity);
+    };
     this.indexFriend = 0;
 }
 
-function filterFriendsByGender(friends, filter) {
+function filterFriendsByGender(friends, filter, maxLevel) {
     var friendsFilter = [];
     friends.forEach(function (item) {
         item.friends.forEach(function (friend) {
             if (filter.field(friend)) {
-                friendsFilter.push(friend);
+                if (item.level < maxLevel) {
+                    friendsFilter.push(friend);
+                }
             }
         });
     });
@@ -138,7 +140,7 @@ function filterFriendsByGender(friends, filter) {
 
 Iterator.prototype.done = function () {
 
-    return this.indexFriend === this.inviteFriends.length;
+    return this.indexFriend === this.inviteFriends().length;
 };
 
 Iterator.prototype.next = function () {
@@ -148,7 +150,7 @@ Iterator.prototype.next = function () {
     }
     this.indexFriend++;
 
-    return this.inviteFriends[this.indexFriend - 1];
+    return this.inviteFriends()[this.indexFriend - 1];
 };
 
 /**
@@ -160,7 +162,12 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter, maxLevel);
+    console.info(friends, filter, maxLevel);
+    this.inviteFriends = function () {
+
+        return filterFriendsByGender(choiceFriendsOnLevel(friends), filter, maxLevel);
+    };
+    this.indexFriend = 0;
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
@@ -182,6 +189,7 @@ var allFilters = {
  * @constructor
  */
 function Filter() {
+    console.info('Filter');
     this.field = allFilters.aFilter;
 }
 
@@ -196,8 +204,8 @@ Filter.prototype.apply = function () {
  * @constructor
  */
 function MaleFilter() {
+    console.info('MaleFilter');
     this.field = allFilters.aMaleFilter;
-    this.type = 'male';
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
@@ -208,8 +216,8 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
+    console.info('FemaleFilter');
     this.field = allFilters.aFemaleFilter;
-    this.type = 'female';
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
@@ -220,3 +228,5 @@ exports.LimitedIterator = LimitedIterator;
 exports.Filter = Filter;
 exports.MaleFilter = MaleFilter;
 exports.FemaleFilter = FemaleFilter;
+Contact GitHub API Training Shop Blog About
+© 2016 GitHub, Inc. Terms Privacy Security Status Help
