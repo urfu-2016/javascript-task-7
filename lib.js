@@ -8,10 +8,10 @@
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('Incorrect filter');
     }
     this.index = 0;
-    this.guests = getGuests(friends, filter, 100);
+    this.guests = getGuests(friends, filter, Infinity);
 }
 
 Iterator.prototype.done = function () {
@@ -21,6 +21,7 @@ Iterator.prototype.done = function () {
 
 Iterator.prototype.next = function () {
     if (this.done()) {
+
         return null;
     }
     var guest = this.guests[this.index];
@@ -40,7 +41,7 @@ Iterator.prototype.next = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('Incorrect filter');
     }
     this.index = 0;
     this.guests = getGuests(friends, filter, maxLevel);
@@ -101,14 +102,13 @@ function getFriend(friends, name) {
     return gettingFriend;
 }
 
-var guestsNames = [];
-
 function getGuests(friends, filter, limit) {
     if (limit < 1) {
 
         return [];
     }
     var guests = [];
+    var guestsNames = [];
     friends.forEach(function (friend) {
         if (friend.best) {
             guests.push(friend);
@@ -120,19 +120,23 @@ function getGuests(friends, filter, limit) {
         return guest1.name < guest2.name ? -1 : 1;
     });
     for (var circle = 1; circle < limit; circle++) {
-        var newGuests = getNewGuests(guests, friends);
+        if (guestsNames.length === friends.length) {
+            break;
+        }
+        var newGuestsAndNames = getNewGuestsAndNames(guests, friends, guestsNames);
+        var newGuests = newGuestsAndNames[0];
+        guestsNames = newGuestsAndNames[1];
         newGuests.sort(function (guest1, guest2) {
 
             return guest1.name < guest2.name ? -1 : 1;
         });
         guests = guests.concat(newGuests);
     }
-    guestsNames = [];
 
     return guests.filter(filter.active);
 }
 
-function getNewGuests(guests, friends) {
+function getNewGuestsAndNames(guests, friends, guestsNames) {
     var newGuests = [];
     guests.forEach(function (friend) {
         var friendFriends = friend.friends;
@@ -144,7 +148,7 @@ function getNewGuests(guests, friends) {
         });
     });
 
-    return newGuests;
+    return [newGuests, guestsNames];
 }
 
 exports.Iterator = Iterator;
