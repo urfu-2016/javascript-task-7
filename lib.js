@@ -201,3 +201,12 @@ function FemaleFilter() {
     console.info('FemaleFilter');
     this.field = allFilters.aFemaleFilter;
 }
+
+FemaleFilter.prototype = Object.create(Filter.prototype);
+
+exports.Iterator = Iterator;
+exports.LimitedIterator = LimitedIterator;
+
+exports.Filter = Filter;
+exports.MaleFilter = MaleFilter;
+exports.FemaleFilter = FemaleFilter;
