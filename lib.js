@@ -5,17 +5,15 @@
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
- * @param {Integer} maxLevel
  */
-function Iterator(friends, filter, maxLevel) {
+function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('filter must be instance of Filter');
     }
 
-    maxLevel = maxLevel || Infinity;
-
     this.curIndex = 0;
-    this.buildCollection(friends, filter, maxLevel);
+    this.maxLevel = this.maxLevel || Infinity;
+    this.buildCollection(friends, filter);
 }
 
 Iterator.prototype.done = function () {
@@ -26,10 +24,10 @@ Iterator.prototype.next = function () {
     return this.done() ? null : this.collection[this.curIndex++];
 };
 
-Iterator.prototype.buildCollection = function (friends, filter, maxLevel) {
+Iterator.prototype.buildCollection = function (friends, filter) {
     this.collection = [];
 
-    if (!maxLevel || maxLevel < 1) {
+    if (this.maxLevel <= 0) {
         return;
     }
 
@@ -48,7 +46,7 @@ Iterator.prototype.buildCollection = function (friends, filter, maxLevel) {
         return collection;
     }, {});
 
-    for (var level = 2; level <= maxLevel && lastLevel.length !== 0; level++) {
+    for (var level = 2; level <= this.maxLevel && lastLevel.length !== 0; level++) {
         lastLevel = this.getNextLevel(lastLevel, friendsByName, visited);
         this.collection = this.collection.concat(lastLevel.filter(filter.comply));
     }
@@ -88,8 +86,8 @@ function compareByName(a, b) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    maxLevel = maxLevel || -1; // !maxLevel in Iterator means Infinity
-    Iterator.call(this, friends, filter, maxLevel);
+    this.maxLevel = maxLevel || -1; // !maxLevel in Iterator means Infinity
+    Iterator.call(this, friends, filter);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
