@@ -30,8 +30,6 @@ function getFriendsWithLevels(friends) {
     });
     currentLevel.forEach(function (friend) {
         cache[friend.name] = true;
-
-        return friend.name;
     });
 
     for (var currentLevelIndex = 1; currentLevel.length !== 0; currentLevelIndex++) {
