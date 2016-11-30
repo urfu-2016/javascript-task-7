@@ -5,15 +5,17 @@
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
+ * @param {Integer} maxLevel
  */
-function Iterator(friends, filter) {
+function Iterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('filter must be instance of Filter');
     }
 
-    this.curIndex = 0;
+    maxLevel = maxLevel || Infinity;
 
-    this.buildCollection(friends, filter, Infinity);
+    this.curIndex = 0;
+    this.buildCollection(friends, filter, maxLevel);
 }
 
 Iterator.prototype.done = function () {
@@ -86,8 +88,8 @@ function compareByName(a, b) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, [], filter);
-    this.buildCollection(friends, filter, maxLevel);
+    maxLevel = maxLevel || -1; // !maxLevel in Iterator means Infinity
+    Iterator.call(this, friends, filter, maxLevel);
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
