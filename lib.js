@@ -47,9 +47,8 @@ function choiceFriendsOnLevel(allFriends, maxLevel, filter) {
         if (filter.type === 'male') {
 
             return [];
-        } else {
-            maxLevel = Infinity;
         }
+        maxLevel = Infinity;
     }
     var friendsOnLevel = Object.create(levels);
     var sortFriends = [];
