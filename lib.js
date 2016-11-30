@@ -32,25 +32,27 @@ Iterator.prototype.buildCollection = function (friends, filter, maxLevel) {
     }
 
     var lastLevel = friends.filter(isBestFriend).sort(compareByName);
-    this.collection = lastLevel.filter(filter.apply);
+    this.collection = lastLevel.filter(filter.comply);
 
-    var visited = {};
-    lastLevel.forEach(function (friend) {
-        visited[friend.name] = true;
-    });
+    var visited = lastLevel.reduce(function (collection, friend) {
+        collection[friend.name] = true;
 
-    var friendsByName = {};
-    friends.forEach(function (friend) {
-        friendsByName[friend.name] = friend;
-    });
+        return collection;
+    }, {});
+
+    var friendsByName = friends.reduce(function (collection, friend) {
+        collection[friend.name] = friend;
+
+        return collection;
+    }, {});
 
     for (var level = 2; level <= maxLevel && lastLevel.length !== 0; level++) {
-        lastLevel = this.getNextLevel(lastLevel, friends, friendsByName, visited);
-        this.collection = this.collection.concat(lastLevel.filter(filter.apply));
+        lastLevel = this.getNextLevel(lastLevel, friendsByName, visited);
+        this.collection = this.collection.concat(lastLevel.filter(filter.comply));
     }
 };
 
-Iterator.prototype.getNextLevel = function (lastLevel, friends, friendsByName, visited) {
+Iterator.prototype.getNextLevel = function (lastLevel, friendsByName, visited) {
     var curLevel = [];
 
     lastLevel.forEach(function (lastLevelFriend) {
@@ -95,7 +97,7 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
  * @constructor
  */
 function Filter() {
-    this.apply = function () {
+    this.comply = function () {
         return true;
     };
 }
@@ -106,7 +108,7 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.apply = function (friend) {
+    this.comply = function (friend) {
         return friend.gender === 'male';
     };
 }
@@ -119,7 +121,7 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this.apply = function (friend) {
+    this.comply = function (friend) {
         return friend.gender === 'female';
     };
 }
