@@ -11,8 +11,11 @@ function Iterator(friends, filter) {
         throw new TypeError('filter must be instance of Filter');
     }
 
+    if (!this.hasOwnProperty('maxLevel')) {
+        this.maxLevel = Infinity;
+    }
+
     this.curIndex = 0;
-    this.maxLevel = this.maxLevel || Infinity;
     this.buildCollection(friends, filter);
 }
 
@@ -27,7 +30,7 @@ Iterator.prototype.next = function () {
 Iterator.prototype.buildCollection = function (friends, filter) {
     this.collection = [];
 
-    if (this.maxLevel <= 0) {
+    if (!this.maxLevel || this.maxLevel <= 0) {
         return;
     }
 
@@ -86,7 +89,7 @@ function compareByName(a, b) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    this.maxLevel = maxLevel || -1; // !maxLevel in Iterator means Infinity
+    this.maxLevel = maxLevel;
     Iterator.call(this, friends, filter);
 }
 
