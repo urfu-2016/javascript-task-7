@@ -8,7 +8,7 @@
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError('Incorrect filter');
+        throw new TypeError('Incorrect filter!');
     }
     this.index = 0;
     this.guests = getGuests(friends, filter, Infinity);
@@ -41,7 +41,7 @@ Iterator.prototype.next = function () {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError('Incorrect filter');
+        throw new TypeError('Incorrect filter!');
     }
     this.index = 0;
     this.guests = getGuests(friends, filter, maxLevel);
