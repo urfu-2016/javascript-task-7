@@ -68,6 +68,7 @@ while (!maleIterator.done() && !femaleIterator.done()) {
 }
 
 // Если остались девушки, то приглашаем остальных
+console.info(femaleIterator.done());
 while (!femaleIterator.done()) {
     invitedFriends.push(femaleIterator.next());
 }
