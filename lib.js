@@ -7,8 +7,8 @@
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
  */
-function Iterator(friends, filter, maxLevel) {
-    var p = new P(friends, filter, maxLevel);
+function Iterator(friends, filter) {
+    var p = new P(friends, filter, arguments[2]);
     if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
