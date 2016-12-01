@@ -22,12 +22,12 @@ function isNotInvited(friendName, invitedFriends, namesNewInvitedFriends) {
         (namesNewInvitedFriends.indexOf(friendName) === -1);
 }
 
-function addCircleFriends(invitedFriends, friends) {
+function addCircleFriends(invitedFriends, friends, allInvited) {
     var namesNewInvitedFriends = [];
     invitedFriends.forEach(function (invitedFriend) {
         namesNewInvitedFriends = namesNewInvitedFriends.concat(
             invitedFriend.friends.filter(function (friend) {
-                return isNotInvited(friend, invitedFriends, namesNewInvitedFriends);
+                return isNotInvited(friend, allInvited, namesNewInvitedFriends);
             })
         );
     });
@@ -47,9 +47,10 @@ function sortFriends(friends, countCircles) {
         return friend.hasOwnProperty('best');
     });
     invitedFriends.sort(sortNameFriends);
+    var newInvited = invitedFriends;
     countCircles--;
     while (countCircles > 0) {
-        var newInvited = addCircleFriends(invitedFriends, friends);
+        newInvited = addCircleFriends(newInvited, friends, invitedFriends);
         if (newInvited.length === 0) {
             break;
         }
