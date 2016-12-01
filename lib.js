@@ -62,9 +62,8 @@ function setPriority(friends, n) {
     var j = 0;
     if (n === 1) {
         return resultArray;
-    } else {
-        getFriendsLevels(_friends, n, j, resultArray);
     }
+    getFriendsLevels(_friends, n, j, resultArray);
 
     return resultArray;
 }
