@@ -47,6 +47,7 @@ function sortFriends(friends, countCircles) {
         return friend.hasOwnProperty('best');
     });
     invitedFriends.sort(sortNameFriends);
+    countCircles--;
     while (countCircles > 0) {
         var newInvited = addCircleFriends(invitedFriends, friends);
         if (newInvited.length === 0) {
@@ -54,7 +55,6 @@ function sortFriends(friends, countCircles) {
         }
         invitedFriends = invitedFriends.concat(newInvited);
         countCircles--;
-
     }
 
     return invitedFriends;
