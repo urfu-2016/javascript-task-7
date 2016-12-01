@@ -20,10 +20,9 @@ function Iterator(friends, filter) {
 }
 
 function P(friends, filter, maxLevel) {
-    this.filteredFriends = getSortedByNameAndPriorityFriends(friends, maxLevel)
-        .filter(function (friend) {
-            return filter.result(friend);
-        });
+    this.filteredFriends = getSortedByNameAndPriorityFriends(friends, maxLevel).filter(function(friend) {
+        return filter.result(friend);
+    });
     this.current = 0;
     this.last = this.filteredFriends.length;
 }
@@ -101,7 +100,9 @@ function getFriendsLevels(_friends, n, j, resultArray) {
 
 function getNlevelFriends(person, _friends, NlevelFriends) {
     for (var k = 0; k < person.friends.length; k++) {
-        getNlevelFriend(_friends, person, k, NlevelFriends);
+        if (person.friends[k] !== 'undefined') {
+            getNlevelFriend(_friends, person, k, NlevelFriends);
+        }
     }
 }
 
@@ -130,7 +131,7 @@ function copyArrays(oldArray, newArray) {
  * @constructor
  */
 function Filter() {
-    this.result = function () {
+    this.result = function (friend) {
         return true;
     };
 }
@@ -142,7 +143,7 @@ function Filter() {
  */
 function MaleFilter() {
     this.result = function (friend) {
-        return friend.gender === 'male';
+        return friend.gender ==='male';
     };
 }
 MaleFilter.prototype = Object.create(Filter.prototype);
@@ -154,7 +155,7 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  */
 function FemaleFilter() {
     this.result = function (friend) {
-        return friend.gender === 'female';
+        return friend.gender ==='female';
     };
 }
 FemaleFilter.prototype = Object.create(Filter.prototype);
