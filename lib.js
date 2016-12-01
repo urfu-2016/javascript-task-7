@@ -11,16 +11,6 @@ function functionCompareByName(friend, friendNext) {
     return friend.name > friendNext.name ? 1 : -1;
 }
 
-function checkTypeOfGraph(allFriends, friendItem, item) {
-    allFriends.forEach(function (friend) {
-        if (friend.name === friendItem) {
-            if (friend.friends !== [] && friend.friends.indexOf(item.name) === -1) {
-                throw new TypeError('Ориентированный граф друзей');
-            }
-        }
-    });
-}
-
 function onlyConnectedFriends(allFriends) {
     var allFriendsFriends = [];
     allFriends.forEach(function (item) {
@@ -28,7 +18,6 @@ function onlyConnectedFriends(allFriends) {
             throw new TypeError('friends of ungefined');
         }
         item.friends.forEach(function (friendItem) {
-            checkTypeOfGraph(allFriends, friendItem, item);
             allFriendsFriends.push(friendItem);
         });
     });
