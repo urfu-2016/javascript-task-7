@@ -105,7 +105,7 @@ function getNlevelFriends(person, _friends, NlevelFriends) {
     }
 }
 
-function qwer (person, _friends, NlevelFriends) {
+function qwer(person, _friends, NlevelFriends) {
     for (var k = 0; k < person.friends.length; k++) {
         if (person.friends[k] !== undefined) {
             getNlevelFriend(_friends, person, k, NlevelFriends);
