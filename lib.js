@@ -8,19 +8,23 @@
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function Iterator(friends, filter) {
-    var filteredFriends = applyFilter(
-        getSortedByNameAndPriorityFriends(friends, undefined, 'I'), filter);
-    var current = 0;
-    var last = filteredFriends.length;
+    var p = new P(friends, filter, arguments[2]);
     if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
     this.next = function () {
-        return (current < last) ? filteredFriends[current++] : null;
+        return (p.current < p.last) ? p.filteredFriends[p.current++] : null;
     };
     this.done = function () {
-        return !(current < last);
+        return !(p.current < p.last);
     };
+}
+
+function P(friends, filter, maxLevel) {
+    this.filteredFriends = applyFilter(
+        getSortedByNameAndPriorityFriends(friends, maxLevel), filter);
+    this.current = 0;
+    this.last = this.filteredFriends.length;
 }
 
 /**
@@ -32,27 +36,12 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    var filteredFriends = applyFilter(
-        getSortedByNameAndPriorityFriends(friends, maxLevel, 'LI'), filter);
-    var current = 0;
-    var last = filteredFriends.length;
-    if (!(filter instanceof Filter)) {
-        throw new TypeError();
-    }
-    this.next = function () {
-        return (current < last) ? filteredFriends[current++] : null;
-    };
-    this.done = function () {
-        return !(current < last);
-    };
+    Iterator.call(this, friends, filter, maxLevel);
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
-function getSortedByNameAndPriorityFriends(friends, maxLevel, type) {
+function getSortedByNameAndPriorityFriends(friends, maxLevel) {
     var priorityGroups = setPriority(friends, maxLevel);
-    if (type === 'LI' && (maxLevel === undefined || maxLevel === 0)) {
-        return [];
-    }
     var result = [];
     for (var i = 0; i < priorityGroups.length; i++) {
         priorityGroups[i] = priorityGroups[i].sort(comparer);
