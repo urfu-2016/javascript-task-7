@@ -52,12 +52,17 @@ function getSortedByNameAndPriorityFriends(friends, maxLevel) {
 }
 
 function setPriority(friends, n) {
+    if (n === 0) {
+        return [];
+    }
     var _friends = [];
     copyArrays(friends, _friends);
     var resultArray = [];
     getFirstLevelFriends(resultArray, _friends);
     var j = 0;
-    getFriendsLevels(_friends, n, j, resultArray);
+    if (n > 1) {
+        getFriendsLevels(_friends, n, j, resultArray);
+    }
 
     return resultArray;
 }
