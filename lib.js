@@ -11,10 +11,24 @@ function functionCompareByName(friend, friendNext) {
     return friend.name > friendNext.name ? 1 : -1;
 }
 
+function checkTypeOfGraph(allFriends, friendItem, item) {
+    allFriends.forEach(function (friend) {
+        if (friend.name === friendItem) {
+            if (friend.friends!== [] && friend.friends.indexOf(item.name)) {
+                throw new TypeError('Ориентированный граф друзей');
+            }
+        }
+    });
+}
+
 function onlyConnectedFriends(allFriends) {
     var allFriendsFriends = [];
     allFriends.forEach(function (item) {
+        if (item.friends === undefined || item.friends.indexOf(undefined) !== -1) {
+            throw new TypeError('friends of ungefined');
+        }
         item.friends.forEach(function (friendItem) {
+            checkTypeOfGraph(allFriends, friendItem, item);
             allFriendsFriends.push(friendItem);
         });
     });
@@ -28,7 +42,9 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
     var friendsFriendsOnLevel = [];
     friendsOnLevel.friends = allFriends.filter(function (item) {
         if (item.best) {
+            console.info(item.name);
             choiceFriend(item, friendsFriendsOnLevel);
+            console.info(friendsFriendsOnLevel);
 
             return true;
         }
