@@ -22,8 +22,8 @@ function Iterator(friends, filter) {
 function P(friends, filter, maxLevel) {
     this.filteredFriends = getSortedByNameAndPriorityFriends(friends, maxLevel)
         .filter(function (friend) {
-        return filter.result(friend);
-    });
+            return filter.result(friend);
+        });
     this.current = 0;
     this.last = this.filteredFriends.length;
 }
