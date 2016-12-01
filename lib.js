@@ -20,8 +20,9 @@ function Iterator(friends, filter) {
 }
 
 function P(friends, filter, maxLevel) {
-    this.filteredFriends = applyFilter(
-        getSortedByNameAndPriorityFriends(friends, maxLevel), filter);
+    this.filteredFriends = getSortedByNameAndPriorityFriends(friends, maxLevel).filter(function(friend) {
+        return filter.result(friend);
+    });
     this.current = 0;
     this.last = this.filteredFriends.length;
 }
@@ -128,18 +129,9 @@ function copyArrays(oldArray, newArray) {
  * @constructor
  */
 function Filter() {
-    this.type = 'none';
-}
-
-function applyFilter(friends, filter) {
-    var filteredFriends = [];
-    for (var i = 0; i < friends.length; i++) {
-        if (friends[i].gender === filter.type) {
-            filteredFriends.push(friends[i]);
-        }
-    }
-
-    return filteredFriends;
+    this.result = function (friend) {
+        return true;
+    };
 }
 
 /**
@@ -148,7 +140,9 @@ function applyFilter(friends, filter) {
  * @constructor
  */
 function MaleFilter() {
-    this.type = 'male';
+    this.result = function (friend) {
+        return friend.gender ==='male';
+    };
 }
 MaleFilter.prototype = Object.create(Filter.prototype);
 
@@ -158,7 +152,9 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this.type = 'female';
+    this.result = function (friend) {
+        return friend.gender ==='female';
+    };
 }
 FemaleFilter.prototype = Object.create(Filter.prototype);
 
