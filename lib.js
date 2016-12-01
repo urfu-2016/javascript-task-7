@@ -100,11 +100,14 @@ function getFriendsLevels(_friends, n, j, resultArray) {
 }
 
 function getNlevelFriends(person, _friends, NlevelFriends) {
-    if (person.friends === undefined) {
-        return;
+    if (person.friends !== undefined) {
+        qwer(person, _friends, NlevelFriends);
     }
+}
+
+function qwer (person, _friends, NlevelFriends) {
     for (var k = 0; k < person.friends.length; k++) {
-        if (person.friends[k] !== 'undefined') {
+        if (person.friends[k] !== undefined) {
             getNlevelFriend(_friends, person, k, NlevelFriends);
         }
     }
