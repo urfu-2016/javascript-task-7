@@ -60,7 +60,9 @@ function setPriority(friends, n) {
     var resultArray = [];
     getFirstLevelFriends(resultArray, _friends);
     var j = 0;
-    if (n > 1) {
+    if (n === 1) {
+        return resultArray;
+    } else {
         getFriendsLevels(_friends, n, j, resultArray);
     }
 
