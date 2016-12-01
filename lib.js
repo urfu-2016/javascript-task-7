@@ -9,7 +9,7 @@
  */
 function Iterator(friends, filter) {
     var filteredFriends = applyFilter(
-        getSortedByNameAndPriorityFriends(friends, undefined), filter);
+        getSortedByNameAndPriorityFriends(friends, undefined, 'I'), filter);
     var current = 0;
     var last = filteredFriends.length;
     if (!(filter instanceof Filter)) {
@@ -33,7 +33,7 @@ function Iterator(friends, filter) {
  */
 function LimitedIterator(friends, filter, maxLevel) {
     var filteredFriends = applyFilter(
-        getSortedByNameAndPriorityFriends(friends, maxLevel), filter);
+        getSortedByNameAndPriorityFriends(friends, maxLevel, 'LI'), filter);
     var current = 0;
     var last = filteredFriends.length;
     if (!(filter instanceof Filter)) {
@@ -48,8 +48,11 @@ function LimitedIterator(friends, filter, maxLevel) {
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
-function getSortedByNameAndPriorityFriends(friends, maxLevel) {
+function getSortedByNameAndPriorityFriends(friends, maxLevel, type) {
     var priorityGroups = setPriority(friends, maxLevel);
+    if (type === 'LI' && (maxLevel === undefined || maxLevel === 0)) {
+        return [];
+    }
     var result = [];
     for (var i = 0; i < priorityGroups.length; i++) {
         priorityGroups[i] = priorityGroups[i].sort(comparer);
