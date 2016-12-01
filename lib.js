@@ -9,12 +9,8 @@ function friendOnName(name, friends) {
     var filtred = friends.filter(function (friend) {
         return (friend.name === name);
     });
-    if (filtred.length !== 0) {
 
-        return filtred[0];
-    }
-
-    return false;
+    return filtred[0];
 }
 
 function isNotInvited(friendName, invitedFriends, namesNewInvitedFriends) {
@@ -22,8 +18,8 @@ function isNotInvited(friendName, invitedFriends, namesNewInvitedFriends) {
         return friend.name;
     });
 
-    return (invitedFriendsNames.indexOf(friendName) === -1 &&
-        namesNewInvitedFriends.indexOf(friendName) === -1);
+    return (invitedFriendsNames.indexOf(friendName) === -1) &&
+        (namesNewInvitedFriends.indexOf(friendName) === -1);
 }
 
 function addCircleFriends(invitedFriends, friends) {
@@ -51,12 +47,14 @@ function sortFriends(friends, countCircles) {
         return friend.hasOwnProperty('best');
     });
     invitedFriends.sort(sortNameFriends);
-    var newInvited = addCircleFriends(invitedFriends, friends);
-    countCircles--;
-    while (newInvited.length !== 0 && countCircles !== 0) {
+    while (countCircles > 0) {
+        var newInvited = addCircleFriends(invitedFriends, friends);
+        if (newInvited.length === 0) {
+            break;
+        }
         invitedFriends = invitedFriends.concat(newInvited);
-        newInvited = addCircleFriends(invitedFriends, friends);
         countCircles--;
+
     }
 
     return invitedFriends;
@@ -89,6 +87,7 @@ function LimitedIterator(friends, filter, maxLevel) {
 }
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
+LimitedIterator.prototype.constructor = Object.create(Iterator.prototype);
 
 /**
  * Фильтр друзей
