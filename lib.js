@@ -107,8 +107,6 @@ function Iterator(friends, filter) {
     };
 }
 
-LimitedIterator.prototype = Object.create(Iterator.prototype);
-
 /**
  * Итератор по друзям с ограничением по кругу
  * @extends Iterator
@@ -122,6 +120,8 @@ function LimitedIterator(friends, filter, maxLevel) {
     this.waves = this.waves.slice(0, maxLevel);
 }
 
+LimitedIterator.prototype = Object.create(Iterator.prototype);
+
 /**
  * Фильтр друзей
  * @constructor
@@ -131,8 +131,6 @@ function Filter() {
         return true;
     };
 }
-
-MaleFilter.prototype = Object.create(Filter.prototype);
 
 /**
  * Фильтр друзей-парней
@@ -145,7 +143,7 @@ function MaleFilter() {
     };
 }
 
-FemaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype = Object.create(Filter.prototype);
 
 /**
  * Фильтр друзей-девушек
@@ -157,6 +155,8 @@ function FemaleFilter() {
         return element.gender === 'female';
     };
 }
+
+FemaleFilter.prototype = Object.create(Filter.prototype);
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
