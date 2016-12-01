@@ -14,7 +14,7 @@ function functionCompareByName(friend, friendNext) {
 function checkTypeOfGraph(allFriends, friendItem, item) {
     allFriends.forEach(function (friend) {
         if (friend.name === friendItem) {
-            if (friend.friends!== [] && friend.friends.indexOf(item.name)) {
+            if (friend.friends !== [] && friend.friends.indexOf(item.name) === -1) {
                 throw new TypeError('Ориентированный граф друзей');
             }
         }
@@ -42,9 +42,7 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
     var friendsFriendsOnLevel = [];
     friendsOnLevel.friends = allFriends.filter(function (item) {
         if (item.best) {
-            console.info(item.name);
             choiceFriend(item, friendsFriendsOnLevel);
-            console.info(friendsFriendsOnLevel);
 
             return true;
         }
