@@ -23,13 +23,6 @@ function Iterator(friends, filter) {
     };
 }
 
-function P(friends, filter, maxLevel) {
-    this.filteredFriends = applyFilter(
-        getSortedByNameAndPriorityFriends(friends, maxLevel), filter);
-    this.current = 0;
-    this.last = this.filteredFriends.length;
-}
-
 /**
  * Итератор по друзям с ограничением по кругу
  * @extends Iterator
