@@ -105,8 +105,7 @@ function getNlevelFriends(person, _friends, NlevelFriends) {
 
 function getNlevelFriend(_friends, person, k, NlevelFriends) {
     for (var l = 0; l < _friends.length; l++) {
-        if (_friends[l].name === person.friends[k] &&
-            _friends[l].friends.indexOf(person.name) !== -1) {
+        if (_friends[l].name === person.friends[k]) {
             NlevelFriends.push(_friends[l]);
             _friends.splice(l, 1);
             break;
