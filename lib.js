@@ -8,15 +8,18 @@
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function Iterator(friends, filter) {
-    var p = new P(friends, filter, arguments[2]);
+    var filteredFriends = applyFilter(
+        getSortedByNameAndPriorityFriends(friends, undefined), filter);
+    var current = 0;
+    var last = filteredFriends.length;
     if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
     this.next = function () {
-        return (p.current < p.last) ? p.filteredFriends[p.current++] : null;
+        return (current < last) ? filteredFriends[current++] : null;
     };
     this.done = function () {
-        return !(p.current < p.last);
+        return !(current < last);
     };
 }
 
@@ -36,7 +39,19 @@ function P(friends, filter, maxLevel) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.call(this, friends, filter, maxLevel);
+    var filteredFriends = applyFilter(
+        getSortedByNameAndPriorityFriends(friends, maxLevel), filter);
+    var current = 0;
+    var last = filteredFriends.length;
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
+    this.next = function () {
+        return (current < last) ? filteredFriends[current++] : null;
+    };
+    this.done = function () {
+        return !(current < last);
+    };
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
