@@ -20,7 +20,8 @@ function Iterator(friends, filter) {
 }
 
 function P(friends, filter, maxLevel) {
-    this.filteredFriends = getSortedByNameAndPriorityFriends(friends, maxLevel).filter(function(friend) {
+    this.filteredFriends = getSortedByNameAndPriorityFriends(friends, maxLevel)
+        .filter(function (friend) {
         return filter.result(friend);
     });
     this.current = 0;
@@ -129,7 +130,7 @@ function copyArrays(oldArray, newArray) {
  * @constructor
  */
 function Filter() {
-    this.result = function (friend) {
+    this.result = function () {
         return true;
     };
 }
@@ -141,7 +142,7 @@ function Filter() {
  */
 function MaleFilter() {
     this.result = function (friend) {
-        return friend.gender ==='male';
+        return friend.gender === 'male';
     };
 }
 MaleFilter.prototype = Object.create(Filter.prototype);
@@ -153,7 +154,7 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  */
 function FemaleFilter() {
     this.result = function (friend) {
-        return friend.gender ==='female';
+        return friend.gender === 'female';
     };
 }
 FemaleFilter.prototype = Object.create(Filter.prototype);
