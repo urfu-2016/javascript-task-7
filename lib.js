@@ -5,7 +5,6 @@
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
- * @param {Number} maxLevel – максимальный круг друзей
  */
 function Iterator(friends, filter) {
     var p = new P(friends, filter, arguments[2]);
@@ -92,26 +91,31 @@ function getFriendsLevels(_friends, n, j, resultArray) {
         if (_friends.length - start === 0) {
             break;
         }
-        if (n !== 'undefined' && n <= j + 1) {
+        if (n !== 'undefined' && n === j + 1) {
             break;
         }
     }
 }
 
-function getNlevelFriends(frend, _frends, NlevelFriends) {
-    for (var k = 0; k < frend.friends.length; k++) {
-        getNlevelFriend(_frends, frend, k, NlevelFriends);
+function getNlevelFriends(person, _friends, NlevelFriends) {
+    for (var k = 0; k < person.friends.length; k++) {
+        getNlevelFriend(_friends, person, k, NlevelFriends);
     }
 }
 
-function getNlevelFriend(_frends, frend, k, NlevelFriends) {
-    for (var l = 0; l < _frends.length; l++) {
-        if (_frends[l].name === frend.friends[k]) {
-            NlevelFriends.push(_frends[l]);
-            _frends.splice(l, 1);
+function getNlevelFriend(_friends, person, k, NlevelFriends) {
+    for (var l = 0; l < _friends.length; l++) {
+        if (_friends[l].name === person.friends[k]
+		&& _friends[l].friends.indexOf(person.name) !== -1) {
+            NlevelFriends.push(_friends[l]);
+            _friends.splice(l, 1);
             break;
         }
     }
+}
+
+function isMutualFriendship() {
+    
 }
 
 function comparer(a, b) {
