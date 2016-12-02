@@ -3,7 +3,8 @@
 var levels = {
     level: undefined,
     friends: undefined,
-    names: undefined
+    names: undefined,
+    namesLevel: undefined
 };
 
 function functionCompareByName(friend, friendNext) {
@@ -29,9 +30,10 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
     var namesAllPeople = arg[0];
     var friendsOnLevel = arg[1];
     var friendsFriendsOnLevel = [];
+    var namesFriendsOnLevel = [];
     friendsOnLevel.friends = allFriends.filter(function (item) {
         if (item.best) {
-            choiceFriend(item, friendsFriendsOnLevel);
+            choiceFriend(item, friendsFriendsOnLevel, namesFriendsOnLevel);
 
             return true;
         }
@@ -43,6 +45,7 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
 
     }).sort(functionCompareByName);
     friendsOnLevel.names = friendsFriendsOnLevel;
+    friendsOnLevel.namesLevel = namesFriendsOnLevel;
 }
 
 function choiceFriendsOnLevel(allFriends, maxLevel, filter) {
@@ -91,19 +94,35 @@ function inspection(arg, iteration, choiceFriends) {
     var sortFriends = arg[1];
     var friendsLevel = arg[2];
     var namesFriends = [];
+    var namesOnLevel = [];
     for (var i = 0; i < noInviteFriends.length; i++) {
         var indexNamePeople = sortFriends[iteration - 1].names.indexOf(noInviteFriends[i].name);
         if (indexNamePeople !== -1) {
+            checkTypeGraph(sortFriends, noInviteFriends[i], iteration);
             choiceFriends.push(noInviteFriends[i]);
-            choiceFriend(noInviteFriends[i], namesFriends);
+            choiceFriend(noInviteFriends[i], namesFriends, namesOnLevel);
             noInviteFriends.splice(i, 1);
             i--;
         }
     }
     friendsLevel.names = namesFriends;
+    friendsLevel.namesLevel = namesOnLevel;
 }
 
-function choiceFriend(item, friendsFriendsOnLevel) {
+function checkTypeGraph(sortFriends, item, iteration) {
+    var index = 0;
+    item.friends.forEach(function (friend) {
+        if (sortFriends[iteration-1].namesLevel.indexOf(friend) !== -1) {
+            index++;
+        }
+    });
+    if (index === 0) {
+        throw new TypeError('Граф ориентированный');
+    }
+}
+
+function choiceFriend(item, friendsFriendsOnLevel, namesFriendsOnLevel) {
+    namesFriendsOnLevel.push(item.name);
     item.friends.forEach(function (nameFriendItem) {
         if (friendsFriendsOnLevel.indexOf(item.name) === -1) {
             friendsFriendsOnLevel.push(nameFriendItem);
@@ -189,6 +208,7 @@ var allFilters = {
  */
 function Filter() {
     this.field = allFilters.aFilter;
+    this.type = 'filter';
 }
 
 Filter.prototype.apply = function () {
