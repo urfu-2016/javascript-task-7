@@ -14,7 +14,7 @@ function functionCompareByName(friend, friendNext) {
 function onlyConnectedFriends(allFriends) {
     var allFriendsFriends = [];
     allFriends.forEach(function (item) {
-        if (item.friends === undefined) {
+        if (item.friends === undefined || item.friends.indexOf(undefined) !== -1) {
             throw new TypeError('friends of ungefined');
         }
         item.friends.forEach(function (friendItem) {
