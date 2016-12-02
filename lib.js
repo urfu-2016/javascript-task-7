@@ -116,7 +116,7 @@ function checkTypeGraph(sortFriends, item, iteration) {
             index++;
         }
     });
-    if (index === 0) {
+    if (index === 0 && item.friends.length !== 0) {
         throw new TypeError('Граф ориентированный');
     }
 }
