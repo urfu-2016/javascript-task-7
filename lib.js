@@ -53,7 +53,7 @@ function getSortedByNameAndPriorityFriends(friends, maxLevel) {
 }
 
 function setPriority(friends, n) {
-    if (n === 0) {
+    if (n <= 0) {
         return [];
     }
     var _friends = [];
