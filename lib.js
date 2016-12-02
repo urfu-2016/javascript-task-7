@@ -15,7 +15,7 @@ function functionCompareByName(friend, friendNext) {
 function onlyConnectedFriends(allFriends) {
     var allFriendsFriends = [];
     allFriends.forEach(function (item) {
-        if (item.friends === undefined || item.friends.indexOf(undefined) !== -1) {
+        if (item.friends === undefined) {
             throw new TypeError('friends of ungefined');
         }
         item.friends.forEach(function (friendItem) {
@@ -98,7 +98,6 @@ function inspection(arg, iteration, choiceFriends) {
     for (var i = 0; i < noInviteFriends.length; i++) {
         var indexNamePeople = sortFriends[iteration - 1].names.indexOf(noInviteFriends[i].name);
         if (indexNamePeople !== -1) {
-            checkTypeGraph(sortFriends, noInviteFriends[i], iteration);
             choiceFriends.push(noInviteFriends[i]);
             choiceFriend(noInviteFriends[i], namesFriends, namesOnLevel);
             noInviteFriends.splice(i, 1);
@@ -107,18 +106,6 @@ function inspection(arg, iteration, choiceFriends) {
     }
     friendsLevel.names = namesFriends;
     friendsLevel.namesLevel = namesOnLevel;
-}
-
-function checkTypeGraph(sortFriends, item, iteration) {
-    var index = 0;
-    item.friends.forEach(function (friend) {
-        if (sortFriends[iteration - 1].namesLevel.indexOf(friend) !== -1) {
-            index++;
-        }
-    });
-    if (index === 0 && item.friends.length !== 0) {
-        throw new TypeError('Граф ориентированный');
-    }
 }
 
 function choiceFriend(item, friendsFriendsOnLevel, namesFriendsOnLevel) {
