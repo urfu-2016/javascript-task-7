@@ -189,6 +189,7 @@ var allFilters = {
  */
 function Filter() {
     this.field = allFilters.aFilter;
+    this.type = 'filter';
 }
 
 Filter.prototype.apply = function () {
