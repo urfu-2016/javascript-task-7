@@ -215,6 +215,7 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  */
 function FemaleFilter() {
     this.field = allFilters.aFemaleFilter;
+    this.type = 'female';
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
