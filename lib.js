@@ -112,7 +112,7 @@ function inspection(arg, iteration, choiceFriends) {
 function checkTypeGraph(sortFriends, item, iteration) {
     var index = 0;
     item.friends.forEach(function (friend) {
-        if (sortFriends[iteration-1].namesLevel.indexOf(friend) !== -1) {
+        if (sortFriends[iteration - 1].namesLevel.indexOf(friend) !== -1) {
             index++;
         }
     });
