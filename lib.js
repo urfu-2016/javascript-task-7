@@ -45,7 +45,15 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
     friendsOnLevel.names = friendsFriendsOnLevel;
 }
 
-function choiceFriendsOnLevel(allFriends, maxLevel) {
+function choiceFriendsOnLevel(allFriends, maxLevel, filter) {
+    if (filter.type !== 'male') {
+        maxLevel = Infinity;
+    } else {
+        if (maxLevel === undefined || maxLevel === 0) {
+
+            return [];
+        }
+    }
     var friendsOnLevel = Object.create(levels);
     var sortFriends = [];
     var noInviteFriends = [];
@@ -114,11 +122,7 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Filter не является прототипом filter');
     }
-    var maxLevel = arguments[2] === undefined ? Infinity : arguments[2];
-    var workWithFriends = [];
-    if (maxLevel !== 0) {
-        workWithFriends = choiceFriendsOnLevel(friends, maxLevel);
-    }
+    var workWithFriends = choiceFriendsOnLevel(friends, arguments[2], filter);
     this.inviteFriends = filterFriendsByGender(workWithFriends, filter);
     this.indexFriend = 0;
 }
@@ -160,7 +164,6 @@ Iterator.prototype.next = function () {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    maxLevel = maxLevel === undefined ? 0 : maxLevel;
     Iterator.call(this, friends, filter, maxLevel);
 }
 
@@ -201,6 +204,7 @@ Filter.prototype.apply = function () {
  */
 function MaleFilter() {
     this.field = allFilters.aMaleFilter;
+    this.type = 'male';
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
