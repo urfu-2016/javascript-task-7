@@ -115,14 +115,11 @@ function Iterator(friends, filter) {
         throw new TypeError('Filter не является прототипом filter');
     }
     var maxLevel = arguments[2] === undefined ? Infinity : arguments[2];
-    var workWithFriends = function () {
-        if (maxLevel === 0) {
-            return [];
-        }
-
-        return choiceFriendsOnLevel(friends, maxLevel);
+    var workWithFriends = [];
+    if (maxLevel !== 0) {
+        workWithFriends = choiceFriendsOnLevel(friends, maxLevel);
     }
-    this.inviteFriends = filterFriendsByGender(workWithFriends(), filter);
+    this.inviteFriends = filterFriendsByGender(workWithFriends, filter);
     this.indexFriend = 0;
 }
 
