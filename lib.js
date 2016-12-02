@@ -48,11 +48,10 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
 function choiceFriendsOnLevel(allFriends, maxLevel, filter) {
     if (filter.type !== 'male') {
         maxLevel = Infinity;
-    } else {
-        if (maxLevel === undefined || maxLevel === 0) {
+    }
+    if (maxLevel === undefined || maxLevel === 0) {
 
-            return [];
-        }
+        return [];
     }
     var friendsOnLevel = Object.create(levels);
     var sortFriends = [];
