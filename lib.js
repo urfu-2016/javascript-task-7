@@ -3,8 +3,7 @@
 var levels = {
     level: undefined,
     friends: undefined,
-    names: undefined,
-    namesLevel: undefined
+    names: undefined
 };
 
 function functionCompareByName(friend, friendNext) {
@@ -30,10 +29,9 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
     var namesAllPeople = arg[0];
     var friendsOnLevel = arg[1];
     var friendsFriendsOnLevel = [];
-    var namesFriendsOnLevel = [];
     friendsOnLevel.friends = allFriends.filter(function (item) {
         if (item.best) {
-            choiceFriend(item, friendsFriendsOnLevel, namesFriendsOnLevel);
+            choiceFriend(item, friendsFriendsOnLevel);
 
             return true;
         }
@@ -45,7 +43,6 @@ function findBestFriends(arg, allFriends, noInviteFriends) {
 
     }).sort(functionCompareByName);
     friendsOnLevel.names = friendsFriendsOnLevel;
-    friendsOnLevel.namesLevel = namesFriendsOnLevel;
 }
 
 function choiceFriendsOnLevel(allFriends, maxLevel, filter) {
@@ -94,22 +91,19 @@ function inspection(arg, iteration, choiceFriends) {
     var sortFriends = arg[1];
     var friendsLevel = arg[2];
     var namesFriends = [];
-    var namesOnLevel = [];
     for (var i = 0; i < noInviteFriends.length; i++) {
         var indexNamePeople = sortFriends[iteration - 1].names.indexOf(noInviteFriends[i].name);
         if (indexNamePeople !== -1) {
             choiceFriends.push(noInviteFriends[i]);
-            choiceFriend(noInviteFriends[i], namesFriends, namesOnLevel);
+            choiceFriend(noInviteFriends[i], namesFriends);
             noInviteFriends.splice(i, 1);
             i--;
         }
     }
     friendsLevel.names = namesFriends;
-    friendsLevel.namesLevel = namesOnLevel;
 }
 
-function choiceFriend(item, friendsFriendsOnLevel, namesFriendsOnLevel) {
-    namesFriendsOnLevel.push(item.name);
+function choiceFriend(item, friendsFriendsOnLevel) {
     item.friends.forEach(function (nameFriendItem) {
         if (friendsFriendsOnLevel.indexOf(item.name) === -1) {
             friendsFriendsOnLevel.push(nameFriendItem);
@@ -195,7 +189,6 @@ var allFilters = {
  */
 function Filter() {
     this.field = allFilters.aFilter;
-    this.type = 'filter';
 }
 
 Filter.prototype.apply = function () {
