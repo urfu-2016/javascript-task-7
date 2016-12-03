@@ -1,12 +1,23 @@
 'use strict';
 
-function getFriendByName(friends, name) {
-    return friends.filter(function (friend) {
-        return friend.name === name;
-    })[0];
+/**
+ * Итератор по друзьям
+ * @constructor
+ * @param {Object[]} friends
+ * @param {Filter} filter
+ */
+function Iterator(friends, filter) {
+    if (!Filter.prototype.isPrototypeOf(filter)) {
+        throw new TypeError('Wrong type of filter. It must be Filter');
+    }
+    this.friendsWithLevel = this.friendsLevel(friends).filter(function (friend) {
+        return filter.condition(friend.friend);
+    });
+
+    this.currentFriend = 0;
 }
 
-function friendsLevel(friends) {
+Iterator.prototype.friendsLevel = function (friends) {
 
     var bestFriends = friends.filter(function (friend) {
         return friend.hasOwnProperty('best') && friend.best;
@@ -25,17 +36,25 @@ function friendsLevel(friends) {
     });
 
     for (var i = 0; i < friendsWithLevel.length; i++) {
-        var newLevelFriends = friendsWithLevel[i].friend.friends.filter(function (friendName) {
-            return namesOfFriends.indexOf(friendName) === -1;
-        });
+        var newLevelFriends =
+        friendsWithLevel[i].friend.friends.reduce(function (newLevelFunction, friendName) {
+            if (namesOfFriends.indexOf(friendName) === -1) {
+                var friendToPush = friends.filter(function (friend) {
+                    return friend.name === friendName;
+                });
+                newLevelFunction = newLevelFunction.concat(friendToPush);
+            }
+
+            return newLevelFunction;
+        }, []);
         for (var j = 0; j < newLevelFriends.length; j++) {
             friendsWithLevel.push(
                 {
-                    friend: getFriendByName(friends, newLevelFriends[j]),
+                    friend: newLevelFriends[j],
                     level: friendsWithLevel[i].level + 1
                 }
             );
-            namesOfFriends.push(newLevelFriends[j]);
+            namesOfFriends.push(newLevelFriends[j].name);
         }
     }
 
@@ -46,32 +65,13 @@ function friendsLevel(friends) {
         if (friendOne.level < friendTwo.level) {
             return -1;
         }
-        if (friendOne.friend.name > friendTwo.friend.name) {
-            return 1;
-        }
 
-        return -1;
+        return (friendOne.friend.name > friendTwo.friend.name) ? 1 : -1;
     });
 
     return friendsWithLevel;
-}
+};
 
-/**
- * Итератор по друзьям
- * @constructor
- * @param {Object[]} friends
- * @param {Filter} filter
- */
-function Iterator(friends, filter) {
-    if (!Filter.prototype.isPrototypeOf(filter)) {
-        throw new TypeError();
-    }
-    this.friendsWithLevel = friendsLevel(friends).filter(function (friend) {
-        return filter.condition(friend.friend);
-    });
-
-    this.currentFriend = 0;
-}
 
 Iterator.prototype.next = function () {
     if (this.currentFriend === this.friendsWithLevel.length) {
@@ -84,6 +84,7 @@ Iterator.prototype.next = function () {
 Iterator.prototype.done = function () {
     return this.currentFriend === this.friendsWithLevel.length;
 };
+
 
 /**
  * Итератор по друзям с ограничением по кругу
