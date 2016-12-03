@@ -18,7 +18,6 @@ function Iterator(friends, filter) {
 }
 
 Iterator.prototype.friendsLevel = function (friends) {
-
     var bestFriends = friends.filter(function (friend) {
         return friend.hasOwnProperty('best') && friend.best;
     });
