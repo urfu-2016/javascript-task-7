@@ -12,6 +12,7 @@ function compareFriends(a, b) {
 
 function getFriendsOnNextLevel(friendsOnPreviousLevels, friends, level) {
     var friendsOnNextLevel = friendsOnPreviousLevels.reduce(function (friendsOnLevel, friend) {
+        friend.friends = friend.friends || [];
         friend.friends.forEach(function (friendOnNextLevel) {
             friendsOnLevel[friendOnNextLevel] = true;
         });
