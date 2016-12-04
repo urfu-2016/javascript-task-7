@@ -1,37 +1,5 @@
 'use strict';
 
-function cloneObject(obj) {
-    var copy = {};
-    for (var attr in obj) {
-        if (obj.hasOwnProperty(attr)) {
-            copy[attr] = clone(obj[attr]);
-        }
-    }
-
-    return copy;
-}
-
-function cloneArray(array) {
-    var copy = [];
-    for (var i = 0, len = array.length; i < len; i++) {
-        copy[i] = clone(array[i]);
-    }
-
-    return copy;
-}
-
-function clone(obj) {
-    if (obj === null || typeof obj !== 'object') {
-        return obj;
-    }
-    if (obj instanceof Array) {
-        return cloneArray(obj);
-    }
-    if (obj instanceof Object) {
-        return cloneObject(obj);
-    }
-}
-
 function compareFriends(a, b) {
     if (a.level > b.level) {
         return 1;
@@ -66,7 +34,7 @@ function getFriendsOnNextLevel(friendsOnPreviousLevels, friends, level) {
     });
 }
 
-function getFriendsWithLevel(friends, filter, maxLevel) {
+function getInvitedFriends(friends, filter, maxLevel) {
     maxLevel = maxLevel || Infinity;
     var currentLevel = 1;
     var friendsOnCurrentLevel = friends.filter(function (friend) {
@@ -83,15 +51,14 @@ function getFriendsWithLevel(friends, filter, maxLevel) {
             friends, ++currentLevel);
         friendsWithLevel = friendsWithLevel.concat(friendsOnCurrentLevel);
     }
-
-    return friendsWithLevel.filter(function (friend) {
+    var invitedFriends = friendsWithLevel.filter(function (friend) {
         return filter.select(friend) && friend.level <= maxLevel;
-    }).sort(compareFriends)
-    .map(function (friend) {
+    }).sort(compareFriends);
+    friendsWithLevel.forEach(function (friend) {
         delete friend.level;
-
-        return friend;
     });
+
+    return invitedFriends;
 }
 
 /**
@@ -104,7 +71,7 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
-    this.invitedFriends = getFriendsWithLevel(clone(friends), filter);
+    this.invitedFriends = getInvitedFriends(friends, filter);
     this.pointer = 0;
 }
 
@@ -128,7 +95,8 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Not instance of Filter');
     }
-    this.invitedFriends = getFriendsWithLevel(clone(friends), filter, maxLevel);
+    maxLevel = maxLevel || 0;
+    this.invitedFriends = getInvitedFriends(friends, filter, maxLevel);
     this.pointer = 0;
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype);
