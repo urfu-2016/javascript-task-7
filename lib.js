@@ -7,25 +7,34 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    var p = new P(friends, filter, arguments[2]);
+    var filteredFriends = new FilteredFriends(friends, filter, arguments[2]);
     if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
     this.next = function () {
-        return (p.current < p.last) ? p.filteredFriends[p.current++] : null;
+        return (filteredFriends.current < filteredFriends.last)
+        ? filteredFriends.friendsArray[filteredFriends.current++] : null;
     };
     this.done = function () {
-        return !(p.current < p.last);
+        return !(filteredFriends.current < filteredFriends.last);
     };
 }
 
-function P(friends, filter, maxLevel) {
-    this.filteredFriends = getSortedByNameAndPriorityFriends(friends, maxLevel)
+/**
+ * Содержит отфильтрованный и отсортированный
+ * массив друзей
+ * @constructor
+ * @param {Object[]} friends
+ * @param {Filter} filter
+ * @param {Number} maxLevel – максимальный круг друзей 
+ */
+function FilteredFriends(friends, filter, maxLevel) {
+    this.friendsArray = getSortedByNameAndPriorityFriends(friends, maxLevel)
         .filter(function (friend) {
             return filter.result(friend);
         });
     this.current = 0;
-    this.last = this.filteredFriends.length;
+    this.last = this.friendsArray.length;
 }
 
 /**
@@ -41,6 +50,12 @@ function LimitedIterator(friends, filter, maxLevel) {
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
+/**
+ * Сортирует приглашенных друзей по имени и кругу
+ * @param {Object[]} friends
+ * @param {Number} maxLevel – максимальный круг друзей
+ * @returns {Object[]}
+ */
 function getSortedByNameAndPriorityFriends(friends, maxLevel) {
     var priorityGroups = setPriority(friends, maxLevel);
     var result = [];
@@ -52,74 +67,87 @@ function getSortedByNameAndPriorityFriends(friends, maxLevel) {
     return result;
 }
 
-function setPriority(friends, n) {
-    if (n <= 0) {
+/**
+ * Сортирует приглашенных друзей по имени и кругуddddddddddddddd
+ * @param {Object[]} friends - исходный массив друзей
+ * @param {Number} maxLevel – максимальный круг друзей
+ * @returns {Object[]}
+ */
+function setPriority(friends, maxLevel) {
+    if (maxLevel <= 0) {
         return [];
     }
     var _friends = [];
     copyArrays(friends, _friends);
     var resultArray = [];
-    getFirstLevelFriends(resultArray, _friends);
+    resultArray.push(getFirstLevelFriends(_friends));
     var j = 0;
-    if (n === 1) {
+    if (maxLevel === 1) {
         return resultArray;
     }
-    getFriendsLevels(_friends, n, j, resultArray);
+    getOtherLevelFriends(_friends, maxLevel, j, resultArray);
 
     return resultArray;
 }
 
-function getFirstLevelFriends(resultArray, _friends) {
+
+/**
+ * Получает список лучщих друзей (1 уровня)
+ * @param {Object[]} friends - массив друзей,
+ * которых мы еще не приглашали
+ * @returns {Object[]}
+ */
+function getFirstLevelFriends(friends) {
     var firstLevelFriends = [];
-    for (var i = 0; i < _friends.length; i++) {
-        if (_friends[i].best === true) {
-            firstLevelFriends.push(_friends[i]);
-            _friends.splice(i, 1);
+    for (var i = 0; i < friends.length; i++) {
+        if (friends[i].best === true) {
+            firstLevelFriends.push(friends[i]);
+            friends.splice(i, 1);
             i--;
         }
     }
-    resultArray.push(firstLevelFriends);
+
+    return firstLevelFriends;
+    
 }
 
-function getFriendsLevels(_friends, n, j, resultArray) {
-    while (_friends.length !== 0) {
-        var start = _friends.length;
+/**
+ * Получает списки остальных друзей
+ * @param {Object[]} friends - массив друзей,
+ * которых мы еще не приглашали
+ * @param {Number} maxLevel – максимальный круг друзей
+ * @param {Number} j - номер текущего уровня минус 2
+ * @param {Object[]} resultArray – массив, который содержит массивы друзей одного уровня
+ */
+function getOtherLevelFriends(friends, maxLevel, j, resultArray) {
+    while (friends.length !== 0) {
+        var start = friends.length;
         var NlevelFriends = [];
         for (var q = 0; q < resultArray[j].length; q++) {
-            getNlevelFriends(resultArray[j][q], _friends, NlevelFriends);
+            getNlevelFriends(resultArray[j][q], friends, NlevelFriends);
         }
         resultArray.push(NlevelFriends);
         j++;
-        if (_friends.length - start === 0) {
+        if (friends.length - start === 0) {
             break;
         }
-        if (n !== 'undefined' && n === j + 1) {
+        if (maxLevel !== 'undefined' && maxLevel === j + 1) {
             break;
         }
     }
 }
 
-function getNlevelFriends(person, _friends, NlevelFriends) {
-    if (person.friends !== 'undefined') {
-        qwer(person, _friends, NlevelFriends);
-    }
-}
-
-function qwer(person, _friends, NlevelFriends) {
+function getNlevelFriends(person, friends, NlevelFriends) {
     for (var k = 0; k < person.friends.length; k++) {
-        if (person.friends[k] !== 'undefined') {
-            getNlevelFriend(_friends, person, k, NlevelFriends);
-        } else {
-            throw new Error();
-        }
+        getNlevelFriend(friends, person, k, NlevelFriends);
     }
 }
 
-function getNlevelFriend(_friends, person, k, NlevelFriends) {
-    for (var l = 0; l < _friends.length; l++) {
-        if (_friends[l].name === person.friends[k]) {
-            NlevelFriends.push(_friends[l]);
-            _friends.splice(l, 1);
+function getNlevelFriend(friends, person, k, NlevelFriends) {
+    for (var l = 0; l < friends.length; l++) {
+        if (friends[l].name === person.friends[k]) {
+            NlevelFriends.push(friends[l]);
+            friends.splice(l, 1);
             break;
         }
     }
