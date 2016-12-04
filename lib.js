@@ -36,7 +36,6 @@ function getFriendsOnNextLevel(friendsOnPreviousLevels, friends, level) {
 }
 
 function getInvitedFriends(friends, filter, maxLevel) {
-    maxLevel = maxLevel || Infinity;
     var currentLevel = 1;
     var friendsOnCurrentLevel = friends.filter(function (friend) {
         return friend.best;
@@ -75,7 +74,7 @@ function Iterator(friends, filter) {
     if (!friends) {
         return;
     }
-    this.invitedFriends = getInvitedFriends(friends, filter);
+    this.invitedFriends = getInvitedFriends(friends, filter, Infinity);
     this.pointer = 0;
 }
 
