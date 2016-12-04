@@ -26,7 +26,7 @@ function Iterator(friends, filter) {
  * @constructor
  * @param {Object[]} friends
  * @param {Filter} filter
- * @param {Number} maxLevel – максимальный круг друзей 
+ * @param {Number} maxLevel – максимальный круг друзей
  */
 function FilteredFriends(friends, filter, maxLevel) {
     this.friendsArray = getSortedByNameAndPriorityFriends(friends, maxLevel)
@@ -108,7 +108,6 @@ function getFirstLevelFriends(friends) {
     }
 
     return firstLevelFriends;
-    
 }
 
 /**
