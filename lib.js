@@ -72,6 +72,9 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
+    if (!friends) {
+        return;
+    }
     this.invitedFriends = getInvitedFriends(friends, filter);
     this.pointer = 0;
 }
@@ -95,6 +98,9 @@ Iterator.prototype.next = function () {
 function LimitedIterator(friends, filter, maxLevel) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('Not instance of Filter');
+    }
+    if (!friends) {
+        return;
     }
     maxLevel = maxLevel || 0;
     this.invitedFriends = getInvitedFriends(friends, filter, maxLevel);
