@@ -51,7 +51,7 @@ function LimitedIterator(friends, filter, maxLevel) {
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 /**
- * Сортирует приглашенных друзей по имени и кругу
+ * Сортирует приглашенных друзей по имени и по уровням
  * @param {Object[]} friends
  * @param {Number} maxLevel – максимальный круг друзей
  * @returns {Object[]}
@@ -68,10 +68,10 @@ function getSortedByNameAndPriorityFriends(friends, maxLevel) {
 }
 
 /**
- * Сортирует приглашенных друзей по имени и кругуddddddddddddddd
+ * Получает список друзей отсортированных по уровням
  * @param {Object[]} friends - исходный массив друзей
  * @param {Number} maxLevel – максимальный круг друзей
- * @returns {Object[]}
+ * @returns {Object[]} resultArray - список друзей
  */
 function setPriority(friends, maxLevel) {
     if (maxLevel <= 0) {
@@ -81,11 +81,11 @@ function setPriority(friends, maxLevel) {
     copyArrays(friends, _friends);
     var resultArray = [];
     resultArray.push(getFirstLevelFriends(_friends));
-    var j = 0;
+    var N = 2;
     if (maxLevel === 1) {
         return resultArray;
     }
-    getOtherLevelFriends(_friends, maxLevel, j, resultArray);
+    getOtherLevelFriends(_friends, maxLevel, N, resultArray);
 
     return resultArray;
 }
@@ -95,7 +95,7 @@ function setPriority(friends, maxLevel) {
  * Получает список лучщих друзей (1 уровня)
  * @param {Object[]} friends - массив друзей,
  * которых мы еще не приглашали
- * @returns {Object[]}
+ * @returns {Object[]} firstLevelFriends - лучшие друзья
  */
 function getFirstLevelFriends(friends) {
     var firstLevelFriends = [];
@@ -115,41 +115,64 @@ function getFirstLevelFriends(friends) {
  * @param {Object[]} friends - массив друзей,
  * которых мы еще не приглашали
  * @param {Number} maxLevel – максимальный круг друзей
- * @param {Number} j - номер текущего уровня минус 2
+ * @param {Number} N - номер текущего уровня минус 2
  * @param {Object[]} resultArray – массив, который содержит массивы друзей одного уровня
  */
-function getOtherLevelFriends(friends, maxLevel, j, resultArray) {
+function getOtherLevelFriends(friends, maxLevel, N, resultArray) {
     while (friends.length !== 0) {
         var start = friends.length;
         var NlevelFriends = [];
-        for (var q = 0; q < resultArray[j].length; q++) {
-            getNlevelFriends(resultArray[j][q], friends, NlevelFriends);
+        for (var q = 0; q < resultArray[N-2].length; q++) {
+            var result = getNlevelFriends(friends, resultArray[N-2][q]);
+            NlevelFriends = NlevelFriends.concat(result);
         }
         resultArray.push(NlevelFriends);
-        j++;
+        N++;
         if (friends.length - start === 0) {
             break;
         }
-        if (maxLevel !== 'undefined' && maxLevel === j + 1) {
+        if (maxLevel !== undefined && maxLevel === N - 1) {
             break;
         }
     }
 }
 
-function getNlevelFriends(person, friends, NlevelFriends) {
+/**
+ * Получает список друзей одного из друга N-1 уровня
+ * @param {Object[]} friends - массив друзей,
+ * которых мы еще не приглашали
+ * @param {Object} person - друг N-1 уровня
+ * @returns {Object[]} nLevelFriends - список друзей одного из друга N-1 уровня
+ */
+function getNlevelFriends(friends, person) {
+    var nLevelFriends = [];
     for (var k = 0; k < person.friends.length; k++) {
-        getNlevelFriend(friends, person, k, NlevelFriends);
+        var result = getNlevelFriend(friends, person, k)
+        if (result !== undefined) {
+            nLevelFriends.push(result);
+        }
     }
+
+    return nLevelFriends;
 }
 
-function getNlevelFriend(friends, person, k, NlevelFriends) {
+/**
+ * Получает друга одного из друга N-1 уровня
+ * @param {Object[]} friends - массив друзей,
+ * которых мы еще не приглашали
+ * @param {Object} person - друг N-1 уровня
+ * @param {Number} k - номер
+ * @returns {Object[]} - друг одного из друга N-1 уровня
+ */
+function getNlevelFriend(friends, person, k) {
     for (var l = 0; l < friends.length; l++) {
         if (friends[l].name === person.friends[k]) {
-            NlevelFriends.push(friends[l]);
-            friends.splice(l, 1);
-            break;
+            var result = friends.splice(l, 1);
+            return result[0];
         }
     }
+
+    return undefined;
 }
 
 function comparer(a, b) {
