@@ -122,8 +122,8 @@ function getOtherLevelFriends(friends, maxLevel, N, resultArray) {
     while (friends.length !== 0) {
         var start = friends.length;
         var NlevelFriends = [];
-        for (var q = 0; q < resultArray[N-2].length; q++) {
-            var result = getNlevelFriends(friends, resultArray[N-2][q]);
+        for (var q = 0; q < resultArray[N - 2].length; q++) {
+            var result = getNlevelFriends(friends, resultArray[N - 2][q]);
             NlevelFriends = NlevelFriends.concat(result);
         }
         resultArray.push(NlevelFriends);
@@ -147,7 +147,7 @@ function getOtherLevelFriends(friends, maxLevel, N, resultArray) {
 function getNlevelFriends(friends, person) {
     var nLevelFriends = [];
     for (var k = 0; k < person.friends.length; k++) {
-        var result = getNlevelFriend(friends, person, k)
+        var result = getNlevelFriend(friends, person, k);
         if (result !== undefined) {
             nLevelFriends.push(result);
         }
@@ -168,6 +168,7 @@ function getNlevelFriend(friends, person, k) {
     for (var l = 0; l < friends.length; l++) {
         if (friends[l].name === person.friends[k]) {
             var result = friends.splice(l, 1);
+
             return result[0];
         }
     }
