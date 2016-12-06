@@ -45,6 +45,9 @@ function inviteFriendsFromNextLevel(invitedFriends, friendsOnPreviousLevels, fri
 }
 
 function getInvitedFriends(friends, filter, maxLevel) {
+    if (maxLevel === 0) {
+        return [];
+    }
     var currentLevel = 1;
     var friendsOnCurrentLevel = friends
         .filter(function (friend) {
