@@ -57,7 +57,7 @@ function getInvitedFriends(friends, filter, maxLevel) {
         friendsOnCurrentLevel = inviteFriendsFromNextLevel(invitedFriends,
             friendsOnCurrentLevel, friends);
     }
-    
+
     invitedFriends.forEach(function (friend) {
         delete friend.invited;
     });
