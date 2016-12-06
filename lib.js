@@ -1,64 +1,71 @@
 'use strict';
 
 function compareFriends(a, b) {
-    if (a.level > b.level) {
-        return 1;
-    } else if (a.level < b.level) {
-        return -1;
-    }
-
     return (a.name > b.name) ? 1 : -1;
 }
 
-function getFriendsOnNextLevel(friendsOnPreviousLevels, friends, level) {
-    var friendsOnNextLevel = friendsOnPreviousLevels.reduce(function (friendsOnLevel, friend) {
-        friend.friends = friend.friends || [];
-        friend.friends.forEach(function (friendOnNextLevel) {
-            friendsOnLevel[friendOnNextLevel] = true;
-        });
+function inviteFriend(friend) {
+    friend.invited = true;
 
-        return friendsOnLevel;
-    }, {});
+    return friend;
+}
 
-    return Object.keys(friendsOnNextLevel).map(function (nameFriend) {
-        return friends.find(function (friend) {
-            return friend.name === nameFriend;
-        });
-    })
-    .filter(function (friend) {
-        return !friend.level;
-    })
-    .map(function (friend) {
-        friend.level = level;
+function getUniqueNamesOnNextLevel(friendsOnPreviousLevels) {
+    var namesFriendsOnNextLevel = friendsOnPreviousLevels
+        .reduce(function (friendsOnLevel, friend) {
+            friend.friends = friend.friends || [];
+            friend.friends.forEach(function (friendOnNextLevel) {
+                friendsOnLevel[friendOnNextLevel] = true;
+            });
 
-        return friend;
+            return friendsOnLevel;
+        }, {});
+
+    return Object.keys(namesFriendsOnNextLevel);
+}
+
+function inviteFriendsFromNextLevel(invitedFriends, friendsOnPreviousLevels, friends) {
+    var friendsOnNextLevel = getUniqueNamesOnNextLevel(friendsOnPreviousLevels)
+        .map(function (nameFriend) {
+            return friends.find(function (friend) {
+                return friend.name === nameFriend;
+            });
+        })
+        .filter(function (friend) {
+            return !friend.invited;
+        })
+        .map(inviteFriend)
+        .sort(compareFriends);
+
+    friendsOnNextLevel.forEach(function (friend) {
+        invitedFriends.push(friend);
     });
+
+    return friendsOnNextLevel;
 }
 
 function getInvitedFriends(friends, filter, maxLevel) {
     var currentLevel = 1;
-    var friendsOnCurrentLevel = friends.filter(function (friend) {
-        return friend.best;
-    }).map(function (friend) {
-        friend.level = currentLevel;
+    var friendsOnCurrentLevel = friends
+        .filter(function (friend) {
+            return friend.best;
+        })
+        .map(inviteFriend);
 
-        return friend;
-    });
-
-    var friendsWithLevel = friendsOnCurrentLevel.slice();
-    while (friendsOnCurrentLevel.length) {
-        friendsOnCurrentLevel = getFriendsOnNextLevel(friendsOnCurrentLevel,
-            friends, ++currentLevel);
-        friendsWithLevel = friendsWithLevel.concat(friendsOnCurrentLevel);
+    var invitedFriends = friendsOnCurrentLevel.slice();
+    while (friendsOnCurrentLevel.length && currentLevel++ < maxLevel) {
+        friendsOnCurrentLevel = inviteFriendsFromNextLevel(invitedFriends,
+            friendsOnCurrentLevel, friends);
     }
-    var invitedFriends = friendsWithLevel.filter(function (friend) {
-        return filter.select(friend) && friend.level <= maxLevel;
-    }).sort(compareFriends);
-    friendsWithLevel.forEach(function (friend) {
-        delete friend.level;
+    
+    invitedFriends.forEach(function (friend) {
+        delete friend.invited;
     });
 
-    return invitedFriends;
+    return invitedFriends
+        .filter(function (friend) {
+            return filter.select(friend);
+        });
 }
 
 /**
