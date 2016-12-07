@@ -11,7 +11,6 @@ function inviteFriend(friend) {
 }
 
 function getUniqueNamesOnNextLevel(friendsOnPreviousLevels) {
-    friendsOnPreviousLevels = friendsOnPreviousLevels || [];
     var namesFriendsOnNextLevel = friendsOnPreviousLevels
         .reduce(function (friendsOnLevel, friend) {
             friend.friends = friend.friends || [];
