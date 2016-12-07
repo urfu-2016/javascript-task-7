@@ -111,7 +111,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (!friends) {
         return;
     }
-    maxLevel = maxLevel || 0;
+    maxLevel = maxLevel || Infinity;
     this.invitedFriends = getInvitedFriends(friends, filter, maxLevel);
     this.pointer = 0;
 }
