@@ -50,7 +50,8 @@ function getInvitedFriends(friends, filter, maxLevel) {
         .filter(function (friend) {
             return friend.best;
         })
-        .map(inviteFriend);
+        .map(inviteFriend)
+        .sort(compareFriends);
 
     var invitedFriends = friendsOnCurrentLevel.slice();
     while (friendsOnCurrentLevel.length && currentLevel++ < maxLevel) {
@@ -76,7 +77,7 @@ function getInvitedFriends(friends, filter, maxLevel) {
  */
 function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
-        throw new TypeError();
+        throw new TypeError('Not instance of Filter');
     }
     if (!friends) {
         return;
