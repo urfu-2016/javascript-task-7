@@ -45,9 +45,6 @@ function inviteFriendsFromNextLevel(invitedFriends, friendsOnPreviousLevels, fri
 }
 
 function getInvitedFriends(friends, filter, maxLevel) {
-    if (maxLevel <= 0) {
-        return [];
-    }
     var currentLevel = 1;
     var friendsOnCurrentLevel = friends
         .filter(function (friend) {
@@ -111,8 +108,8 @@ function LimitedIterator(friends, filter, maxLevel) {
     if (!friends) {
         return;
     }
-    maxLevel = maxLevel || Infinity;
-    this.invitedFriends = getInvitedFriends(friends, filter, maxLevel);
+
+    this.invitedFriends = (maxLevel > 0) ? getInvitedFriends(friends, filter, maxLevel) : [];
     this.pointer = 0;
 }
 LimitedIterator.prototype = Object.create(Iterator.prototype);
