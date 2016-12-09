@@ -19,63 +19,61 @@ Iterator.prototype.next = function () {
     if (this.done()) {
         return null;
     }
+
     var person = this.friendsCollection[this.currentIndex];
+
     this.currentIndex++;
 
     return person;
 };
 
 function getFilteredFriends(friends, filter, maxLevel) {
-    if (filter instanceof Filter === false) {
+    if (!(filter instanceof Filter)) {
         throw new TypeError('Incorrect filter!');
     }
+
+    var level = 0;
     var friendsCollection = [];
-    var filterNote = function (friend) {
+    var isFriendInCollection = function (friend) {
         return friendsCollection.indexOf(friend) === -1;
     };
-    var bestFriends = friends.filter(function (person) {
+    var peopleForInviting = friends.filter(function (person) {
         return person.best;
     }).sort(sortByName);
-    while (bestFriends.length > 0 && maxLevel > 0) {
-        friendsCollection = friendsCollection.concat(bestFriends);
-        bestFriends = getUniqueFriends(bestFriends)
+
+    while (peopleForInviting.length > 0 && level < maxLevel) {
+        friendsCollection = friendsCollection.concat(peopleForInviting);
+        peopleForInviting = getUniqueFriends(peopleForInviting)
             .map(function (name) {
-                return friends.filter(function (person) {
+                return friends.find(function (person) {
                     return person.name === name;
-                })[0];
+                });
             })
-            .sort(sortByName)
-            .filter(filterNote);
-        maxLevel--;
+            .filter(isFriendInCollection)
+            .sort(sortByName);
+        level++;
     }
 
-    return friendsCollection.filter(filter.filter);
+    return filter.filter(friendsCollection);
 }
 
 function sortByName(a, b) {
     if (a.name > b.name) {
-
         return 1;
-    } else if (a.name < b.name) {
-
+    }
+    if (a.name < b.name) {
         return -1;
     }
 
     return 0;
 }
 
-function getUniqueFriends(collection) {
-    var result = [];
-    collection.forEach(function (element) {
-        var newFriends = element.friends;
-        newFriends.forEach(function (friend) {
-            if (result.indexOf(friend) === -1) {
-                result.push(friend);
-            }
-        });
-    });
-
-    return result;
+function getUniqueFriends(friends) {
+    return friends.reduce(function (newFriends, friend) {
+        return newFriends.concat(friend.friends.filter(function (name) {
+            return newFriends.indexOf(name) === -1;
+        }));
+    }, []);
 }
 
 /**
@@ -93,15 +91,20 @@ function LimitedIterator(friends, filter, maxLevel) {
 
 LimitedIterator.prototype = Object.create(Iterator.prototype);
 
+
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-    this.filter = function () {
-        return true;
-    };
+    this.filteringValues = [];
 }
+
+Filter.prototype.filter = function (friends) {
+    return friends.filter(function (person) {
+        return this.filteringValues.indexOf(person.gender) !== -1 || !this.filteringValues.length;
+    }, this);
+};
 
 /**
  * Фильтр друзей
@@ -109,9 +112,7 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.filter = function (person) {
-        return person.gender === 'male';
-    };
+    this.filteringValues = ['male'];
 }
 
 MaleFilter.prototype = Object.create(Filter.prototype);
@@ -122,9 +123,7 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this.filter = function (person) {
-        return person.gender === 'female';
-    };
+    this.filteringValues = ['female'];
 }
 
 FemaleFilter.prototype = Object.create(Filter.prototype);
