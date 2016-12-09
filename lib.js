@@ -3,13 +3,7 @@
 var MAX_DEPTH = 99999999;
 
 function extend(Child, Parent) {
-    var F = function () {
-        // do nothing
-    };
-    F.prototype = Parent.prototype;
-    Child.prototype = new F();
-    Child.prototype.constructor = Child;
-    Child.superclass = Parent.prototype;
+    Child.prototype = Object.create(Parent.prototype);
 }
 
 function markDepthOfSubFriends(friend, indexedFriends, indexedFriendsNames, currentIndex) {
@@ -56,10 +50,10 @@ function Iterator(friends, filter) {
     if (!(filter instanceof Filter)) {
         throw new TypeError('It is not instance of Filter');
     }
-    this.currentDepth = 0;
+    this.currentIteration = 0;
     this.friends = indexFriends(friends)
         .filter(function (friend) {
-            return friend.level > 0 && friend.level < MAX_DEPTH && filter.apply(friend);
+            return friend.level > 0 && friend.level < MAX_DEPTH && filter.use(friend);
         })
         .sort(function (first, second) {
             if (first.level === second.level) {
@@ -71,7 +65,7 @@ function Iterator(friends, filter) {
 }
 
 Iterator.prototype.done = function () {
-    return this.currentDepth === this.friends.length;
+    return this.currentIteration === this.friends.length;
 };
 
 Iterator.prototype.next = function () {
@@ -79,7 +73,7 @@ Iterator.prototype.next = function () {
         return null;
     }
 
-    return this.friends[this.currentDepth++];
+    return this.friends[this.currentIteration++];
 };
 
 /**
@@ -98,7 +92,6 @@ function LimitedIterator(friends, filter, maxLevel) {
     });
 }
 
-// LimitedIterator.prototype = Object.create(Iterator.prototype);
 extend(LimitedIterator, Iterator);
 
 /**
@@ -111,7 +104,7 @@ function Filter() {
     };
 }
 
-Filter.prototype.apply = function () {
+Filter.prototype.use = function () {
     return this.comparator.apply(null, arguments);
 };
 
