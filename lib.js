@@ -14,7 +14,7 @@ function compareAlphabetically(person1, person2) {
 function getFirstCircle(friends) {
     return friends.filter(function (person) {
         return person.best === true;
-    });
+    }).sort(compareAlphabetically);
 }
 
 function getNextCircle(friends, currFriends, listGuests) {
