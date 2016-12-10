@@ -1,5 +1,49 @@
 'use strict';
 
+function findByName(list, name) {
+    return list.find(function (element) {
+        return element.name === name;
+    });
+}
+
+function getFriendsWave(invited, roster) {
+    var result = [];
+
+    result = invited
+    .reduce(function (acc, person) {
+        return acc.concat(person.friends);
+    }, result)
+    .sort()
+    .map(function (item) {
+        return findByName(roster, item);
+    })
+    .filter(function (item) {
+        return invited.indexOf(item) === -1;
+    });
+
+    return result;
+}
+
+function sortFriends(roster, maxLevel) {
+    var bestFriends = roster.filter(function (item) {
+        return item.best && item.best === true;
+    });
+
+    var invited = [].concat(bestFriends);
+    var wave = bestFriends;
+
+    if (!maxLevel) {
+        maxLevel = Infinity;
+    }
+
+    while (wave.length !== 0 && --maxLevel !== 0) {
+        wave = getFriendsWave(invited, roster);
+        invited = invited.concat(wave);
+    }
+
+    return invited;
+}
+
 /**
  * Итератор по друзьям
  * @constructor
@@ -7,7 +51,20 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    console.info(friends, filter);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError('Wrong filter');
+    }
+
+    this.invited = filter.filterFunc(sortFriends(friends));
+
+    Iterator.prototype.done = function done() {
+        return this.invited.length === 0;
+    };
+
+    Iterator.prototype.next = function next() {
+        return this.invited.shift();
+    };
+
 }
 
 /**
@@ -19,7 +76,10 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
+    LimitedIterator.prototype.constructor = LimitedIterator;
+
+    this.invited = filter.filterFunc(sortFriends(friends, maxLevel));
 }
 
 /**
@@ -27,7 +87,13 @@ function LimitedIterator(friends, filter, maxLevel) {
  * @constructor
  */
 function Filter() {
-    console.info('Filter');
+    this.condition = function condition() {
+        return true;
+    };
+
+    Filter.prototype.filterFunc = function filter(roster) {
+        return roster.filter(this.condition);
+    };
 }
 
 /**
@@ -36,7 +102,13 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    console.info('MaleFilter');
+    Filter.apply(this, arguments);
+    Object.setPrototypeOf(MaleFilter.prototype, Filter.prototype);
+    MaleFilter.prototype.constructor = MaleFilter;
+
+    this.condition = function (person) {
+        return person.gender === 'male';
+    };
 }
 
 /**
@@ -45,7 +117,13 @@ function MaleFilter() {
  * @constructor
  */
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    Filter.apply(this, arguments);
+    Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
+    FemaleFilter.prototype.constructor = FemaleFilter;
+
+    this.condition = function (person) {
+        return person.gender === 'female';
+    };
 }
 
 exports.Iterator = Iterator;
