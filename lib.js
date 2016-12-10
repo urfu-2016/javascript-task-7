@@ -1,6 +1,5 @@
 'use strict';
 
-
 function findByName(list, name) {
     return list.find(function (element) {
         return element.name === name;
@@ -33,7 +32,11 @@ function sortFriends(roster, maxLevel) {
     var invited = [].concat(bestFriends);
     var wave = bestFriends;
 
-    while (wave.length !== 0 && (!maxLevel || --maxLevel !== 0)) {
+    if (!maxLevel) {
+        maxLevel = Infinity;
+    }
+
+    while (wave.length !== 0 && --maxLevel !== 0) {
         wave = getFriendsWave(invited, roster);
         invited = invited.concat(wave);
     }
@@ -73,7 +76,6 @@ function Iterator(friends, filter) {
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    Iterator.apply(this, arguments);
     Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
     LimitedIterator.prototype.constructor = LimitedIterator;
 
