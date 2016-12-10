@@ -1,70 +1,44 @@
 'use strict';
 
-function getCopy(item) {
-    if (item instanceof Array) {
-        return item.map(function (element) {
-            return getCopy(element);
-        });
-    }
 
-    var copy = {};
-
-    return Object.keys(item).reduce(function (obj, key) {
-        obj[key] = item[key];
-
-        return obj;
-    }, copy);
-}
-
-function sortFriends(friends) {
-    var roster = {
-        finished: [],
-        list: []
-    };
-
-    var bestFriends = [];
-
-    friends = friends.filter(function (person) {
-        if (person.best) {
-            bestFriends.push(person);
-
-            return false;
-        }
-
-        return true;
+function findByName(list, name) {
+    return list.find(function (element) {
+        return element.name === name;
     });
-
-    roster.finished.push(bestFriends);
-    roster.list = friends;
-
-    while (roster.list.length) {
-        roster = getWave(roster);
-    }
-
-    return roster.finished;
 }
 
-function getWave(roster) {
-    var vawe = [];
+function getFriendsWave(invited, roster) {
     var result = [];
 
-    vawe = roster.finished[roster.finished.length - 1].reduce(function (acc, person) {
+    result = invited
+    .reduce(function (acc, person) {
         return acc.concat(person.friends);
-    }, vawe);
-
-    roster.list = roster.list.filter(function (person) {
-        if (vawe.indexOf(person.name) !== -1) {
-            result.push(person);
-
-            return false;
-        }
-
-        return true;
+    }, result)
+    .sort()
+    .map(function (item) {
+        return findByName(roster, item);
+    })
+    .filter(function (item) {
+        return invited.indexOf(item) === -1;
     });
 
-    roster.finished.push(result);
+    return result;
+}
 
-    return roster;
+function sortFriends(roster, maxLevel) {
+    var bestFriends = roster.filter(function (item) {
+        return item.best && item.best === true;
+    });
+
+    var invited = [].concat(bestFriends);
+    var wave = bestFriends;
+
+    while (wave.length !== 0 && (!maxLevel || --maxLevel !== 0)) {
+        wave = getFriendsWave(invited, roster);
+        invited = invited.concat(wave);
+    }
+
+    return invited;
 }
 
 /**
@@ -78,16 +52,16 @@ function Iterator(friends, filter) {
         throw new TypeError('Wrong filter');
     }
 
-    var roster = sortFriends(getCopy(friends));
-    this.invited = filter.filterFunc(roster);
+    this.invited = filter.filterFunc(sortFriends(friends));
 
     Iterator.prototype.done = function done() {
         return this.invited.length === 0;
     };
 
     Iterator.prototype.next = function next() {
-        return this.invited.pop();
+        return this.invited.shift();
     };
+
 }
 
 /**
@@ -103,10 +77,7 @@ function LimitedIterator(friends, filter, maxLevel) {
     Object.setPrototypeOf(LimitedIterator.prototype, Iterator.prototype);
     LimitedIterator.prototype.constructor = LimitedIterator;
 
-    var roster = sortFriends(getCopy(friends));
-    roster = roster.splice(0, maxLevel);
-
-    this.invited = filter.filterFunc(roster);
+    this.invited = filter.filterFunc(sortFriends(friends, maxLevel));
 }
 
 /**
@@ -119,14 +90,7 @@ function Filter() {
     };
 
     Filter.prototype.filterFunc = function filter(roster) {
-        var result = [];
-        while (roster.length) {
-            result = result.concat(
-                roster.pop().filter(this.condition)
-            );
-        }
-
-        return result;
+        return roster.filter(this.condition);
     };
 }
 
@@ -154,6 +118,7 @@ function FemaleFilter() {
     Filter.apply(this, arguments);
     Object.setPrototypeOf(FemaleFilter.prototype, Filter.prototype);
     FemaleFilter.prototype.constructor = FemaleFilter;
+
     this.condition = function (person) {
         return person.gender === 'female';
     };
