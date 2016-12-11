@@ -20,6 +20,9 @@ function searchFriends(friends, subFriendName) {
     var invitedFriends = {};
 
     friends.forEach(function (friend) {
+        if (!friend) {
+            return;
+        }
         if (friend.name === subFriendName) {
             invitedFriends = friend;
         }
@@ -41,6 +44,9 @@ function iterateByFriends(friends, filter, maxLevel) {
     var selectedFriends = [];
 
     friends.forEach(function (friend) {
+        if (!friend) {
+            return;
+        }
         if (friend.best) {
             firstLevel.push(friend);
         }
