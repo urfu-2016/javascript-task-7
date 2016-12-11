@@ -7,7 +7,17 @@
  */
 
 function sortFriends(friendFirst, friendSecond) {
-    return (friendFirst.name >= friendSecond.name) ? 1 : -1;
+    var firstName = friendFirst.name;
+    var secondName = friendSecond.name;
+
+    if (firstName > secondName) {
+        return 1;
+    }
+    if (firstName < secondName) {
+        return -1;
+    }
+
+    return 0;
 }
 
 /**
@@ -20,9 +30,7 @@ function searchFriends(friends, subFriendName) {
     var invitedFriends = {};
 
     friends.forEach(function (friend) {
-        if (!friend) {
-            return;
-        }
+
         if (friend.name === subFriendName) {
             invitedFriends = friend;
         }
@@ -44,9 +52,7 @@ function iterateByFriends(friends, filter, maxLevel) {
     var selectedFriends = [];
 
     friends.forEach(function (friend) {
-        if (!friend) {
-            return;
-        }
+
         if (friend.best) {
             firstLevel.push(friend);
         }
