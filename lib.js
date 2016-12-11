@@ -51,7 +51,7 @@ function iterateByFriends(friends, filter, maxLevel) {
         }
     });
 
-    maxLevel = (!isNaN(maxLevel + 0) && maxLevel >= 0) ? maxLevel : Infinity;
+    maxLevel = (!isNaN(maxLevel + 0)) ? maxLevel : Infinity;
 
     while (maxLevel > 0) {
         firstLevel.sort(sortFriends).forEach(function (friend) {
