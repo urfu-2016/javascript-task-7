@@ -10,14 +10,7 @@ function sortFriends(friendFirst, friendSecond) {
     var firstName = friendFirst.name;
     var secondName = friendSecond.name;
 
-    if (firstName > secondName) {
-        return 1;
-    }
-    if (firstName < secondName) {
-        return -1;
-    }
-
-    return 0;
+    return firstName > secondName ? 1 : -1;
 }
 
 /**
@@ -58,7 +51,7 @@ function iterateByFriends(friends, filter, maxLevel) {
         }
     });
 
-    maxLevel = maxLevel || Infinity;
+    maxLevel = (!isNaN(maxLevel + 0) && maxLevel >= 0) ? maxLevel : Infinity;
 
     while (maxLevel > 0) {
         firstLevel.sort(sortFriends).forEach(function (friend) {
