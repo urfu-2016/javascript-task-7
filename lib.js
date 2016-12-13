@@ -1,9 +1,13 @@
 'use strict';
 
-var MAX_DEPTH = 99999999;
+var MAX_DEPTH = Number.MAX_VALUE;
 
 function extend(Child, Parent) {
     Child.prototype = Object.create(Parent.prototype);
+}
+
+function sortByName(a, b) {
+    return a.name > b.name ? 1 : -1;
 }
 
 function markDepthOfSubFriends(friend, indexedFriends, indexedFriendsNames, currentIndex) {
@@ -23,15 +27,16 @@ function indexFriends(friends) {
     var bestFriends = [];
     var indexedFriendsNames = [];
     friends.forEach(function (friend) {
-        friend.level = friend.best ? 1 : MAX_DEPTH;
-        indexedFriends[friend.name] = friend;
         if (friend.best) {
+            friend.level = 1;
             bestFriends.push(friend);
+        } else {
+            friend.level = MAX_DEPTH;
         }
+        indexedFriends[friend.name] = friend;
     });
-    bestFriends.sort(function (first, second) {
-        return first.name > second.name ? 1 : -1;
-    }).forEach(function (friend) {
+    bestFriends.sort(sortByName)
+    .forEach(function (friend) {
         markDepthOfSubFriends(friend, indexedFriends, indexedFriendsNames, 2);
     });
 
@@ -57,10 +62,10 @@ function Iterator(friends, filter) {
         })
         .sort(function (first, second) {
             if (first.level === second.level) {
-                return first.name > second.name ? 1 : -1;
+                return sortByName(first, second);
             }
 
-            return first.level > second.level ? 1 : -1;
+            return Math.sign(first.level - second.level);
         });
 }
 
@@ -99,13 +104,18 @@ extend(LimitedIterator, Iterator);
  * @constructor
  */
 function Filter() {
-    this.comparator = function () {
-        return true;
-    };
+    this.comparator = '';
 }
 
-Filter.prototype.use = function () {
-    return this.comparator.apply(null, arguments);
+
+Filter.prototype.use = function (friend) {
+    if (this.comparator === '') {
+        return true;
+    }
+
+    var genderResolve = friend.gender.indexOf(this.comparator);
+
+    return genderResolve > -1 && genderResolve !== 2;
 };
 
 /**
@@ -114,9 +124,7 @@ Filter.prototype.use = function () {
  * @constructor
  */
 function MaleFilter() {
-    this.comparator = function (friend) {
-        return friend.gender === 'male';
-    };
+    this.comparator = 'male';
 }
 extend(MaleFilter, Filter);
 
@@ -126,9 +134,7 @@ extend(MaleFilter, Filter);
  * @constructor
  */
 function FemaleFilter() {
-    this.comparator = function (friend) {
-        return friend.gender === 'female';
-    };
+    this.comparator = 'female';
 }
 extend(FemaleFilter, Filter);
 
