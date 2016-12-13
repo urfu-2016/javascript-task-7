@@ -1,6 +1,42 @@
 'use strict';
 
 /**
+ * @param {Array} friends - list of friends
+ * @param {Array} bestFriends - best friendscompare
+ * @param {Number/Infinity} level - level of friends (can be numeric value or Infinity)
+ * @return {Array} selectedFriends - list of friends which was selected
+ */
+
+function setLoopFoeFriends(friends, bestFriends, level) {
+    var firstLevel = bestFriends;
+    var secondLevel = [];
+    var selectedFriends = [];
+
+    while (level > 0) {
+        firstLevel.sort(sortFriends).forEach(function (friend) {
+
+            if (selectedFriends.indexOf(friend) === -1) {
+                selectedFriends.push(friend);
+                friend.friends.forEach(function (subFriendName) {
+                    var subFriend = searchFriends(friends, subFriendName);
+                    secondLevel.push(subFriend);
+                });
+            }
+        });
+
+        if (secondLevel.length === 0) {
+            break;
+        }
+
+        firstLevel = secondLevel.slice();
+        secondLevel.length = 0;
+        level--;
+    }
+
+    return selectedFriends;
+}
+
+/**
  * @param {Object} friendFirst - first friend for compare
  * @param {Object} secondFirst - second friend for compare
  * @return {Object} invitedFriends - friend wich was finded in initial list of friends
@@ -10,7 +46,7 @@ function sortFriends(friendFirst, friendSecond) {
     var firstName = friendFirst.name;
     var secondName = friendSecond.name;
 
-    return firstName > secondName ? 1 : -1;
+    return (firstName > secondName) ? 1 : -1;
 }
 
 /**
@@ -40,9 +76,8 @@ function searchFriends(friends, subFriendName) {
  */
 
 function iterateByFriends(friends, filter, maxLevel) {
+    var checkedLevel = (!isNaN(parseInt(maxLevel))) ? maxLevel : Infinity;
     var firstLevel = [];
-    var secondLevel = [];
-    var selectedFriends = [];
 
     friends.forEach(function (friend) {
 
@@ -51,31 +86,10 @@ function iterateByFriends(friends, filter, maxLevel) {
         }
     });
 
-    maxLevel = (!isNaN(maxLevel + 0)) ? maxLevel : Infinity;
-
-    while (maxLevel > 0) {
-        firstLevel.sort(sortFriends).forEach(function (friend) {
-            if (selectedFriends.indexOf(friend) === -1) {
-                selectedFriends.push(friend);
-                friend.friends.forEach(function (subFriendName) {
-                    var subFriend = searchFriends(friends, subFriendName);
-                    secondLevel.push(subFriend);
-                });
-            }
-        });
-
-        if (secondLevel.length === 0) {
-            break;
-        }
-
-        firstLevel = secondLevel.slice();
-        secondLevel.length = 0;
-        maxLevel--;
-    }
-
-    return selectedFriends.filter(function (selectFriend) {
+    return setLoopFoeFriends(friends, firstLevel, checkedLevel).filter(function (selectFriend) {
         return filter.gender(selectFriend);
     });
+
 }
 
 /**
