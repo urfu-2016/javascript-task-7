@@ -1,52 +1,182 @@
 'use strict';
 
 /**
+ * @param {Array} friends - list of friends
+ * @param {Array} bestFriends - best friendscompare
+ * @param {Number/Infinity} level - level of friends (can be numeric value or Infinity)
+ * @return {Array} selectedFriends - list of friends which was selected
+ */
+
+function setLoopFoeFriends(friends, bestFriends, level) {
+    var firstLevel = bestFriends;
+    var secondLevel = [];
+    var selectedFriends = [];
+
+    while (level > 0) {
+        firstLevel.sort(sortFriends).forEach(function (friend) {
+
+            if (selectedFriends.indexOf(friend) === -1) {
+                selectedFriends.push(friend);
+                friend.friends.forEach(function (subFriendName) {
+                    var subFriend = searchFriends(friends, subFriendName);
+                    secondLevel.push(subFriend);
+                });
+            }
+        });
+
+        if (secondLevel.length === 0) {
+            break;
+        }
+
+        firstLevel = secondLevel.slice();
+        secondLevel.length = 0;
+        level--;
+    }
+
+    return selectedFriends;
+}
+
+/**
+ * @param {Object} friendFirst - first friend for compare
+ * @param {Object} secondFirst - second friend for compare
+ * @return {Object} invitedFriends - friend wich was finded in initial list of friends
+ */
+
+function sortFriends(friendFirst, friendSecond) {
+    var firstName = friendFirst.name;
+    var secondName = friendSecond.name;
+
+    return (firstName > secondName) ? 1 : -1;
+}
+
+/**
+ * @param {Object[]} friends
+ * @param {String} subFriendName - name of selected subFriend
+ * @return {Object} invitedFriends - friend wich was finded in initial list of friends
+ */
+
+function searchFriends(friends, subFriendName) {
+    var invitedFriends = {};
+
+    friends.forEach(function (friend) {
+
+        if (friend.name === subFriendName) {
+            invitedFriends = friend;
+        }
+    });
+
+    return invitedFriends;
+}
+
+/**
+ * @param {Object[]} friends
+ * @param {Filter} filter
+ * @param {Number} maxLevel – максимальный круг друзей
+ * @return {Object[]} selectedFriends - filtered array of friends
+ */
+
+function iterateByFriends(friends, filter, maxLevel) {
+    var checkedLevel = (!isNaN(parseInt(maxLevel))) ? maxLevel : Infinity;
+    var firstLevel = [];
+
+    friends.forEach(function (friend) {
+
+        if (friend.best) {
+            firstLevel.push(friend);
+        }
+    });
+
+    return setLoopFoeFriends(friends, firstLevel, checkedLevel).filter(function (selectFriend) {
+        return filter.gender(selectFriend);
+    });
+
+}
+
+/**
  * Итератор по друзьям
- * @constructor
+ * @constructor Iterator
  * @param {Object[]} friends
  * @param {Filter} filter
  */
+
 function Iterator(friends, filter) {
-    console.info(friends, filter);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
+
+    this.iterateByFriends = iterateByFriends(friends, filter);
+    this.countFriends = 0;
 }
+
+Iterator.prototype.done = function () {
+    return this.countFriends >= this.iterateByFriends.length;
+};
+Iterator.prototype.next = function () {
+    return this.done() ? null : this.iterateByFriends[this.countFriends++];
+};
 
 /**
  * Итератор по друзям с ограничением по кругу
  * @extends Iterator
- * @constructor
+ * @constructor Iterator
  * @param {Object[]} friends
  * @param {Filter} filter
  * @param {Number} maxLevel – максимальный круг друзей
  */
 function LimitedIterator(friends, filter, maxLevel) {
-    console.info(friends, filter, maxLevel);
+    if (!(filter instanceof Filter)) {
+        throw new TypeError();
+    }
+
+    this.iterateByFriends = iterateByFriends(friends, filter, maxLevel);
+    this.countFriends = 0;
 }
+
+LimitedIterator.prototype = Object.create(Iterator.prototype);
 
 /**
  * Фильтр друзей
- * @constructor
+ * @constructor Filter
+ * @return {boolean} true/false - common filtered by sex
  */
+
 function Filter() {
-    console.info('Filter');
+    this.gender = function () {
+        return true;
+    };
 }
 
 /**
  * Фильтр друзей
  * @extends Filter
- * @constructor
+ * @constructor MaleFilter
+ * @return {boolean} true/false - filtered by sex (male)
  */
+
 function MaleFilter() {
-    console.info('MaleFilter');
+    this.gender = function (friend) {
+        return friend.gender === 'male';
+    };
 }
+
+MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.constructor = MaleFilter;
 
 /**
  * Фильтр друзей-девушек
  * @extends Filter
- * @constructor
+ * @constructor FemaleFilter
+ * @return {boolean} true/false - filtered by sex (female)
  */
+
 function FemaleFilter() {
-    console.info('FemaleFilter');
+    this.gender = function (friend) {
+        return friend.gender === 'female';
+    };
 }
+
+FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.constructor = FemaleFilter;
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
