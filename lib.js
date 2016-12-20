@@ -135,7 +135,7 @@ FilteredFriends.prototype.getNlevelFriends = function (friends, person) {
     var nLevelFriends = [];
     for (var k = 0; k < person.friends.length; k++) {
         var result = this.getNlevelFriend(friends, person, k);
-        if (result !== undefined) {
+        if (result) {
             nLevelFriends.push(result);
         }
     }
