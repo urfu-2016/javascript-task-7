@@ -59,10 +59,10 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
 function getSortedByNameAndPriorityFriends(friends, maxLevel) {
     var priorityGroups = setPriority(friends, maxLevel);
     var result = [];
-    for (var i = 0; i < priorityGroups.length; i++) {
-        priorityGroups[i] = priorityGroups[i].sort(comparer);
-        result = result.concat(priorityGroups[i]);
-    }
+	priorityGroups.forEach(function(priorityGroup, i, priorityGroups){
+		priorityGroup = priorityGroup.sort(comparer);
+        result = result.concat(priorityGroup);
+	});
 
     return result;
 }
@@ -115,7 +115,7 @@ function getFirstLevelFriends(friends) {
  * @param {Object[]} friends - массив друзей,
  * которых мы еще не приглашали
  * @param {Number} maxLevel – максимальный круг друзей
- * @param {Number} N - номер текущего уровня минус 2
+ * @param {Number} N - номер текущего уровня
  * @param {Object[]} resultArray – массив, который содержит массивы друзей одного уровня
  */
 function getOtherLevelFriends(friends, maxLevel, N, resultArray) {
