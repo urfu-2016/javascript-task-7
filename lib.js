@@ -7,19 +7,19 @@
  * @param {Filter} filter
  */
 function Iterator(friends, filter) {
-    var filteredFriends = new FilteredFriends(friends, filter, arguments[2]);
+    this.filteredFriends = new FilteredFriends(friends, filter, arguments[2]);
     if (!(filter instanceof Filter)) {
         throw new TypeError();
     }
-    this.next = function () {
-        return (filteredFriends.current < filteredFriends.last)
-        ? filteredFriends.friendsArray[filteredFriends.current++] : null;
-    };
-    this.done = function () {
-        return !(filteredFriends.current < filteredFriends.last);
-    };
 }
 
+Iterator.prototype.next = function () {
+    return (this.filteredFriends.current < this.filteredFriends.last)
+    ? this.filteredFriends.friendsArray[this.filteredFriends.current++] : null;
+};
+Iterator.prototype.done = function () {
+    return !(this.filteredFriends.current < this.filteredFriends.last);
+};
 /**
  * Содержит отфильтрованный и отсортированный
  * массив друзей
@@ -59,10 +59,10 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
 function getSortedByNameAndPriorityFriends(friends, maxLevel) {
     var priorityGroups = setPriority(friends, maxLevel);
     var result = [];
-    priorityGroups.forEach(function (priorityGroup) {
-        priorityGroup = priorityGroup.sort(comparer);
+	priorityGroups.forEach(function(priorityGroup){
+		priorityGroup = priorityGroup.sort(comparer);
         result = result.concat(priorityGroup);
-    });
+	});
 
     return result;
 }
@@ -191,10 +191,10 @@ function copyArrays(oldArray, newArray) {
  * @constructor
  */
 function Filter() {
-    this.result = function () {
-        return true;
-    };
 }
+Filter.prototype.result = function () {
+    return true;
+};
 
 /**
  * Фильтр друзей
@@ -202,11 +202,11 @@ function Filter() {
  * @constructor
  */
 function MaleFilter() {
-    this.result = function (friend) {
-        return friend.gender === 'male';
-    };
 }
 MaleFilter.prototype = Object.create(Filter.prototype);
+MaleFilter.prototype.result = function (friend) {
+    return friend.gender === 'male';
+};
 
 /**
  * Фильтр друзей-девушек
@@ -214,11 +214,11 @@ MaleFilter.prototype = Object.create(Filter.prototype);
  * @constructor
  */
 function FemaleFilter() {
-    this.result = function (friend) {
-        return friend.gender === 'female';
-    };
 }
 FemaleFilter.prototype = Object.create(Filter.prototype);
+FemaleFilter.prototype.result = function (friend) {
+    return friend.gender === 'female';
+};
 
 exports.Iterator = Iterator;
 exports.LimitedIterator = LimitedIterator;
