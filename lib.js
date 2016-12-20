@@ -59,7 +59,7 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
 function getSortedByNameAndPriorityFriends(friends, maxLevel) {
     var priorityGroups = setPriority(friends, maxLevel);
     var result = [];
-    priorityGroups.forEach(function(priorityGroup) {
+    priorityGroups.forEach( function(priorityGroup) {
         priorityGroup = priorityGroup.sort(comparer);
         result = result.concat(priorityGroup);
     });
