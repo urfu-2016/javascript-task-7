@@ -17,6 +17,7 @@ Iterator.prototype.next = function () {
     return (this.filteredFriends.current < this.filteredFriends.last)
     ? this.filteredFriends.friendsArray[this.filteredFriends.current++] : null;
 };
+
 Iterator.prototype.done = function () {
     return !(this.filteredFriends.current < this.filteredFriends.last);
 };
@@ -77,8 +78,7 @@ function setPriority(friends, maxLevel) {
     if (maxLevel <= 0) {
         return [];
     }
-    var _friends = [];
-    copyArrays(friends, _friends);
+    var _friends = friends.slice();
     var resultArray = [];
     resultArray.push(getFirstLevelFriends(_friends));
     var N = 2;
@@ -92,7 +92,7 @@ function setPriority(friends, maxLevel) {
 
 
 /**
- * Получает список лучщих друзей (1 уровня)
+ * Получает список лучших друзей (1 уровня)
  * @param {Object[]} friends - массив друзей,
  * которых мы еще не приглашали
  * @returns {Object[]} firstLevelFriends - лучшие друзья
@@ -191,6 +191,7 @@ function copyArrays(oldArray, newArray) {
  * @constructor
  */
 function Filter() {
+	this.gender = "";
 }
 Filter.prototype.result = function () {
     return true;
@@ -202,10 +203,11 @@ Filter.prototype.result = function () {
  * @constructor
  */
 function MaleFilter() {
+    this.gender = "male";
 }
 MaleFilter.prototype = Object.create(Filter.prototype);
 MaleFilter.prototype.result = function (friend) {
-    return friend.gender === 'male';
+    return friend.gender === this.gender;
 };
 
 /**
@@ -214,10 +216,11 @@ MaleFilter.prototype.result = function (friend) {
  * @constructor
  */
 function FemaleFilter() {
+    this.gender = "female";
 }
 FemaleFilter.prototype = Object.create(Filter.prototype);
 FemaleFilter.prototype.result = function (friend) {
-    return friend.gender === 'female';
+    return friend.gender === this.gender;
 };
 
 exports.Iterator = Iterator;
