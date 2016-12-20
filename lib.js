@@ -45,7 +45,7 @@ function FilteredFriends(friends, filter, maxLevel) {
  * @param {Number} maxLevel – максимальный круг друзей
  * @returns {Object[]}
  */
-FilteredFriends.prototype.getSortedByNameAndPriorityFriends = function(friends, maxLevel) {
+FilteredFriends.prototype.getSortedByNameAndPriorityFriends = function (friends, maxLevel) {
     var priorityGroups = this.setPriority(friends, maxLevel);
     var result = [];
     priorityGroups.forEach(function (priorityGroup) {
@@ -54,7 +54,7 @@ FilteredFriends.prototype.getSortedByNameAndPriorityFriends = function(friends, 
     });
 
     return result;
-}
+};
 
 /**
  * Получает список друзей отсортированных по уровням
@@ -62,7 +62,7 @@ FilteredFriends.prototype.getSortedByNameAndPriorityFriends = function(friends, 
  * @param {Number} maxLevel – максимальный круг друзей
  * @returns {Object[]} resultArray - список друзей
  */
-FilteredFriends.prototype.setPriority = function(friends, maxLevel) {
+FilteredFriends.prototype.setPriority = function (friends, maxLevel) {
     if (maxLevel <= 0) {
         return [];
     }
@@ -76,7 +76,7 @@ FilteredFriends.prototype.setPriority = function(friends, maxLevel) {
     this.getOtherLevelFriends(_friends, maxLevel, N, resultArray);
 
     return resultArray;
-}
+};
 
 /**
  * Получает список лучших друзей (1 уровня)
@@ -84,7 +84,7 @@ FilteredFriends.prototype.setPriority = function(friends, maxLevel) {
  * которых мы еще не приглашали
  * @returns {Object[]} firstLevelFriends - лучшие друзья
  */
-FilteredFriends.prototype.getFirstLevelFriends = function(friends) {
+FilteredFriends.prototype.getFirstLevelFriends = function (friends) {
     var firstLevelFriends = [];
     for (var i = 0; i < friends.length; i++) {
         if (friends[i].best === true) {
@@ -95,7 +95,7 @@ FilteredFriends.prototype.getFirstLevelFriends = function(friends) {
     }
 
     return firstLevelFriends;
-}
+};
 
 /**
  * Получает списки остальных друзей
@@ -105,7 +105,7 @@ FilteredFriends.prototype.getFirstLevelFriends = function(friends) {
  * @param {Number} N - номер текущего уровня
  * @param {Object[]} resultArray – массив, который содержит массивы друзей одного уровня
  */
-FilteredFriends.prototype.getOtherLevelFriends = function(friends, maxLevel, N, resultArray) {
+FilteredFriends.prototype.getOtherLevelFriends = function (friends, maxLevel, N, resultArray) {
     while (friends.length !== 0) {
         var start = friends.length;
         var NlevelFriends = [];
@@ -122,7 +122,7 @@ FilteredFriends.prototype.getOtherLevelFriends = function(friends, maxLevel, N, 
             break;
         }
     }
-}
+};
 
 /**
  * Получает список друзей одного из друга N-1 уровня
@@ -131,7 +131,7 @@ FilteredFriends.prototype.getOtherLevelFriends = function(friends, maxLevel, N, 
  * @param {Object} person - друг N-1 уровня
  * @returns {Object[]} nLevelFriends - список друзей одного из друга N-1 уровня
  */
-FilteredFriends.prototype.getNlevelFriends = function(friends, person) {
+FilteredFriends.prototype.getNlevelFriends = function (friends, person) {
     var nLevelFriends = [];
     for (var k = 0; k < person.friends.length; k++) {
         var result = this.getNlevelFriend(friends, person, k);
@@ -141,7 +141,7 @@ FilteredFriends.prototype.getNlevelFriends = function(friends, person) {
     }
 
     return nLevelFriends;
-}
+};
 
 /**
  * Получает друга одного из друга N-1 уровня
@@ -151,7 +151,7 @@ FilteredFriends.prototype.getNlevelFriends = function(friends, person) {
  * @param {Number} k - номер
  * @returns {Object[]} - друг одного из друга N-1 уровня
  */
-FilteredFriends.prototype.getNlevelFriend = function(friends, person, k) {
+FilteredFriends.prototype.getNlevelFriend = function (friends, person, k) {
     for (var l = 0; l < friends.length; l++) {
         if (friends[l].name === person.friends[k]) {
             var result = friends.splice(l, 1);
@@ -161,7 +161,7 @@ FilteredFriends.prototype.getNlevelFriend = function(friends, person, k) {
     }
 
     return undefined;
-}
+};
 
 /**
  * Итератор по друзям с ограничением по кругу
