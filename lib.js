@@ -21,6 +21,7 @@ Iterator.prototype.next = function () {
 Iterator.prototype.done = function () {
     return !(this.filteredFriends.current < this.filteredFriends.last);
 };
+
 /**
  * Содержит отфильтрованный и отсортированный
  * массив друзей
@@ -60,10 +61,10 @@ LimitedIterator.prototype = Object.create(Iterator.prototype);
 function getSortedByNameAndPriorityFriends(friends, maxLevel) {
     var priorityGroups = setPriority(friends, maxLevel);
     var result = [];
-	priorityGroups.forEach(function(priorityGroup){
-		priorityGroup = priorityGroup.sort(comparer);
+	priorityGroups.forEach(function (priorityGroup) {
+        priorityGroup = priorityGroup.sort(comparer);
         result = result.concat(priorityGroup);
-	});
+    });
 
     return result;
 }
@@ -180,18 +181,12 @@ function comparer(a, b) {
     return (a.name >= b.name) ? 1 : -1;
 }
 
-function copyArrays(oldArray, newArray) {
-    for (var i = 0; i < oldArray.length; i++) {
-        newArray[i] = oldArray[i];
-    }
-}
-
 /**
  * Фильтр друзей
  * @constructor
  */
 function Filter() {
-	this.gender = "";
+    this.gender = '';
 }
 Filter.prototype.result = function () {
     return true;
@@ -203,7 +198,7 @@ Filter.prototype.result = function () {
  * @constructor
  */
 function MaleFilter() {
-    this.gender = "male";
+    this.gender = 'male';
 }
 MaleFilter.prototype = Object.create(Filter.prototype);
 MaleFilter.prototype.result = function (friend) {
@@ -216,7 +211,7 @@ MaleFilter.prototype.result = function (friend) {
  * @constructor
  */
 function FemaleFilter() {
-    this.gender = "female";
+    this.gender = 'female';
 }
 FemaleFilter.prototype = Object.create(Filter.prototype);
 FemaleFilter.prototype.result = function (friend) {
